@@ -163,7 +163,7 @@ API Health: http://localhost:3000/api/health
  Entrega y cierre del proyecto
 
 👥 Equipo de Desarrollo
-RolNombreResponsabilidadesContactoProject Manager / Backend DevFrancisco CamposGestión proyecto, APIs, Base de datosfrancisco.campos@duocuc.clFrontend Dev / QA LeaderSebastian MellaInterfaces React, Testing, Calidadsebastian.mella@duocuc.clProduct Owner / ClienteAmaro AbateRequerimientos, Validaciónamaro@testheb.com
+RolNombre Responsabilidades Contacto Project Manager / Backend DevFrancisco CamposGestión proyecto, APIs, Base de datos f.campos@duocuc.cl Frontend Dev / QA LeaderSebastian MellaInterfaces React, Testing, Calidad seb.mella@duocuc.cl Product Owner / Cliente Amaro Abate Requerimientos, Validación amaro@testheb.com
 📚 Documentación
 📋 Gestión del Proyecto
 
@@ -227,7 +227,7 @@ Proyecto académico - Duoc UC
 Para consultas sobre el proyecto:
 
 Issues: GitHub Issues
-Email Equipo: francisco.campos@duocuc.cl
+Email Equipo: f.campos@duocuc.cl
 Cliente: amaro@testheb.com
 
 
