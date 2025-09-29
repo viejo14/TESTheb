@@ -1,0 +1,17 @@
+# Imágenes de Categorías
+
+Aquí van las imágenes predefinidas para las categorías:
+
+- colegios.jpg - Imágenes relacionadas con uniformes escolares
+- empresas.jpg - Imágenes de ropa corporativa y empresarial
+- mascotas.jpg - Imágenes de productos para mascotas
+- personalizado.jpg - Imágenes de diseños personalizados
+- deportes.jpg - Imágenes de ropa deportiva
+- eventos.jpg - Imágenes de productos para eventos
+- hogar.jpg - Imágenes de productos para el hogar
+- regalos.jpg - Imágenes de productos para regalos
+- uniformes.jpg - Imágenes de uniformes en general
+- accesorios.jpg - Imágenes de accesorios bordados
+- default.jpg - Imagen por defecto
+
+Estas imágenes son locales y optimizadas para producción.
