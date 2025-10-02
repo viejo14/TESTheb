@@ -1,0 +1,57 @@
+# EditorConfig - Configuración de formato de código
+# https://editorconfig.org
+
+# Configuración raíz
+root = true
+
+# Configuración por defecto para todos los archivos
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# JavaScript/TypeScript
+[*.{js,jsx,ts,tsx}]
+indent_style = space
+indent_size = 2
+max_line_length = 100
+
+# JSON
+[*.json]
+indent_style = space
+indent_size = 2
+
+# YAML
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Markdown
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# Package.json
+[package.json]
+indent_style = space
+indent_size = 2
+
+# SQL
+[*.sql]
+indent_style = space
+indent_size = 2
+
+# Makefiles siempre usan tabs
+[Makefile]
+indent_style = tab
+
+# Archivos de configuración
+[*.{env,env.*}]
+insert_final_newline = true
+
+# Windows batch files
+[*.{cmd,bat}]
+end_of_line = crlf

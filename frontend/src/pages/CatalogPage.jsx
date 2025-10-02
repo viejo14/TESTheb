@@ -251,20 +251,20 @@ const CatalogPage = () => {
               ))}
             </motion.div>
           ) : (
-            <div className="text-center py-16 px-8 bg-gray-50 rounded-xl">
+            <div className="text-center py-16 px-8 bg-red-600/50 rounded-xl">
               <div className="text-6xl mb-6 opacity-50">📦</div>
-              <h3 className="text-xl text-gray-800 mb-4">No se encontraron productos</h3>
-              <p className="text-gray-600 text-lg mb-8 max-w-lg mx-auto">
+              <h3 className="text-xl text-gray-100 mb-4">¡No queda ningun producto!</h3>
+              <p className="text-gray-300 text-lg mb-8 max-w-lg mx-auto">
                 {searchQuery
                   ? `No hay productos que coincidan con "${searchQuery}"`
                   : currentCategory
                   ? `No hay productos en la categoría "${currentCategory.name}"`
                   : 'No hay productos disponibles en este momento'
-                }
+                }           
               </p>
               {(searchQuery || currentCategory) && (
                 <button
-                  className="inline-block px-8 py-4 bg-bg-accent/80 text-text-primary no-underline rounded-full border-2 border-gray-500/30 font-medium transition-all duration-300 backdrop-blur-sm hover:border-yellow-400 hover:bg-bg-accent/90 hover:-translate-y-1 hover:shadow-lg hover:shadow-yellow-400/20"
+                  className="inline-block px-8 py-4 bg-bg-accent/80 text-text-primary no-underline rounded-full border-2 border-gray-600 font-medium transition-all duration-300 backdrop-blur-sm hover:border-yellow-400 hover:bg-bg-accent/90 hover:-translate-y-1 hover:shadow-lg hover:shadow-yellow-400/20"
                   onClick={clearFilters}
                 >
                   Ver todos los productos

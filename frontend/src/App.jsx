@@ -13,6 +13,9 @@ import PaymentReturnPage from './pages/PaymentReturnPage'
 import PaymentResultPage from './pages/PaymentResultPage'
 import AdminDashboard from './pages/AdminDashboard'
 import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 import PageTransition from './components/PageTransition'
 
 function App() {
@@ -82,7 +85,30 @@ const AnimatedRoutes = () => {
             </PageTransition>
           )}
         />
-        <Route path="/register" element={<PlaceholderPage title="Registrarse" />} />
+        <Route
+          path="/register"
+          element={(
+            <PageTransition>
+              <RegisterPage />
+            </PageTransition>
+          )}
+        />
+        <Route
+          path="/forgot-password"
+          element={(
+            <PageTransition>
+              <ForgotPasswordPage />
+            </PageTransition>
+          )}
+        />
+        <Route
+          path="/reset-password"
+          element={(
+            <PageTransition>
+              <ResetPasswordPage />
+            </PageTransition>
+          )}
+        />
 
         {/* Admin routes */}
         <Route

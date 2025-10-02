@@ -1,7 +1,9 @@
 import bcrypt from 'bcrypt'
+import crypto from 'crypto'
 import { query } from '../config/database.js'
 import logger from '../config/logger.js'
 import { generateToken, generateRefreshToken } from '../middleware/auth.js'
+import { sendPasswordResetEmail } from '../services/emailService.js'
 
 // Registrar nuevo usuario
 export const register = async (req, res) => {
@@ -431,6 +433,154 @@ export const logout = async (req, res) => {
 
   } catch (error) {
     logger.error('Error cerrando sesión:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    })
+  }
+}
+
+// Solicitar recuperación de contraseña
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body
+
+    // Validación básica
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email es requerido'
+      })
+    }
+
+    // Buscar usuario por email
+    const userResult = await query(
+      'SELECT id, name, email FROM users WHERE email = $1',
+      [email.toLowerCase()]
+    )
+
+    // Por seguridad, siempre retornamos el mismo mensaje aunque el email no exista
+    if (userResult.rows.length === 0) {
+      return res.json({
+        success: true,
+        message: 'Si el email existe, recibirás un enlace para restablecer tu contraseña'
+      })
+    }
+
+    const user = userResult.rows[0]
+
+    // Generar token aleatorio de 32 bytes
+    const resetToken = crypto.randomBytes(32).toString('hex')
+
+    // Hash del token para guardarlo en la base de datos
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+
+    // Expiración del token (1 hora)
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000)
+
+    // Guardar token en la base de datos
+    await query(
+      'UPDATE users SET password_reset_token = $1, password_reset_expires = $2, updated_at = NOW() WHERE id = $3',
+      [hashedToken, expiresAt, user.id]
+    )
+
+    // Enviar email con el enlace de recuperación
+    const emailResult = await sendPasswordResetEmail({
+      to: user.email,
+      name: user.name,
+      resetToken: resetToken
+    })
+
+    if (!emailResult.success) {
+      logger.error('Error enviando email de recuperación', {
+        userId: user.id,
+        email: user.email,
+        error: emailResult.error
+      })
+      // No retornamos error al usuario por seguridad
+    }
+
+    logger.info('Token de recuperación generado y email enviado', {
+      userId: user.id,
+      email: user.email,
+      emailSent: emailResult.success
+    })
+
+    res.json({
+      success: true,
+      message: 'Si el email existe, recibirás un enlace para restablecer tu contraseña'
+    })
+
+  } catch (error) {
+    logger.error('Error en solicitud de recuperación de contraseña:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    })
+  }
+}
+
+// Restablecer contraseña con token
+export const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body
+
+    // Validaciones básicas
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token y nueva contraseña son requeridos'
+      })
+    }
+
+    // Validar longitud de nueva contraseña
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'La nueva contraseña debe tener al menos 6 caracteres'
+      })
+    }
+
+    // Hash del token recibido para comparar con la base de datos
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
+
+    // Buscar usuario con el token válido y no expirado
+    const userResult = await query(
+      'SELECT id, name, email FROM users WHERE password_reset_token = $1 AND password_reset_expires > NOW()',
+      [hashedToken]
+    )
+
+    if (userResult.rows.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token inválido o expirado. Solicita un nuevo enlace de recuperación'
+      })
+    }
+
+    const user = userResult.rows[0]
+
+    // Hash de la nueva contraseña
+    const saltRounds = 12
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds)
+
+    // Actualizar contraseña y limpiar tokens de reset
+    await query(
+      'UPDATE users SET password_hash = $1, password_reset_token = NULL, password_reset_expires = NULL, updated_at = NOW() WHERE id = $2',
+      [hashedNewPassword, user.id]
+    )
+
+    logger.info('Contraseña restablecida exitosamente', {
+      userId: user.id,
+      email: user.email
+    })
+
+    res.json({
+      success: true,
+      message: 'Contraseña restablecida exitosamente. Ya puedes iniciar sesión con tu nueva contraseña'
+    })
+
+  } catch (error) {
+    logger.error('Error restableciendo contraseña:', error)
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor'

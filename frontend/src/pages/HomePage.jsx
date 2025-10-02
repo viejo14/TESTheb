@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import CategoryCarousel from '../components/CategoryCarousel'
 import ProductCard from '../components/ProductCard'
 import { fetchCategories, fetchProducts } from '../services/api'
@@ -11,6 +11,34 @@ const HomePage = () => {
   const [featuredProducts, setFeaturedProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [showWelcome, setShowWelcome] = useState(false)
+  const [userName, setUserName] = useState('')
+  const [isNewUser, setIsNewUser] = useState(false)
+
+  // Check for welcome message on mount
+  useEffect(() => {
+    const justLoggedIn = sessionStorage.getItem('justLoggedIn')
+    const name = sessionStorage.getItem('userName')
+    const newUser = sessionStorage.getItem('isNewUser')
+
+    if (justLoggedIn === 'true' && name) {
+      setShowWelcome(true)
+      setUserName(name)
+      setIsNewUser(newUser === 'true')
+
+      // Clear the flags
+      sessionStorage.removeItem('justLoggedIn')
+      sessionStorage.removeItem('userName')
+      sessionStorage.removeItem('isNewUser')
+
+      // Hide welcome message after 4 seconds
+      const timer = setTimeout(() => {
+        setShowWelcome(false)
+      }, 4000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [])
 
   useEffect(() => {
     const loadData = async () => {
@@ -71,8 +99,42 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen">
+      {/* Welcome Toast */}
+      <AnimatePresence>
+        {showWelcome && (
+          <motion.div
+            initial={{ opacity: 0, y: -100, x: '-50%' }}
+            animate={{ opacity: 1, y: 20 }}
+            exit={{ opacity: 0, y: -100 }}
+            transition={{ duration: 0.5, type: 'spring', bounce: 0.4 }}
+            className="fixed top-0 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4"
+          >
+            <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 rounded-lg shadow-2xl p-4 border-2 border-yellow-300">
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                  <span className="text-2xl">{isNewUser ? '🎉' : '👋'}</span>
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-lg">
+                    {isNewUser ? '¡Bienvenido a TESTheb!' : '¡Bienvenido de nuevo!'}
+                  </p>
+                  <p className="text-sm text-gray-800">{userName}</p>
+                </div>
+                <button
+                  onClick={() => setShowWelcome(false)}
+                  className="flex-shrink-0 text-gray-700 hover:text-gray-900 text-xl font-bold"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center text-center text-white overflow-hidden bg-fixed bg-cover bg-center bg-no-repeat" style={{background: "linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)), url('/banner_servicios.jpg')"}}>
+      <section className="relative min-h-screen flex items-center text-center text-white overflow-hidden bg-fixed bg-cover bg-center bg-no-repeat" 
+        style={{background: "linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)), url('/banner_servicios.jpg')"}}>
         <div className="relative z-10 max-w-6xl mx-auto px-5 w-full">
           <motion.img
             src="/testheb-logo.png"

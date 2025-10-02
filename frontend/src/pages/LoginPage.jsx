@@ -44,10 +44,15 @@ const LoginPage = () => {
     try {
       const result = await login(formData)
 
-      if (!result.success) {
+      if (result.success) {
+        // Guardar flag para mostrar mensaje de bienvenida en HomePage
+        sessionStorage.setItem('justLoggedIn', 'true')
+        sessionStorage.setItem('userName', result.user?.name || 'Usuario')
+        sessionStorage.setItem('isNewUser', 'false')
+        // La redirección se manejará automáticamente por el isAuthenticated
+      } else {
         setError(result.error || 'Error de inicio de sesión')
       }
-      // If successful, the AuthContext will handle the redirect
     } catch (error) {
       console.error('Login error:', error)
       setError('Error de conexión. Intenta nuevamente.')
@@ -128,6 +133,7 @@ const LoginPage = () => {
                 placeholder="admin@testheb.cl"
                 className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-yellow-400 focus:outline-none transition-colors duration-300"
                 required
+                disabled={loading}
               />
             </div>
 
@@ -144,7 +150,16 @@ const LoginPage = () => {
                 placeholder="••••••••"
                 className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-yellow-400 focus:outline-none transition-colors duration-300"
                 required
+                disabled={loading}
               />
+              <div className="text-right">
+                <a
+                  href="/forgot-password"
+                  className="text-yellow-400 hover:text-yellow-300 transition-colors text-sm"
+                >
+                  ¿Olvidaste tu contraseña?
+                </a>
+              </div>
             </div>
 
             {/* Error Message */}

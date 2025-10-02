@@ -5,7 +5,9 @@ import {
   getProfile,
   updateProfile,
   changePassword,
-  logout
+  logout,
+  forgotPassword,
+  resetPassword
 } from '../controllers/authController.js'
 import { authenticateToken } from '../middleware/auth.js'
 
@@ -14,6 +16,8 @@ const router = express.Router()
 // Rutas públicas (no requieren autenticación)
 router.post('/register', register)           // POST /api/auth/register - Registrar nuevo usuario
 router.post('/login', login)                 // POST /api/auth/login - Iniciar sesión
+router.post('/forgot-password', forgotPassword) // POST /api/auth/forgot-password - Solicitar recuperación de contraseña
+router.post('/reset-password', resetPassword)   // POST /api/auth/reset-password - Restablecer contraseña con token
 
 // Rutas protegidas (requieren autenticación)
 router.get('/profile', authenticateToken, getProfile)           // GET /api/auth/profile - Obtener perfil
