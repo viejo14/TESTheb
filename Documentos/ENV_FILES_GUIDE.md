@@ -232,24 +232,11 @@ git check-ignore backend/.env frontend/.env.development
 
 ---
 
-## 🔑 Credenciales Actuales (NO subir)
+## 🔑 Credenciales (NO incluir en documentación)
 
-**Backend (.env):**
-```env
-DB_PASSWORD=admin123
-JWT_SECRET=testheb-super-secret-key-2025
-EMAIL_USER=franciscocampos0754@gmail.com
-EMAIL_PASSWORD=hdgufefbhuquxyeu
-```
+⚠️ **NUNCA incluir credenciales reales en archivos de documentación.**
 
-**Frontend (.env.development + .env.local):**
-```env
-VITE_CLOUDINARY_CLOUD_NAME=dvmif7ngh
-VITE_CLOUDINARY_API_KEY=344177843931449
-VITE_CLOUDINARY_API_SECRET=OHOEEsFeZsqzCNaSOnr4WhpZP7c
-```
-
-⚠️ **Estas credenciales están seguras mientras NO se suban a GitHub.**
+Las credenciales reales solo deben estar en archivos `.env` locales que están en `.gitignore`.
 
 ---
 
