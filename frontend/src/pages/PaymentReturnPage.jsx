@@ -30,7 +30,7 @@ const PaymentReturnPage = () => {
         }
 
         // Confirmar la transacción con el backend
-        const response = await fetch('http://localhost:3000/api/payments/confirm', {
+        const response = await fetch('/api/payments/confirm', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

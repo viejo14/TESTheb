@@ -10,12 +10,14 @@ pnpm-debug.log*
 /backend/dist
 build/
 
-# Environment variables
+# Environment variables - NO subir archivos con credenciales reales
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*.local
+
+# Permitir solo archivos .example (plantillas sin credenciales)
+!.env.example
+!**/.env.example
 
 # IDE and editor files
 .vscode/
