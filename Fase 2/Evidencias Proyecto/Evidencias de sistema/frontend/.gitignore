@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment files - NO SUBIR CON CREDENCIALES REALES
+.env
+.env.local
+.env.*.local
+
+# Permitir SOLO archivos .example
+!.env.example

@@ -1,22 +1,22 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
-import { Navigate, useLocation } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 
-const LoginPage = () => {
-  const { login, isAuthenticated, user, loading: authLoading } = useAuth()
-  const location = useLocation()
+const RegisterPage = () => {
+  const { register, isAuthenticated, loading: authLoading } = useAuth()
   const [formData, setFormData] = useState({
+    name: '',
     email: '',
-    password: ''
+    password: '',
+    confirmPassword: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   // Redirect if already authenticated
-  if (isAuthenticated && user) {
-    const from = location.state?.from?.pathname || '/'
-    return <Navigate to={from} replace />
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />
   }
 
   const handleChange = (e) => {
@@ -35,26 +35,41 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!formData.email || !formData.password) {
+    // Validations
+    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
       setError('Por favor, completa todos los campos')
+      return
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Las contraseñas no coinciden')
+      return
+    }
+
+    if (formData.password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres')
       return
     }
 
     setLoading(true)
     try {
-      const result = await login(formData)
+      const result = await register({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password
+      })
 
       if (result.success) {
-        // Guardar flag para mostrar mensaje de bienvenida en HomePage
+        // Guardar flag para mostrar mensaje de bienvenida
         sessionStorage.setItem('justLoggedIn', 'true')
         sessionStorage.setItem('userName', result.user?.name || 'Usuario')
-        sessionStorage.setItem('isNewUser', 'false')
-        // La redirección se manejará automáticamente por el isAuthenticated
+        sessionStorage.setItem('isNewUser', 'true')
+        // Redirect will be handled by AuthContext
       } else {
-        setError(result.error || 'Error de inicio de sesión')
+        setError(result.error || 'Error en el registro')
       }
     } catch (error) {
-      console.error('Login error:', error)
+      console.error('Register error:', error)
       setError('Error de conexión. Intenta nuevamente.')
     } finally {
       setLoading(false)
@@ -66,7 +81,7 @@ const LoginPage = () => {
       <div className="min-h-screen pt-40 pb-8 bg-gradient-to-br from-bg-primary to-bg-secondary">
         <div className="flex flex-col items-center justify-center min-h-96">
           <div className="w-16 h-16 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p className="text-text-primary text-lg">Verificando sesión...</p>
+          <p className="text-text-primary text-lg">Cargando...</p>
         </div>
       </div>
     )
@@ -89,37 +104,38 @@ const LoginPage = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <h1 className="text-2xl font-bold text-white mb-2">
-              Iniciar Sesión
+              Crear Cuenta
             </h1>
             <p className="text-gray-400">
-              Accede a tu cuenta de TESTheb
+              Únete a TESTheb y personaliza tus productos
             </p>
           </motion.div>
 
-          {/* Admin Test Credentials */}
-          <motion.div
-            className="bg-yellow-400/20 border border-yellow-400 rounded-lg p-4 mb-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <h3 className="text-yellow-400 font-medium text-sm mb-2">Credenciales de prueba:</h3>
-            <div className="text-white text-sm space-y-1">
-              <p><strong>Admin:</strong> admin@testheb.cl</p>
-              <p><strong>Contraseña:</strong> admin123</p>
-              <p><strong>Cliente:</strong> cliente@testheb.cl</p>
-              <p><strong>Contraseña:</strong> password</p>
-            </div>
-          </motion.div>
-
-          {/* Login Form */}
+          {/* Register Form */}
           <motion.form
             onSubmit={handleSubmit}
             className="space-y-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
           >
+            {/* Name */}
+            <div>
+              <label className="block text-white text-sm font-medium mb-2">
+                Nombre Completo
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Juan Pérez"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-yellow-400 focus:outline-none transition-colors duration-300"
+                required
+                disabled={loading}
+              />
+            </div>
+
             {/* Email */}
             <div>
               <label className="block text-white text-sm font-medium mb-2">
@@ -130,7 +146,7 @@ const LoginPage = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="admin@testheb.cl"
+                placeholder="tu@email.com"
                 className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-yellow-400 focus:outline-none transition-colors duration-300"
                 required
                 disabled={loading}
@@ -152,14 +168,26 @@ const LoginPage = () => {
                 required
                 disabled={loading}
               />
-              <div className="text-right">
-                <a
-                  href="/forgot-password"
-                  className="text-yellow-400 hover:text-yellow-300 transition-colors text-sm"
-                >
-                  ¿Olvidaste tu contraseña?
-                </a>
-              </div>
+              <p className="text-gray-400 text-xs mt-1">
+                Mínimo 6 caracteres
+              </p>
+            </div>
+
+            {/* Confirm Password */}
+            <div>
+              <label className="block text-white text-sm font-medium mb-2">
+                Confirmar Contraseña
+              </label>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="••••••••"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-yellow-400 focus:outline-none transition-colors duration-300"
+                required
+                disabled={loading}
+              />
             </div>
 
             {/* Error Message */}
@@ -185,10 +213,10 @@ const LoginPage = () => {
               {loading ? (
                 <div className="flex items-center justify-center gap-2">
                   <div className="w-4 h-4 border-2 border-bg-primary border-t-transparent rounded-full animate-spin"></div>
-                  Iniciando sesión...
+                  Creando cuenta...
                 </div>
               ) : (
-                '🔐 Iniciar Sesión'
+                '✨ Crear Cuenta'
               )}
             </motion.button>
           </motion.form>
@@ -198,12 +226,12 @@ const LoginPage = () => {
             className="mt-6 text-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
           >
             <p className="text-gray-400 text-sm">
-              ¿No tienes cuenta?{' '}
-              <a href="/register" className="text-yellow-400 hover:text-yellow-300 transition-colors">
-                Regístrate aquí
+              ¿Ya tienes cuenta?{' '}
+              <a href="/login" className="text-yellow-400 hover:text-yellow-300 transition-colors">
+                Inicia sesión aquí
               </a>
             </p>
           </motion.div>
@@ -213,4 +241,4 @@ const LoginPage = () => {
   )
 }
 
-export default LoginPage
+export default RegisterPage
