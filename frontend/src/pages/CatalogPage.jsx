@@ -119,7 +119,7 @@ const CatalogPage = () => {
 
   return (
     <div className="min-h-screen pt-40 pb-8 bg-gradient-to-br from-bg-primary to-bg-secondary">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-8xl mx-auto px-4">
         {/* Page Header */}
         <motion.div
           className="text-center mb-12"

@@ -133,8 +133,17 @@ const HomePage = () => {
       </AnimatePresence>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center text-center text-white overflow-hidden bg-fixed bg-cover bg-center bg-no-repeat" 
-        style={{background: "linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)), url('/banner_servicios.jpg')"}}>
+      <section className="relative min-h-screen flex items-center text-center text-white overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 w-full h-full">
+          <img
+            src="/banner_servicios.jpg"
+            alt="Banner"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40"></div>
+        </div>
+
         <div className="relative z-10 max-w-6xl mx-auto px-5 w-full">
           <motion.img
             src="/testheb-logo.png"
@@ -187,7 +196,7 @@ const HomePage = () => {
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
       >
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-8xl mx-auto px-4">
           <motion.h2
             className="text-3xl md:text-4xl font-bold text-center text-text-primary mb-4"
             initial={{ opacity: 0, y: 30 }}
@@ -227,7 +236,7 @@ const HomePage = () => {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <div className="max-w-7xl mx-auto px-4">
+          <div className="max-w-8xl mx-auto px-4">
             <motion.h2
               className="text-3xl md:text-4xl font-bold text-center text-text-primary mb-4"
               initial={{ opacity: 0, y: 30 }}
@@ -296,7 +305,7 @@ const HomePage = () => {
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
       >
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-8xl mx-auto px-4">
           <motion.h2
             className="text-3xl md:text-4xl font-bold text-center text-text-primary mb-12"
             initial={{ opacity: 0, y: 30 }}

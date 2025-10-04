@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { createProduct, updateProduct } from '../../services/api'
-import { uploadProductImage, validateImageFile } from '../../services/cloudinaryService'
+import { uploadProductImage, uploadProductImageLocal } from '../../services/uploadService'
 
 const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => {
   const [formData, setFormData] = useState({
@@ -15,7 +15,7 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
   })
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
-  const [imageUploadType, setImageUploadType] = useState('url') // 'url' or 'upload'
+  const [imageUploadType, setImageUploadType] = useState('url') // 'cloudinary', 'local', or 'url'
   const [uploadProgress, setUploadProgress] = useState(false)
   const [uploadedImage, setUploadedImage] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
@@ -192,13 +192,19 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
     }
   }
 
-  // Cloudinary image upload functions
+  // Image upload functions
   const handleFileUpload = async (file) => {
     if (!file) return
 
-    const validation = validateImageFile(file)
-    if (!validation.isValid) {
-      setErrors({ image: validation.errors.join(', ') })
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/')) {
+      setErrors({ image: 'Solo se permiten archivos de imagen' })
+      return
+    }
+
+    // Validar tamaño (10MB máximo para productos)
+    if (file.size > 10 * 1024 * 1024) {
+      setErrors({ image: 'La imagen no puede ser mayor a 10MB' })
       return
     }
 
@@ -206,14 +212,17 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
     setErrors({ image: '' })
 
     try {
-      const response = await uploadProductImage(file)
+      // Usar la función correcta según el tipo seleccionado
+      const response = imageUploadType === 'cloudinary'
+        ? await uploadProductImage(file)
+        : await uploadProductImageLocal(file)
 
       if (response.success) {
         setUploadedImage(response.data)
         setImagePreview(URL.createObjectURL(file))
         setFormData(prev => ({ ...prev, image_url: response.data.imageUrl }))
       } else {
-        setErrors({ image: response.error || 'Error subiendo la imagen' })
+        setErrors({ image: response.message || 'Error subiendo la imagen' })
       }
     } catch (error) {
       console.error('Error uploading image:', error)
@@ -246,7 +255,7 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
     setUploadedImage(null)
     setImagePreview(null)
     setFormData(prev => ({ ...prev, image_url: '' }))
-    if (imageUploadType === 'upload') {
+    if (imageUploadType === 'cloudinary' || imageUploadType === 'local') {
       setImageUploadType('url')
     }
   }
@@ -426,19 +435,33 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
             </label>
 
             {/* Image Type Selector */}
-            <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
               <label className="flex items-center p-3 border border-gray-600 rounded-lg cursor-pointer hover:border-yellow-400 transition-colors">
                 <input
                   type="radio"
                   name="imageUploadType"
-                  value="upload"
-                  checked={imageUploadType === 'upload'}
+                  value="cloudinary"
+                  checked={imageUploadType === 'cloudinary'}
                   onChange={(e) => setImageUploadType(e.target.value)}
                   className="mr-3"
                 />
                 <div>
-                  <span className="text-white text-sm font-medium block">📤 Subir imagen</span>
-                  <span className="text-gray-400 text-xs">Cloudinary</span>
+                  <span className="text-white text-sm font-medium block">☁️ Cloudinary</span>
+                  <span className="text-gray-400 text-xs">Subir a nube</span>
+                </div>
+              </label>
+              <label className="flex items-center p-3 border border-gray-600 rounded-lg cursor-pointer hover:border-yellow-400 transition-colors">
+                <input
+                  type="radio"
+                  name="imageUploadType"
+                  value="local"
+                  checked={imageUploadType === 'local'}
+                  onChange={(e) => setImageUploadType(e.target.value)}
+                  className="mr-3"
+                />
+                <div>
+                  <span className="text-white text-sm font-medium block">📤 Agregar localmente</span>
+                  <span className="text-gray-400 text-xs">Desde PC</span>
                 </div>
               </label>
               <label className="flex items-center p-3 border border-gray-600 rounded-lg cursor-pointer hover:border-yellow-400 transition-colors">
@@ -458,7 +481,7 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
             </div>
 
             {/* File Upload Section */}
-            {imageUploadType === 'upload' && (
+            {(imageUploadType === 'cloudinary' || imageUploadType === 'local') && (
               <div>
                 {/* Upload Area */}
                 {!uploadedImage && (
@@ -471,7 +494,9 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
                     {uploadProgress ? (
                       <div className="space-y-3">
                         <div className="w-8 h-8 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                        <p className="text-yellow-400">Subiendo imagen a Cloudinary...</p>
+                        <p className="text-yellow-400">
+                          {imageUploadType === 'cloudinary' ? 'Subiendo imagen a Cloudinary...' : 'Subiendo imagen local...'}
+                        </p>
                       </div>
                     ) : (
                       <div className="space-y-3">
@@ -522,7 +547,9 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
                     </div>
                     <div className="mt-2 text-xs text-gray-400">
                       <p>📁 {uploadedImage.filename}</p>
-                      <p>🔗 Alojado en Cloudinary</p>
+                      <p>
+                        {imageUploadType === 'cloudinary' ? '☁️ Alojado en Cloudinary' : '💾 Guardado localmente'}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -547,7 +574,7 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
                 )}
 
                 {/* URL Image Preview */}
-                {formData.image_url && !errors.image_url && imageUploadType === 'url' && (
+                {formData.image_url && !errors.image_url && (
                   <div className="mt-3">
                     <p className="text-sm text-gray-400 mb-2">Vista previa:</p>
                     <div className="w-32 h-32 rounded-lg overflow-hidden bg-gray-700">

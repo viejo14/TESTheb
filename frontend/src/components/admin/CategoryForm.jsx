@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { createCategory, updateCategory } from '../../services/api'
 import { CATEGORY_IMAGE_OPTIONS, getCategoryImage } from '../../data/categoryImages'
-import { uploadCategoryImage } from '../../services/uploadService'
+import { uploadCategoryImage, uploadCategoryImageLocal } from '../../services/uploadService'
 
 const CategoryForm = ({ category, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     name: '',
     image_url: '',
-    selectedImageType: 'predefined' // 'predefined', 'custom', or 'upload'
+    selectedImageType: 'predefined' // 'predefined', 'cloudinary', 'local', or 'custom'
   })
   const [selectedPredefinedImage, setSelectedPredefinedImage] = useState('default')
   const [uploadedImage, setUploadedImage] = useState(null)
@@ -21,16 +21,26 @@ const CategoryForm = ({ category, onClose, onSuccess }) => {
 
   useEffect(() => {
     if (category) {
-      const isCustomUrl = category.image_url && category.image_url.startsWith('http')
+      const isCloudinaryUrl = category.image_url && category.image_url.includes('cloudinary.com')
       const isLocalImage = category.image_url && category.image_url.startsWith('/images/categories/')
+      const isCustomUrl = category.image_url && category.image_url.startsWith('http') && !isCloudinaryUrl
+
+      let imageType = 'predefined'
+      if (isLocalImage) {
+        imageType = 'local'
+      } else if (isCloudinaryUrl) {
+        imageType = 'cloudinary'
+      } else if (isCustomUrl) {
+        imageType = 'custom'
+      }
 
       setFormData({
         name: category.name || '',
         image_url: category.image_url || '',
-        selectedImageType: isLocalImage ? 'upload' : (isCustomUrl ? 'custom' : 'predefined')
+        selectedImageType: imageType
       })
 
-      if (isLocalImage) {
+      if (isLocalImage || isCloudinaryUrl) {
         setUploadedImage({ imageUrl: category.image_url })
       } else if (!isCustomUrl) {
         // Determinar qué imagen predefinida corresponde
@@ -85,7 +95,11 @@ const CategoryForm = ({ category, onClose, onSuccess }) => {
     setErrors({ image: '' })
 
     try {
-      const response = await uploadCategoryImage(file)
+      // Usar la función correcta según el tipo seleccionado
+      const response = formData.selectedImageType === 'cloudinary'
+        ? await uploadCategoryImage(file)
+        : await uploadCategoryImageLocal(file)
+
       setUploadedImage(response.data)
       setImagePreview(URL.createObjectURL(file))
     } catch (error) {
@@ -118,7 +132,7 @@ const CategoryForm = ({ category, onClose, onSuccess }) => {
   const removeUploadedImage = () => {
     setUploadedImage(null)
     setImagePreview(null)
-    if (formData.selectedImageType === 'upload') {
+    if (formData.selectedImageType === 'cloudinary' || formData.selectedImageType === 'local') {
       setFormData(prev => ({ ...prev, selectedImageType: 'predefined' }))
     }
   }
@@ -139,8 +153,8 @@ const CategoryForm = ({ category, onClose, onSuccess }) => {
         // Usar imagen predefinida
         const selectedOption = CATEGORY_IMAGE_OPTIONS.find(opt => opt.key === selectedPredefinedImage)
         finalImageUrl = selectedOption?.preview || null
-      } else if (formData.selectedImageType === 'upload') {
-        // Usar imagen subida
+      } else if (formData.selectedImageType === 'cloudinary' || formData.selectedImageType === 'local') {
+        // Usar imagen subida (Cloudinary o Local)
         finalImageUrl = uploadedImage?.imageUrl || null
       } else {
         // Usar URL personalizada
@@ -241,7 +255,7 @@ const CategoryForm = ({ category, onClose, onSuccess }) => {
             <label className="block text-white text-sm font-medium mb-3">
               Tipo de Imagen
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
               <label className="flex items-center p-3 border border-gray-600 rounded-lg cursor-pointer hover:border-yellow-400 transition-colors">
                 <input
                   type="radio"
@@ -260,14 +274,28 @@ const CategoryForm = ({ category, onClose, onSuccess }) => {
                 <input
                   type="radio"
                   name="selectedImageType"
-                  value="upload"
-                  checked={formData.selectedImageType === 'upload'}
+                  value="cloudinary"
+                  checked={formData.selectedImageType === 'cloudinary'}
                   onChange={handleChange}
                   className="mr-3"
                 />
                 <div>
-                  <span className="text-white text-sm font-medium block">📤 Subir imagen</span>
-                  <span className="text-gray-400 text-xs">Personalizada</span>
+                  <span className="text-white text-sm font-medium block">☁️ Cloudinary</span>
+                  <span className="text-gray-400 text-xs">Subir a nube</span>
+                </div>
+              </label>
+              <label className="flex items-center p-3 border border-gray-600 rounded-lg cursor-pointer hover:border-yellow-400 transition-colors">
+                <input
+                  type="radio"
+                  name="selectedImageType"
+                  value="local"
+                  checked={formData.selectedImageType === 'local'}
+                  onChange={handleChange}
+                  className="mr-3"
+                />
+                <div>
+                  <span className="text-white text-sm font-medium block">📤 Agregar localmente</span>
+                  <span className="text-gray-400 text-xs">Desde PC</span>
                 </div>
               </label>
               <label className="flex items-center p-3 border border-gray-600 rounded-lg cursor-pointer hover:border-yellow-400 transition-colors">
@@ -323,10 +351,10 @@ const CategoryForm = ({ category, onClose, onSuccess }) => {
             )}
 
             {/* File Upload Section */}
-            {formData.selectedImageType === 'upload' && (
+            {(formData.selectedImageType === 'cloudinary' || formData.selectedImageType === 'local') && (
               <div>
                 <label className="block text-white text-sm font-medium mb-2">
-                  Subir imagen personalizada
+                  {formData.selectedImageType === 'cloudinary' ? 'Subir imagen a Cloudinary' : 'Subir imagen local'}
                 </label>
 
                 {/* Upload Area */}
@@ -427,11 +455,11 @@ const CategoryForm = ({ category, onClose, onSuccess }) => {
             {/* Image Preview */}
             {((formData.selectedImageType === 'predefined' && selectedPredefinedImage) ||
               (formData.selectedImageType === 'custom' && formData.image_url && !errors.image_url) ||
-              (formData.selectedImageType === 'upload' && uploadedImage)) && (
+              ((formData.selectedImageType === 'cloudinary' || formData.selectedImageType === 'local') && uploadedImage)) && (
               <div className="mt-4">
                 <p className="text-sm text-gray-400 mb-2">Vista previa final:</p>
                 <div className="w-full h-32 rounded-lg overflow-hidden bg-gray-700">
-                  {formData.selectedImageType === 'upload' && imagePreview ? (
+                  {(formData.selectedImageType === 'cloudinary' || formData.selectedImageType === 'local') && imagePreview ? (
                     <img
                       src={imagePreview}
                       alt="Vista previa"
