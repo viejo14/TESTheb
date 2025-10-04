@@ -199,7 +199,7 @@ const Header = () => {
           : 'bg-bg-primary/90 backdrop-blur-sm'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-6 py-5 lg:py-8">
           <div className="flex items-center justify-between gap-4">
             <Link to="/" className="flex items-center gap-3 text-decoration-none group">

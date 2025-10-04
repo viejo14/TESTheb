@@ -226,6 +226,42 @@ export const commitTransaction = catchAsync(async (req, res) => {
           ])
 
           logger.info('💾 Orden actualizada en DB', { buyOrder: response.buy_order, status })
+
+          // Si el pago fue autorizado, crear order_items
+          if (status === 'authorized') {
+            try {
+              // Obtener el ID de la orden y los items
+              const orderResult = await query(
+                'SELECT id, items FROM orders WHERE buy_order = $1',
+                [response.buy_order]
+              )
+
+              if (orderResult.rows.length > 0) {
+                const order = orderResult.rows[0]
+                const items = order.items || [] // Ya viene parseado desde PostgreSQL (JSONB)
+
+                // Insertar cada item en order_items
+                for (const item of items) {
+                  await query(`
+                    INSERT INTO order_items (order_id, product_id, quantity, price, created_at)
+                    VALUES ($1, $2, $3, $4, NOW())
+                  `, [
+                    order.id,
+                    item.id || item.product_id,
+                    item.quantity,
+                    parseFloat(item.price) // price puede venir como string
+                  ])
+                }
+
+                logger.info('✅ Order items creados en DB', {
+                  buyOrder: response.buy_order,
+                  itemsCount: items.length
+                })
+              }
+            } catch (itemsError) {
+              logger.error('❌ Error creando order_items:', itemsError)
+            }
+          }
         } catch (dbError) {
           logger.error('❌ Error actualizando orden en DB:', dbError)
         }

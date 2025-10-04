@@ -349,7 +349,7 @@ export const sendQuoteNotificationEmail = async ({ quoteName, quoteEmail, quoteP
                             <table role="presentation">
                               <tr>
                                 <td style="border-radius: 6px; background-color: #fbbf24;">
-                                  <a href="${frontendUrl}/admin/dashboard?tab=cotizaciones&id=${quoteId}" target="_blank" style="display: inline-block; padding: 14px 28px; color: #1a1a1a; text-decoration: none; font-weight: bold; font-size: 15px;">
+                                  <a href="${frontendUrl}/admin?tab=cotizaciones" target="_blank" style="display: inline-block; padding: 14px 28px; color: #1a1a1a; text-decoration: none; font-weight: bold; font-size: 15px;">
                                     📊 Ver en Panel Admin
                                   </a>
                                 </td>
@@ -415,7 +415,7 @@ export const sendQuoteNotificationEmail = async ({ quoteName, quoteEmail, quoteP
         ${quoteMessage}
 
         ACCIONES:
-        - Ver en panel admin: ${frontendUrl}/admin/dashboard?tab=cotizaciones&id=${quoteId}
+        - Ver en panel admin: ${frontendUrl}/admin?tab=cotizaciones
         - Responder al cliente: ${quoteEmail}
 
         Saludos,

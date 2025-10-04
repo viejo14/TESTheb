@@ -8,6 +8,7 @@ import HomePage from './pages/HomePage'
 import CatalogPage from './pages/CatalogPage'
 import ProductDetailPage from './pages/ProductDetailPage'
 import AboutPage from './pages/AboutPage'
+import ContactPage from './pages/ContactPage'
 import CartPage from './pages/CartPage'
 import CheckoutPage from './pages/CheckoutPage'
 import PaymentReturnPage from './pages/PaymentReturnPage'
@@ -78,7 +79,14 @@ const AnimatedRoutes = () => {
             </PageTransition>
           )}
         />
-        <Route path="/contact" element={<PlaceholderPage title="Contacto" />} />
+        <Route
+          path="/contact"
+          element={(
+            <PageTransition>
+              <ContactPage />
+            </PageTransition>
+          )}
+        />
         <Route
           path="/login"
           element={(

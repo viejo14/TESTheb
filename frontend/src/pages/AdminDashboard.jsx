@@ -1,15 +1,25 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useSearchParams } from 'react-router-dom'
 import { useAdminData } from '../hooks/useAdminData'
 import ProductsManager from '../components/admin/ProductsManager'
 import CategoriesManager from '../components/admin/CategoriesManager'
+import CotizacionesManager from '../components/admin/CotizacionesManager'
 import DashboardStats from '../components/admin/DashboardStats'
 
 const AdminDashboard = () => {
   const { user, isAuthenticated } = useAuth()
+  const [searchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState('dashboard')
+
+  // Leer el parámetro 'tab' de la URL al cargar
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')
+    if (tabParam && ['dashboard', 'products', 'categories', 'cotizaciones'].includes(tabParam)) {
+      setActiveTab(tabParam)
+    }
+  }, [searchParams])
 
   // Use admin data hook without auto-refresh (manual refresh only)
   const adminData = useAdminData()
@@ -22,7 +32,8 @@ const AdminDashboard = () => {
   const tabs = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
     { id: 'products', name: 'Productos', icon: '🛍️' },
-    { id: 'categories', name: 'Categorías', icon: '📂' }
+    { id: 'categories', name: 'Categorías', icon: '📂' },
+    { id: 'cotizaciones', name: 'Cotizaciones', icon: '📝' }
   ]
 
   if (adminData.loading) {
@@ -55,12 +66,10 @@ const AdminDashboard = () => {
                 Bienvenido, {user?.name}
               </p>
             </div>
-            <motion.button
+            <button
               onClick={() => adminData.refreshData()}
               disabled={adminData.isRefreshing}
-              className="mt-4 md:mt-0 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors duration-300 flex items-center gap-2 mx-auto md:mx-0"
-              whileHover={!adminData.isRefreshing ? { scale: 1.05 } : {}}
-              whileTap={!adminData.isRefreshing ? { scale: 0.95 } : {}}
+              className="mt-4 md:mt-0 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-all duration-200 flex items-center gap-2 mx-auto md:mx-0 enabled:hover:scale-105 enabled:active:scale-95"
             >
               {adminData.isRefreshing ? (
                 <>
@@ -70,7 +79,7 @@ const AdminDashboard = () => {
               ) : (
                 <>🔄 Actualizar Datos</>
               )}
-            </motion.button>
+            </button>
           </div>
         </motion.div>
 
@@ -107,11 +116,7 @@ const AdminDashboard = () => {
           transition={{ duration: 0.4 }}
         >
           {activeTab === 'dashboard' && (
-            <DashboardStats
-              products={adminData.products}
-              categories={adminData.categories}
-              lastRefresh={adminData.lastRefresh}
-            />
+            <DashboardStats />
           )}
 
           {activeTab === 'products' && (
@@ -129,6 +134,10 @@ const AdminDashboard = () => {
               onRefresh={adminData.refreshData}
               adminData={adminData}
             />
+          )}
+
+          {activeTab === 'cotizaciones' && (
+            <CotizacionesManager />
           )}
         </motion.div>
       </div>

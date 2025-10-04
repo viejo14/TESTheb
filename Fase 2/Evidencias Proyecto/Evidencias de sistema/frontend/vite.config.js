@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
     server: {
       host: '0.0.0.0', // Permite acceso desde la red local
       port: 5173,
-      allowedHosts: ['nonoptional-rohan-undefaulting.ngrok-free.dev'], // Permitir acceso desde ngrok
+      allowedHosts: 'all', // Permitir acceso desde cualquier tunnel (ngrok, cloudflare, localtunnel, etc)
       proxy: {
         '/api': {
           target: env.VITE_BACKEND_URL || 'http://192.168.100.40:3000', // IP local de tu PC

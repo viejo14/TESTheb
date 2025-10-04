@@ -60,14 +60,12 @@ const CategoriesManager = ({ categories, onRefresh }) => {
               Administra las categorías de productos. Total: {categories.length} categorías
             </p>
           </div>
-          <motion.button
-            className="px-6 py-3 bg-yellow-400 text-bg-primary font-bold rounded-lg hover:bg-yellow-300 transition-colors duration-300"
+          <button
+            className="px-6 py-3 bg-yellow-400 text-bg-primary font-bold rounded-lg hover:bg-yellow-300 transition-all duration-200 hover:scale-105 active:scale-95"
             onClick={handleAddCategory}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
           >
             ➕ Agregar Categoría
-          </motion.button>
+          </button>
         </div>
       </motion.div>
 
@@ -81,11 +79,10 @@ const CategoriesManager = ({ categories, onRefresh }) => {
         {categories.map((category, index) => (
           <motion.div
             key={category.id}
-            className="bg-bg-primary/80 border-2 border-gray-500/30 rounded-xl p-6 backdrop-blur-sm min-h-[400px] flex flex-col"
+            className="bg-bg-primary/80 border-2 border-gray-500/30 hover:border-yellow-400/50 rounded-xl p-6 backdrop-blur-sm min-h-[400px] flex flex-col transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-lg"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: index * 0.1 }}
-            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.3 }}
           >
             {/* Category Image */}
             <div className="aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700 flex-shrink-0">
@@ -137,22 +134,18 @@ const CategoriesManager = ({ categories, onRefresh }) => {
 
               {/* Action Buttons */}
               <div className="flex gap-2 mt-auto">
-              <motion.button
-                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 font-medium"
+              <button
+                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium hover:scale-105 active:scale-95"
                 onClick={() => handleEditCategory(category)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
               >
                 ✏️ Editar
-              </motion.button>
-              <motion.button
-                className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-300 font-medium"
+              </button>
+              <button
+                className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 font-medium hover:scale-105 active:scale-95"
                 onClick={() => setDeleteConfirm(category)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
               >
                 🗑️ Eliminar
-              </motion.button>
+              </button>
               </div>
             </div>
           </motion.div>
@@ -171,14 +164,12 @@ const CategoriesManager = ({ categories, onRefresh }) => {
           <p className="text-gray-400 text-lg mb-8">
             Crea tu primera categoría para organizar tus productos
           </p>
-          <motion.button
-            className="px-8 py-4 bg-yellow-400 text-bg-primary font-bold rounded-lg hover:bg-yellow-300 transition-colors duration-300"
+          <button
+            className="px-8 py-4 bg-yellow-400 text-bg-primary font-bold rounded-lg hover:bg-yellow-300 transition-all duration-200 hover:scale-105 active:scale-95"
             onClick={handleAddCategory}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
           >
             ➕ Crear primera categoría
-          </motion.button>
+          </button>
         </motion.div>
       )}
 

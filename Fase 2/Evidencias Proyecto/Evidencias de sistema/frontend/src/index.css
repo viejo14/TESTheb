@@ -145,3 +145,28 @@
   background-color: var(--bg-primary) !important;
   color: var(--text-primary) !important;
 }
+
+/* Performance optimizations */
+.group:hover {
+  will-change: transform, border-color, box-shadow;
+}
+
+img {
+  will-change: transform;
+}
+
+button:hover {
+  will-change: transform, background-color, box-shadow;
+}
+
+/* Smooth hardware-accelerated animations */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[class*="hover:"]:hover,
+[class*="transition"] {
+  backface-visibility: hidden;
+  perspective: 1000px;
+}

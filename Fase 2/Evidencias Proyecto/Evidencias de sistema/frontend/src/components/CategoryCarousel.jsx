@@ -100,7 +100,7 @@ const CategoryCarousel = ({ categories = [] }) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="relative w-full h-96 overflow-hidden rounded-3xl shadow-2xl">
+  <div className="relative w-full h-80 md:h-64 md:h-[520px] lg:h-[640px] xl:h-[720px] overflow-hidden rounded-3xl shadow-2xl">
         {/* Navigation Buttons */}
         {totalSlides > slidesToShow && (
           <>
@@ -147,7 +147,7 @@ const CategoryCarousel = ({ categories = [] }) => {
                     className="w-full h-full object-cover transition-transform duration-600 group-hover:scale-110"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-black/10 to-black/60 flex items-end p-8 transition-all duration-300 group-hover:from-black/50 group-hover:via-black/20 group-hover:to-black/70">
+                  <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-black/10 to-black/60 flex items-end p-10 transition-all duration-300 group-hover:from-black/50 group-hover:via-black/20 group-hover:to-black/70">
                     <div className="text-white text-left transform translate-y-2.5 transition-transform duration-300 group-hover:translate-y-0">
                       <h3 className="text-3xl font-bold mb-2 text-white text-shadow-lg">
                         {category.name}
@@ -169,14 +169,14 @@ const CategoryCarousel = ({ categories = [] }) => {
 
       {/* Pagination Dots */}
       {totalSlides > slidesToShow && (
-        <div className="flex justify-center items-center gap-3 mt-4">
+        <div className="flex justify-center items-center gap-3 mt-6 p-2">
           {Array.from({ length: totalSlides - slidesToShow + 1 }).map((_, index) => (
             <button
               key={index}
               className={`w-3 h-3 rounded-full border-0 cursor-pointer transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
                 currentIndex === index
-                  ? 'bg-primary-500 scale-125 shadow-lg shadow-primary-500/30'
-                  : 'bg-black/20 hover:bg-black/40 hover:scale-110'
+                  ? 'bg-yellow-700 scale-125 '
+                  : 'bg-yellow-400 hover:bg-yellow-100 hover:scale-110'
               }`}
               onClick={() => goToSlide(index)}
               aria-label={`Ir a la página ${index + 1}`}

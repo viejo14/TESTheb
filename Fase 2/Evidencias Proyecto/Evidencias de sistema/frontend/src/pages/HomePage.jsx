@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import CategoryCarousel from '../components/CategoryCarousel'
 import ProductCard from '../components/ProductCard'
+import CotizacionForm from '../components/CotizacionForm'
 import { fetchCategories, fetchProducts } from '../services/api'
 import { HiStar, HiColorSwatch, HiLightBulb, HiBriefcase } from 'react-icons/hi'
 
@@ -14,6 +15,7 @@ const HomePage = () => {
   const [showWelcome, setShowWelcome] = useState(false)
   const [userName, setUserName] = useState('')
   const [isNewUser, setIsNewUser] = useState(false)
+  const [showCotizacionForm, setShowCotizacionForm] = useState(false)
 
   // Check for welcome message on mount
   useEffect(() => {
@@ -132,27 +134,42 @@ const HomePage = () => {
         )}
       </AnimatePresence>
 
+      {/* Cotizacion Form Modal */}
+      {showCotizacionForm && (
+        <CotizacionForm
+          onClose={() => setShowCotizacionForm(false)}
+          onSuccess={() => {
+            setShowCotizacionForm(false)
+          }}
+        />
+      )}
+
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center text-center text-white overflow-hidden bg-fixed bg-cover bg-center bg-no-repeat" 
-        style={{background: "linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)), url('/banner_servicios.jpg')"}}>
+      <section className="relative min-h-screen flex items-center text-center text-white overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 w-full h-full">
+          <img
+            src="/banner_servicios.jpg"
+            alt="Banner"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40"></div>
+        </div>
+
         <div className="relative z-10 max-w-6xl mx-auto px-5 w-full">
           <motion.img
             src="/testheb-logo.png"
             alt="TESTheb Logo"
-            className="h-45 w-45 mb-8 object-cover rounded-full border-2 border-white shadow-2xl mx-auto"
+            className="h-45 w-45 mb-8 object-cover rounded-full border-2 border-white shadow-2xl mx-auto transition-all duration-200 ease-out hover:scale-105 hover:shadow-[0_0_40px_rgba(251,191,36,0.8),0_0_80px_rgba(251,191,36,0.6),0_12px_35px_rgba(0,0,0,0.4)]"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            whileHover={{
-              scale: 1.05,
-              boxShadow: "0 0 40px rgba(251,191,36,0.8), 0 0 80px rgba(251,191,36,0.6), 0 12px 35px rgba(0,0,0,0.4)"
-            }}
           />
           <motion.h1
             className="text-4xl md:text-6xl font-bold mb-6 leading-tight"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
           >
             Bordados de Calidad para Cada Ocasión
           </motion.h1>
@@ -160,14 +177,14 @@ const HomePage = () => {
             className="text-lg md:text-xl mb-10 opacity-90 max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
           >
             Personaliza tus prendas con los mejores bordados profesionales
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
           >
             <Link
               to="/catalog"
@@ -187,7 +204,7 @@ const HomePage = () => {
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
       >
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-8xl mx-auto px-4">
           <motion.h2
             className="text-3xl md:text-4xl font-bold text-center text-text-primary mb-4"
             initial={{ opacity: 0, y: 30 }}
@@ -227,7 +244,7 @@ const HomePage = () => {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <div className="max-w-7xl mx-auto px-4">
+          <div className="max-w-8xl mx-auto px-4">
             <motion.h2
               className="text-3xl md:text-4xl font-bold text-center text-text-primary mb-4"
               initial={{ opacity: 0, y: 30 }}
@@ -277,9 +294,18 @@ const HomePage = () => {
               transition={{ duration: 0.6, delay: 0.6 }}
               viewport={{ once: true }}
             >
+              <motion.h3
+                className="text-2xl md:text-3xl font-bold text-text-primary mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.7 }}
+                viewport={{ once: true }}
+              >
+                Explora nuestros productos
+              </motion.h3>
               <Link
                 to="/catalog"
-                className="inline-block px-8 py-4 bg-bg-accent/80 text-text-primary no-underline rounded-full border-2 border-gray-500/30 font-medium transition-all duration-300 backdrop-blur-sm hover:border-yellow-400 hover:bg-bg-accent/90 hover:-translate-y-1 hover:shadow-[0_6px_20px_rgba(251,191,36,0.2)]"
+                className="inline-block px-38 py-4 bg-bg-accent/80 text-text-primary no-underline rounded-full border-2 border-gray-500/30 font-medium transition-all duration-300 backdrop-blur-sm hover:border-yellow-400 hover:bg-bg-accent/90 hover:-translate-y-1 hover:shadow-[0_6px_20px_rgba(251,191,36,0.2)]"
               >
                 Ver Todos los Productos
               </Link>
@@ -287,6 +313,48 @@ const HomePage = () => {
           </div>
         </motion.section>
       )}
+
+      {/* Call to Action - Cotización */}
+      <motion.section
+        className="py-20 bg-gradient-to-br from-yellow-500 to-yellow-600"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true }}
+      >
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <motion.h2
+            className="text-3xl md:text-4xl font-bold text-gray-900 mb-6"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            ¿Tienes un proyecto en mente?
+          </motion.h2>
+          <motion.p
+            className="text-lg md:text-xl text-gray-800 mb-8 max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            Solicita una cotización personalizada y te responderemos a la brevedad
+          </motion.p>
+          <motion.button
+            onClick={() => setShowCotizacionForm(true)}
+            className="px-8 py-4 bg-gray-900 text-white rounded-full font-medium text-lg transition-all duration-300 hover:bg-gray-800 hover:-translate-y-1 hover:shadow-xl"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            viewport={{ once: true }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            📝 Solicitar Cotización
+          </motion.button>
+        </div>
+      </motion.section>
 
       {/* About Section */}
       <motion.section
@@ -296,7 +364,7 @@ const HomePage = () => {
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
       >
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-8xl mx-auto px-4">
           <motion.h2
             className="text-3xl md:text-4xl font-bold text-center text-text-primary mb-12"
             initial={{ opacity: 0, y: 30 }}
@@ -311,54 +379,40 @@ const HomePage = () => {
               {
                 icon: HiStar,
                 title: "Calidad Premium",
-                description: "Utilizamos las mejores técnicas y materiales para garantizar bordados duraderos",
-                delay: 0
+                description: "Utilizamos las mejores técnicas y materiales para garantizar bordados duraderos"
               },
               {
                 icon: HiColorSwatch,
                 title: "Diseño Personalizado",
-                description: "Creamos diseños únicos adaptados a tus necesidades específicas",
-                delay: 0.1
+                description: "Creamos diseños únicos adaptados a tus necesidades específicas"
               },
               {
                 icon: HiLightBulb,
                 title: "Entrega Rápida",
-                description: "Procesos eficientes que garantizan tiempos de entrega competitivos",
-                delay: 0.2
+                description: "Procesos eficientes que garantizan tiempos de entrega competitivos"
               },
               {
                 icon: HiBriefcase,
                 title: "Experiencia",
-                description: "Años de experiencia trabajando con colegios, empresas y particulares",
-                delay: 0.3
+                description: "Años de experiencia trabajando con colegios, empresas y particulares"
               }
             ].map((item, index) => {
               const IconComponent = item.icon
               return (
                 <motion.div
                   key={index}
-                  className="group text-center p-8 bg-bg-primary/80 border-2 border-gray-500/30 rounded-xl shadow-xl h-70 flex flex-col justify-center backdrop-blur-sm"
-                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  className="group text-center p-8 bg-bg-primary/80 border-2 border-gray-500/30 hover:border-yellow-400 rounded-xl shadow-xl h-70 flex flex-col justify-center backdrop-blur-sm transition-all duration-200 ease-out hover:-translate-y-2 hover:shadow-[0_8px_25px_rgba(251,191,36,0.2)]"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   transition={{
-                    duration: 0.6,
-                    delay: item.delay,
+                    duration: 0.4,
                     ease: "easeOut"
-                  }}
-                  whileHover={{
-                    y: -8,
-                    borderColor: "rgb(251, 191, 36)",
-                    boxShadow: "0 8px 25px rgba(251,191,36,0.2)",
-                    transition: { duration: 0.2, ease: "easeOut" }
                   }}
                   viewport={{ once: true }}
                 >
-                  <motion.div
-                    whileHover={{ y: -3, scale: 1.05 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                  >
+                  <div className="transition-transform duration-200 ease-out group-hover:-translate-y-1 group-hover:scale-105">
                     <IconComponent className="text-6xl mb-6 text-yellow-400 mx-auto block drop-shadow-lg" />
-                  </motion.div>
+                  </div>
                   <h3 className="text-xl font-bold text-text-primary mb-4">{item.title}</h3>
                   <p className="text-text-muted leading-relaxed">{item.description}</p>
                 </motion.div>

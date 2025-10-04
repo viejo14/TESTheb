@@ -19,6 +19,7 @@ export const getAllCotizaciones = catchAsync(async (req, res) => {
       q.email,
       q.phone,
       q.message,
+      q.image_url,
       q.status,
       q.created_at
     FROM quotes q
@@ -94,6 +95,7 @@ export const getCotizacionById = catchAsync(async (req, res) => {
       q.email,
       q.phone,
       q.message,
+      q.image_url,
       q.status,
       q.created_at
     FROM quotes q
@@ -114,7 +116,7 @@ export const getCotizacionById = catchAsync(async (req, res) => {
 
 // Crear nueva cotización
 export const createCotizacion = catchAsync(async (req, res) => {
-  const { user_id, name, email, phone, message } = req.body
+  const { user_id, name, email, phone, message, image_url } = req.body
 
   // Validaciones básicas
   if (!name || !email || !message) {
@@ -143,11 +145,12 @@ export const createCotizacion = catchAsync(async (req, res) => {
       email,
       phone,
       message,
+      image_url,
       status,
       created_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
-    RETURNING id, user_id, name, email, phone, message, status, created_at
-  `, [user_id || null, name, email, phone || null, message, 'pendiente'])
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
+    RETURNING id, user_id, name, email, phone, message, image_url, status, created_at
+  `, [user_id || null, name, email, phone || null, message, image_url || null, 'pendiente'])
 
   const cotizacion = result.rows[0]
 

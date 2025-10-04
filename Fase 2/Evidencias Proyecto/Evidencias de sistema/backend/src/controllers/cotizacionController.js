@@ -2,6 +2,7 @@ import { query } from '../config/database.js'
 import { catchAsync } from '../middleware/errorHandler.js'
 import { AppError } from '../middleware/errorHandler.js'
 import logger from '../config/logger.js'
+import { sendQuoteNotificationEmail, sendQuoteConfirmationEmail } from '../services/emailService.js'
 
 // Obtener todas las cotizaciones (quotes)
 export const getAllCotizaciones = catchAsync(async (req, res) => {
@@ -18,6 +19,7 @@ export const getAllCotizaciones = catchAsync(async (req, res) => {
       q.email,
       q.phone,
       q.message,
+      q.image_url,
       q.status,
       q.created_at
     FROM quotes q
@@ -93,6 +95,7 @@ export const getCotizacionById = catchAsync(async (req, res) => {
       q.email,
       q.phone,
       q.message,
+      q.image_url,
       q.status,
       q.created_at
     FROM quotes q
@@ -113,7 +116,7 @@ export const getCotizacionById = catchAsync(async (req, res) => {
 
 // Crear nueva cotización
 export const createCotizacion = catchAsync(async (req, res) => {
-  const { user_id, name, email, phone, message } = req.body
+  const { user_id, name, email, phone, message, image_url } = req.body
 
   // Validaciones básicas
   if (!name || !email || !message) {
@@ -142,22 +145,57 @@ export const createCotizacion = catchAsync(async (req, res) => {
       email,
       phone,
       message,
+      image_url,
       status,
       created_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
-    RETURNING id, user_id, name, email, phone, message, status, created_at
-  `, [user_id || null, name, email, phone || null, message, 'pendiente'])
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
+    RETURNING id, user_id, name, email, phone, message, image_url, status, created_at
+  `, [user_id || null, name, email, phone || null, message, image_url || null, 'pendiente'])
+
+  const cotizacion = result.rows[0]
 
   logger.info('Cotización creada exitosamente', {
-    cotizacionId: result.rows[0].id,
-    name: result.rows[0].name,
-    email: result.rows[0].email
+    cotizacionId: cotizacion.id,
+    name: cotizacion.name,
+    email: cotizacion.email
+  })
+
+  // Enviar emails automáticos (sin bloquear la respuesta)
+  Promise.all([
+    // Email de confirmación al cliente
+    sendQuoteConfirmationEmail({
+      to: cotizacion.email,
+      name: cotizacion.name,
+      quoteId: cotizacion.id
+    }),
+    // Email de notificación al admin
+    sendQuoteNotificationEmail({
+      quoteName: cotizacion.name,
+      quoteEmail: cotizacion.email,
+      quotePhone: cotizacion.phone,
+      quoteMessage: cotizacion.message,
+      quoteId: cotizacion.id
+    })
+  ]).then(([clientEmail, adminEmail]) => {
+    if (clientEmail.success) {
+      logger.info('Email de confirmación enviado al cliente', { email: cotizacion.email })
+    } else {
+      logger.error('Error enviando email al cliente:', clientEmail.error)
+    }
+
+    if (adminEmail.success) {
+      logger.info('Email de notificación enviado al admin')
+    } else {
+      logger.error('Error enviando email al admin:', adminEmail.error)
+    }
+  }).catch(error => {
+    logger.error('Error enviando emails de cotización:', error)
   })
 
   res.status(201).json({
     success: true,
-    message: 'Cotización creada exitosamente',
-    data: result.rows[0]
+    message: 'Cotización creada exitosamente. Recibirás una confirmación por email.',
+    data: cotizacion
   })
 })
 

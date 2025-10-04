@@ -71,14 +71,12 @@ const ProductsManager = ({ products, categories, onRefresh, adminData }) => {
       >
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
           <h2 className="text-2xl font-bold text-white">Gestión de Productos</h2>
-          <motion.button
-            className="px-6 py-3 bg-yellow-400 text-bg-primary font-bold rounded-lg hover:bg-yellow-300 transition-colors duration-300"
+          <button
+            className="px-6 py-3 bg-yellow-400 text-bg-primary font-bold rounded-lg hover:bg-yellow-300 transition-all duration-200 hover:scale-105 active:scale-95"
             onClick={handleAddProduct}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
           >
             ➕ Agregar Producto
-          </motion.button>
+          </button>
         </div>
 
         {/* Filters */}
@@ -125,11 +123,10 @@ const ProductsManager = ({ products, categories, onRefresh, adminData }) => {
         {filteredProducts.map((product, index) => (
           <motion.div
             key={product.id}
-            className="bg-bg-primary/80 border-2 border-gray-500/30 rounded-xl p-6 backdrop-blur-sm"
+            className="bg-bg-primary/80 border-2 border-gray-500/30 hover:border-yellow-400/50 rounded-xl p-6 backdrop-blur-sm transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-lg"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: index * 0.1 }}
-            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.3 }}
           >
             {/* Product Image */}
             <div className="aspect-square mb-4 rounded-lg overflow-hidden bg-gray-700">
@@ -180,22 +177,18 @@ const ProductsManager = ({ products, categories, onRefresh, adminData }) => {
 
             {/* Action Buttons */}
             <div className="flex gap-2">
-              <motion.button
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
+              <button
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
                 onClick={() => handleEditProduct(product)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
               >
                 ✏️ Editar
-              </motion.button>
-              <motion.button
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-300"
+              </button>
+              <button
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 hover:scale-105 active:scale-95"
                 onClick={() => setDeleteConfirm(product)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
               >
                 🗑️ Eliminar
-              </motion.button>
+              </button>
             </div>
           </motion.div>
         ))}
@@ -217,14 +210,12 @@ const ProductsManager = ({ products, categories, onRefresh, adminData }) => {
             }
           </p>
           {!searchTerm && !filterCategory && (
-            <motion.button
-              className="px-8 py-4 bg-yellow-400 text-bg-primary font-bold rounded-lg hover:bg-yellow-300 transition-colors duration-300"
+            <button
+              className="px-8 py-4 bg-yellow-400 text-bg-primary font-bold rounded-lg hover:bg-yellow-300 transition-all duration-200 hover:scale-105 active:scale-95"
               onClick={handleAddProduct}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
             >
               ➕ Crear primer producto
-            </motion.button>
+            </button>
           )}
         </motion.div>
       )}

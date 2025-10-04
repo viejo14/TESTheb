@@ -130,7 +130,7 @@ const ProductDetailPage = () => {
 
   return (
     <div className="min-h-screen pt-40 pb-8 bg-gradient-to-br from-bg-primary to-bg-secondary">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-8xl mx-auto px-4">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 mb-8 text-sm text-gray-400">
           <Link to="/" className="text-blue-400 hover:text-blue-300 hover:underline transition-colors">
