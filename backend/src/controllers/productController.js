@@ -1,38 +1,14 @@
-import { query } from '../config/database.js'
+import Product from '../models/Product.js'
 
 export const getAllProducts = async (req, res) => {
   try {
-    // Consulta para sistema simple: producto con una talla y stock
-    const result = await query(`
-      SELECT
-        p.*,
-        c.name as category_name,
-        s.name as size_name,
-        s.display_name as size_display_name
-      FROM products p
-      LEFT JOIN categories c ON p.category_id = c.id
-      LEFT JOIN sizes s ON p.size_id = s.id
-      ORDER BY p.id
-    `)
-
-    // Formatear productos para el frontend
-    const productsWithStandardFields = result.rows.map(product => ({
-      ...product,
-      stock: product.stock || 0,
-      total_stock: product.stock || 0,
-      has_stock: (product.stock || 0) > 0,
-      size_info: product.size_name ? {
-        id: product.size_id,
-        name: product.size_name,
-        display_name: product.size_display_name
-      } : null
-    }))
+    const products = await Product.findAll()
 
     res.json({
       success: true,
       message: 'Productos obtenidos exitosamente',
-      data: productsWithStandardFields,
-      total: result.rowCount
+      data: products,
+      total: products.length
     })
   } catch (error) {
     console.error('❌ Error obteniendo productos:', error)
@@ -47,36 +23,13 @@ export const getAllProducts = async (req, res) => {
 export const getProductById = async (req, res) => {
   try {
     const { id } = req.params
-    const result = await query(`
-      SELECT
-        p.*,
-        c.name as category_name,
-        s.name as size_name,
-        s.display_name as size_display_name
-      FROM products p
-      LEFT JOIN categories c ON p.category_id = c.id
-      LEFT JOIN sizes s ON p.size_id = s.id
-      WHERE p.id = $1
-    `, [id])
+    const product = await Product.findById(id)
 
-    if (result.rowCount === 0) {
+    if (!product) {
       return res.status(404).json({
         success: false,
         message: 'Producto no encontrado'
       })
-    }
-
-    // Formatear producto para el frontend
-    const product = {
-      ...result.rows[0],
-      stock: result.rows[0].stock || 0,
-      total_stock: result.rows[0].stock || 0,
-      has_stock: (result.rows[0].stock || 0) > 0,
-      size_info: result.rows[0].size_name ? {
-        id: result.rows[0].size_id,
-        name: result.rows[0].size_name,
-        display_name: result.rows[0].size_display_name
-      } : null
     }
 
     res.json({
@@ -97,31 +50,13 @@ export const getProductById = async (req, res) => {
 export const getProductsByCategory = async (req, res) => {
   try {
     const { categoryId } = req.params
-    const result = await query(`
-      SELECT
-        p.*,
-        c.name as category_name
-      FROM products p
-      LEFT JOIN categories c ON p.category_id = c.id
-      WHERE p.category_id = $1
-      ORDER BY p.id
-    `, [categoryId])
-
-    // Agregar campos faltantes
-    const productsWithStandardFields = result.rows.map(product => ({
-      ...product,
-      stock: product.stock || 0,
-      total_stock: product.stock || 0,
-      has_stock: (product.stock || 0) > 0,
-      sizes: [],
-      uses_sizes: true
-    }))
+    const products = await Product.findByCategory(categoryId)
 
     res.json({
       success: true,
       message: 'Productos obtenidos exitosamente',
-      data: productsWithStandardFields,
-      total: result.rowCount
+      data: products,
+      total: products.length
     })
   } catch (error) {
     console.error('❌ Error obteniendo productos por categoría:', error)
@@ -145,36 +80,27 @@ export const createProduct = async (req, res) => {
     }
 
     // Verificar que la categoría existe si se proporciona
-    if (category_id) {
-      const categoryResult = await query('SELECT id FROM categories WHERE id = $1', [category_id])
-      if (categoryResult.rowCount === 0) {
-        return res.status(400).json({
-          success: false,
-          message: 'La categoría especificada no existe'
-        })
-      }
+    if (category_id && !(await Product.categoryExists(category_id))) {
+      return res.status(400).json({
+        success: false,
+        message: 'La categoría especificada no existe'
+      })
     }
 
     // Verificar que la talla existe si se proporciona
-    if (size_id) {
-      const sizeResult = await query('SELECT id FROM sizes WHERE id = $1', [size_id])
-      if (sizeResult.rowCount === 0) {
-        return res.status(400).json({
-          success: false,
-          message: 'La talla especificada no existe'
-        })
-      }
+    if (size_id && !(await Product.sizeExists(size_id))) {
+      return res.status(400).json({
+        success: false,
+        message: 'La talla especificada no existe'
+      })
     }
 
-    const result = await query(
-      'INSERT INTO products (name, description, price, category_id, image_url, size_id, stock) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [name, description, price, category_id || null, image_url, size_id || null, stock || 0]
-    )
+    const newProduct = await Product.create({ name, description, price, category_id, image_url, size_id, stock })
 
     res.status(201).json({
       success: true,
       message: 'Producto creado exitosamente',
-      data: result.rows[0]
+      data: newProduct
     })
   } catch (error) {
     console.error('❌ Error creando producto:', error)
@@ -192,63 +118,47 @@ export const updateProduct = async (req, res) => {
     const { name, description, price, category_id, image_url, size_id, stock } = req.body
 
     // Obtener datos actuales del producto
-    const currentProduct = await query('SELECT * FROM products WHERE id = $1', [id])
-    if (currentProduct.rowCount === 0) {
+    const currentProduct = await Product.findById(id)
+    if (!currentProduct) {
       return res.status(404).json({
         success: false,
         message: 'Producto no encontrado'
       })
     }
 
-    const current = currentProduct.rows[0]
-
     // Usar valores actuales si no se proporcionan nuevos
-    const updateName = name || current.name
-    const updateDescription = description || current.description
-    const updatePrice = price || current.price
-    const updateCategoryId = category_id !== undefined ? category_id : current.category_id
-    const updateImageUrl = image_url !== undefined ? image_url : current.image_url
-    const updateSizeId = size_id !== undefined ? size_id : current.size_id
-    const updateStock = stock !== undefined ? parseInt(stock) : (current.stock || 0)
+    const updateData = {
+      name: name || currentProduct.name,
+      description: description || currentProduct.description,
+      price: price || currentProduct.price,
+      category_id: category_id !== undefined ? category_id : currentProduct.category_id,
+      image_url: image_url !== undefined ? image_url : currentProduct.image_url,
+      size_id: size_id !== undefined ? size_id : currentProduct.size_id,
+      stock: stock !== undefined ? parseInt(stock) : (currentProduct.stock || 0)
+    }
 
     // Verificar que la categoría existe si se está actualizando
-    if (updateCategoryId !== null) {
-      const categoryResult = await query('SELECT id FROM categories WHERE id = $1', [updateCategoryId])
-      if (categoryResult.rowCount === 0) {
-        return res.status(400).json({
-          success: false,
-          message: 'La categoría especificada no existe'
-        })
-      }
+    if (updateData.category_id !== null && !(await Product.categoryExists(updateData.category_id))) {
+      return res.status(400).json({
+        success: false,
+        message: 'La categoría especificada no existe'
+      })
     }
 
     // Verificar que la talla existe si se está actualizando
-    if (updateSizeId !== null) {
-      const sizeResult = await query('SELECT id FROM sizes WHERE id = $1', [updateSizeId])
-      if (sizeResult.rowCount === 0) {
-        return res.status(400).json({
-          success: false,
-          message: 'La talla especificada no existe'
-        })
-      }
-    }
-
-    const result = await query(
-      'UPDATE products SET name = $1, description = $2, price = $3, category_id = $4, image_url = $5, size_id = $6, stock = $7, updated_at = NOW() WHERE id = $8 RETURNING *',
-      [updateName, updateDescription, updatePrice, updateCategoryId, updateImageUrl, updateSizeId, updateStock, id]
-    )
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({
+    if (updateData.size_id !== null && !(await Product.sizeExists(updateData.size_id))) {
+      return res.status(400).json({
         success: false,
-        message: 'Producto no encontrado'
+        message: 'La talla especificada no existe'
       })
     }
+
+    const updatedProduct = await Product.update(id, updateData)
 
     res.json({
       success: true,
       message: 'Producto actualizado exitosamente',
-      data: result.rows[0]
+      data: updatedProduct
     })
   } catch (error) {
     console.error('❌ Error actualizando producto:', error)
@@ -264,9 +174,9 @@ export const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params
 
-    const result = await query('DELETE FROM products WHERE id = $1 RETURNING *', [id])
+    const deletedProduct = await Product.delete(id)
 
-    if (result.rowCount === 0) {
+    if (!deletedProduct) {
       return res.status(404).json({
         success: false,
         message: 'Producto no encontrado'
@@ -276,7 +186,7 @@ export const deleteProduct = async (req, res) => {
     res.json({
       success: true,
       message: 'Producto eliminado exitosamente',
-      data: result.rows[0]
+      data: deletedProduct
     })
   } catch (error) {
     console.error('❌ Error eliminando producto:', error)
@@ -299,31 +209,13 @@ export const searchProducts = async (req, res) => {
       })
     }
 
-    const result = await query(`
-      SELECT
-        p.*,
-        c.name as category_name
-      FROM products p
-      LEFT JOIN categories c ON p.category_id = c.id
-      WHERE p.name ILIKE $1 OR p.description ILIKE $1
-      ORDER BY p.name
-    `, [`%${q}%`])
-
-    // Agregar campos faltantes
-    const productsWithStandardFields = result.rows.map(product => ({
-      ...product,
-      stock: product.stock || 0,
-      total_stock: product.stock || 0,
-      has_stock: (product.stock || 0) > 0,
-      sizes: [],
-      uses_sizes: true
-    }))
+    const products = await Product.search(q)
 
     res.json({
       success: true,
       message: 'Búsqueda completada exitosamente',
-      data: productsWithStandardFields,
-      total: result.rowCount,
+      data: products,
+      total: products.length,
       query: q
     })
   } catch (error) {

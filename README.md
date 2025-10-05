@@ -412,10 +412,22 @@ npm run build
 
 ## 📝 Documentación Adicional
 
-- 📋 [Estado Actual del Sistema](ESTADO_ACTUAL_SISTEMA.md)
-- 🎯 [Resumen del Proyecto](RESUMEN_PROYECTO_TALLAS.md)
-- 🔧 [Cómo Activar Tallas](COMO_ACTIVAR_TALLAS.md)
-- 🔐 [Documentación de API Auth](backend/AUTH_API_DOCS.md)
+### **Documentación General**
+- 📋 [Estado Actual del Sistema](Documentos/ESTADO_ACTUAL_SISTEMA.md)
+- 🎯 [Resumen del Proyecto](Documentos/RESUMEN_PROYECTO_TALLAS.md)
+- 🔧 [Cómo Activar Tallas](Documentos/COMO_ACTIVAR_TALLAS.md)
+- 🚀 [Quick Start](Documentos/QUICK_START.md)
+
+### **Documentación de Autenticación**
+- 🔐 [Documentación de API Auth](Documentos/AUTH_API_DOCS.md)
+
+### **Documentación de Pagos** ⭐ NUEVO
+- 💳 [Documentación del Flujo de Pago](Documentos/PAYMENT_FLOW_DOCUMENTATION.md) - Guía completa del sistema de pagos
+- 🧪 [Casos de Prueba de Pagos](Documentos/PAYMENT_TEST_CASES.md) - Casos de prueba detallados
+- 📖 [Guía de Testing](Documentos/TESTING_GUIDE.md) - Instrucciones para ejecutar tests
+- 📊 [Resumen de Testing](Documentos/TESTING_SUMMARY.md) - Resumen de completitud
+- ⚡ [Quick Start Testing](Documentos/QUICK_START_TESTING.md) - Inicio rápido en 5 minutos
+- 📄 [Documentación Completa de Pagos](Documentos/PAYMENT_DOCUMENTATION_COMPLETE.md) - Resumen ejecutivo
 
 ## 🔄 Changelog
 

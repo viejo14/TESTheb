@@ -156,7 +156,7 @@ const CotizacionForm = ({ onClose, onSuccess }) => {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-yellow-400 to-yellow-500 px-6 py-4 flex justify-between items-center border-b-2 border-yellow-500/50">
+        <div className="sticky top-0 bg-gradient-to-r from-yellow-400 to-yellow-500 px-6 py-4 flex justify-between items-center border-b-2 border-yellow-500/50 z-30">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">📝 Solicitar Cotización</h2>
             <p className="text-sm text-gray-800">Cuéntanos sobre tu proyecto</p>
