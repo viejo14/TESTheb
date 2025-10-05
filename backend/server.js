@@ -14,6 +14,7 @@ import webpayRoutes from './src/routes/webpayRoutes.js'
 import authRoutes from './src/routes/authRoutes.js'
 import uploadRoutes from './src/routes/uploadRoutes.js'
 import statsRoutes from './src/routes/statsRoutes.js'
+import newsletterRoutes from './src/routes/newsletterRoutes.js'
 
 dotenv.config()
 
@@ -43,6 +44,7 @@ app.use('/api/cotizaciones', cotizacionRoutes)
 app.use('/api/webpay', webpayRoutes)
 app.use('/api/upload', uploadRoutes)
 app.use('/api/stats', statsRoutes)
+app.use('/api/newsletter', newsletterRoutes)
 
 // Health check básico
 app.get('/api/health', (req, res) => {

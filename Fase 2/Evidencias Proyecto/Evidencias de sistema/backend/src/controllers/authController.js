@@ -587,3 +587,72 @@ export const resetPassword = async (req, res) => {
     })
   }
 }
+
+// Eliminar cuenta del usuario autenticado
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user.id
+    const { password } = req.body
+
+    // Validación de contraseña requerida
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Debes confirmar tu contraseña para eliminar la cuenta'
+      })
+    }
+
+    // Obtener datos del usuario
+    const userResult = await query(
+      'SELECT id, name, email, password_hash FROM users WHERE id = $1',
+      [userId]
+    )
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado'
+      })
+    }
+
+    const user = userResult.rows[0]
+
+    // Verificar contraseña
+    const isValidPassword = await bcrypt.compare(password, user.password_hash)
+
+    if (!isValidPassword) {
+      return res.status(401).json({
+        success: false,
+        message: 'Contraseña incorrecta'
+      })
+    }
+
+    // Soft delete: marcar como inactivo en lugar de eliminar
+    // Esto preserva la integridad referencial con pedidos, cotizaciones, etc.
+    await query(
+      `UPDATE users
+       SET active = false,
+           email = CONCAT('deleted_', id, '_', email),
+           updated_at = NOW()
+       WHERE id = $1`,
+      [userId]
+    )
+
+    logger.info('Cuenta eliminada por el usuario', {
+      userId: user.id,
+      email: user.email
+    })
+
+    res.json({
+      success: true,
+      message: 'Tu cuenta ha sido eliminada exitosamente. Lamentamos verte partir.'
+    })
+
+  } catch (error) {
+    logger.error('Error eliminando cuenta:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    })
+  }
+}

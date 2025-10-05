@@ -7,7 +7,8 @@ import {
   changePassword,
   logout,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  deleteAccount
 } from '../controllers/authController.js'
 import { authenticateToken } from '../middleware/auth.js'
 
@@ -24,5 +25,6 @@ router.get('/profile', authenticateToken, getProfile)           // GET /api/auth
 router.put('/profile', authenticateToken, updateProfile)        // PUT /api/auth/profile - Actualizar perfil
 router.post('/change-password', authenticateToken, changePassword) // POST /api/auth/change-password - Cambiar contraseña
 router.post('/logout', authenticateToken, logout)               // POST /api/auth/logout - Cerrar sesión
+router.delete('/account', authenticateToken, deleteAccount)     // DELETE /api/auth/account - Eliminar cuenta
 
 export default router

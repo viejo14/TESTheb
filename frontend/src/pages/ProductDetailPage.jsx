@@ -159,7 +159,7 @@ const ProductDetailPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-16">
           {/* Product Images */}
           <div className="sticky top-24 h-fit">
-            <div className="w-full h-[500px] rounded-xl overflow-hidden bg-white shadow-lg">
+            <div className="w-full h-[800px] rounded-xl overflow-hidden bg-gray-900 shadow-lg">
               {product.image_url ? (
                 <img
                   src={product.image_url}
@@ -181,7 +181,7 @@ const ProductDetailPage = () => {
           {/* Product Details */}
           <div className="space-y-6">
             {product.category_name && (
-              <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+              <span className="inline-block px-3 py-1 bg-yellow-500 text-gray-800 text-sm font-medium rounded-full">
                 {product.category_name}
               </span>
             )}

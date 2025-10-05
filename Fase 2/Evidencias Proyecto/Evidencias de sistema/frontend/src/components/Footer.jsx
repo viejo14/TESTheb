@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
@@ -17,6 +18,47 @@ import { RiShirtLine } from 'react-icons/ri'
 
 const Footer = () => {
   const currentYear = new Date().getFullYear()
+  const [newsletterEmail, setNewsletterEmail] = useState('')
+  const [newsletterStatus, setNewsletterStatus] = useState({ type: '', message: '' })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault()
+
+    if (!newsletterEmail) {
+      setNewsletterStatus({ type: 'error', message: 'Ingresa tu email' })
+      return
+    }
+
+    setIsSubmitting(true)
+    setNewsletterStatus({ type: '', message: '' })
+
+    try {
+      const response = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: newsletterEmail })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setNewsletterStatus({ type: 'success', message: data.message })
+        setNewsletterEmail('')
+      } else {
+        setNewsletterStatus({ type: 'error', message: data.message })
+      }
+    } catch (error) {
+      setNewsletterStatus({
+        type: 'error',
+        message: 'Error al suscribirse. Intenta nuevamente.'
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   const navigationLinks = [
     { label: 'Inicio', path: '/' },
@@ -205,7 +247,7 @@ const Footer = () => {
                 ))}
               </ul>
 
-              {/* Newsletter (Optional) */}
+              {/* Newsletter */}
               <div className="pt-4">
                 <h4 className="text-sm font-semibold text-white mb-2">
                   Newsletter
@@ -213,20 +255,33 @@ const Footer = () => {
                 <p className="text-text-muted text-xs mb-3">
                   Recibe ofertas exclusivas
                 </p>
-                <form className="flex gap-2">
-                  <input
-                    type="email"
-                    placeholder="Tu email"
-                    className="flex-1 px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm placeholder-text-muted focus:outline-none focus:border-yellow-400 transition-colors duration-300"
-                  />
-                  <motion.button
-                    type="submit"
-                    className="px-4 py-2 bg-yellow-400 text-black text-sm font-semibold rounded-lg hover:bg-yellow-300 transition-colors duration-300"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    →
-                  </motion.button>
+                <form onSubmit={handleNewsletterSubmit} className="space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="email"
+                      placeholder="Tu email"
+                      value={newsletterEmail}
+                      onChange={(e) => setNewsletterEmail(e.target.value)}
+                      disabled={isSubmitting}
+                      className="flex-1 px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm placeholder-text-muted focus:outline-none focus:border-yellow-400 transition-colors duration-300 disabled:opacity-50"
+                    />
+                    <motion.button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="px-4 py-2 bg-yellow-400 text-black text-sm font-semibold rounded-lg hover:bg-yellow-300 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                      whileHover={{ scale: isSubmitting ? 1 : 1.05 }}
+                      whileTap={{ scale: isSubmitting ? 1 : 0.95 }}
+                    >
+                      {isSubmitting ? '...' : '→'}
+                    </motion.button>
+                  </div>
+                  {newsletterStatus.message && (
+                    <p className={`text-xs ${
+                      newsletterStatus.type === 'success' ? 'text-green-400' : 'text-red-400'
+                    }`}>
+                      {newsletterStatus.message}
+                    </p>
+                  )}
                 </form>
               </div>
             </motion.div>

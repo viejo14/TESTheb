@@ -19,13 +19,20 @@ import RegisterPage from './pages/RegisterPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import TestEnvPage from './pages/TestEnvPage'
+import TermsPage from './pages/TermsPage'
+import PrivacyPage from './pages/PrivacyPage'
+import ReturnsPage from './pages/ReturnsPage'
+import UnsubscribePage from './pages/UnsubscribePage'
+import AccountSettingsPage from './pages/AccountSettingsPage'
 import PageTransition from './components/PageTransition'
+import ScrollToTop from './components/ScrollToTop'
 
 function App() {
   return (
     <AuthProvider>
       <CartProvider>
         <Router>
+        <ScrollToTop />
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-bg-primary to-bg-secondary">
           <Header />
           <main className="flex-1">
@@ -87,6 +94,41 @@ const AnimatedRoutes = () => {
             </PageTransition>
           )}
         />
+
+        {/* Legal Pages */}
+        <Route
+          path="/terms"
+          element={(
+            <PageTransition>
+              <TermsPage />
+            </PageTransition>
+          )}
+        />
+        <Route
+          path="/privacy"
+          element={(
+            <PageTransition>
+              <PrivacyPage />
+            </PageTransition>
+          )}
+        />
+        <Route
+          path="/returns"
+          element={(
+            <PageTransition>
+              <ReturnsPage />
+            </PageTransition>
+          )}
+        />
+        <Route
+          path="/unsubscribe"
+          element={(
+            <PageTransition>
+              <UnsubscribePage />
+            </PageTransition>
+          )}
+        />
+
         <Route
           path="/login"
           element={(
@@ -116,6 +158,14 @@ const AnimatedRoutes = () => {
           element={(
             <PageTransition>
               <ResetPasswordPage />
+            </PageTransition>
+          )}
+        />
+        <Route
+          path="/account-settings"
+          element={(
+            <PageTransition>
+              <AccountSettingsPage />
             </PageTransition>
           )}
         />

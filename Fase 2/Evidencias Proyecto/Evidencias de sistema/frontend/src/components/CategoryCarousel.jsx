@@ -105,25 +105,25 @@ const CategoryCarousel = ({ categories = [] }) => {
         {totalSlides > slidesToShow && (
           <>
             <button
-              className="absolute top-1/2 left-5 -translate-y-1/2 z-10 w-12 h-12 bg-white/90 backdrop-blur-sm border-0 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-lg hover:bg-white hover:scale-110 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+              className="absolute top-1/2 left-5 -translate-y-1/2 z-10 w-12 h-12 bg-zinc-800/90 backdrop-blur-sm border-0 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-lg hover:bg-yellow-400 hover:scale-110 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
               onClick={goToPrevious}
               aria-label="Categoría anterior"
             >
-              <HiChevronLeft className="w-6 h-6 text-gray-700" />
+              <HiChevronLeft className="w-6 h-6 text-white" />
             </button>
             <button
-              className="absolute top-1/2 right-5 -translate-y-1/2 z-10 w-12 h-12 bg-white/90 backdrop-blur-sm border-0 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-lg hover:bg-white hover:scale-110 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+              className="absolute top-1/2 right-5 -translate-y-1/2 z-10 w-12 h-12 bg-zinc-800/90 backdrop-blur-sm border-0 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-lg hover:bg-yellow-400 hover:scale-110 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
               onClick={goToNext}
               aria-label="Siguiente categoría"
             >
-              <HiChevronRight className="w-6 h-6 text-gray-700" />
+              <HiChevronRight className="w-6 h-6 text-white" />
             </button>
           </>
         )}
 
         {/* Carousel Track */}
         <div
-          className="flex h-full transition-transform duration-600 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
+          className="p-2 flex h-full transition-transform duration-600 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
           ref={carouselRef}
           style={{
             transform: `translateX(-${currentIndex * (100 / totalSlides)}%)`,

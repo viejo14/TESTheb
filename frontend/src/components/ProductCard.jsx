@@ -34,7 +34,7 @@ const ProductCard = ({ product }) => {
     >
       <div className="flex flex-col h-full">
         <Link to={`/product/${id}`} className="block text-decoration-none flex-1 flex flex-col">
-          <div className="relative aspect-square overflow-hidden bg-white">
+          <div className="relative aspect-square overflow-hidden bg-gray-900">
             {image_url ? (
               <img
                 src={image_url}

@@ -84,6 +84,13 @@ const Header = () => {
             <span className="text-sm font-medium text-text-secondary">
               {user?.name || 'Usuario'}
             </span>
+            <Link
+              to="/account-settings"
+              onClick={closeMobileMenu}
+              className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm font-semibold rounded-md transition-colors duration-300 text-center"
+            >
+              ⚙️ Configuración
+            </Link>
             {user?.role === 'admin' && (
               <Link
                 to="/admin"
@@ -108,6 +115,12 @@ const Header = () => {
           <span className="text-base text-text-secondary hidden xl:block">
             {user?.name || 'Usuario'}
           </span>
+          <Link
+            to="/account-settings"
+            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm font-semibold rounded-md transition-colors duration-300"
+          >
+            ⚙️ Configuración
+          </Link>
           {user?.role === 'admin' && (
             <Link
               to="/admin"

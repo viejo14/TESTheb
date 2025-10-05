@@ -6,6 +6,7 @@ import { useAdminData } from '../hooks/useAdminData'
 import ProductsManager from '../components/admin/ProductsManager'
 import CategoriesManager from '../components/admin/CategoriesManager'
 import CotizacionesManager from '../components/admin/CotizacionesManager'
+import NewsletterManager from '../components/admin/NewsletterManager'
 import DashboardStats from '../components/admin/DashboardStats'
 
 const AdminDashboard = () => {
@@ -16,7 +17,7 @@ const AdminDashboard = () => {
   // Leer el parámetro 'tab' de la URL al cargar
   useEffect(() => {
     const tabParam = searchParams.get('tab')
-    if (tabParam && ['dashboard', 'products', 'categories', 'cotizaciones'].includes(tabParam)) {
+    if (tabParam && ['dashboard', 'products', 'categories', 'cotizaciones', 'newsletter'].includes(tabParam)) {
       setActiveTab(tabParam)
     }
   }, [searchParams])
@@ -33,7 +34,8 @@ const AdminDashboard = () => {
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
     { id: 'products', name: 'Productos', icon: '🛍️' },
     { id: 'categories', name: 'Categorías', icon: '📂' },
-    { id: 'cotizaciones', name: 'Cotizaciones', icon: '📝' }
+    { id: 'cotizaciones', name: 'Cotizaciones', icon: '📝' },
+    { id: 'newsletter', name: 'Newsletter', icon: '📧' }
   ]
 
   if (adminData.loading) {
@@ -138,6 +140,10 @@ const AdminDashboard = () => {
 
           {activeTab === 'cotizaciones' && (
             <CotizacionesManager />
+          )}
+
+          {activeTab === 'newsletter' && (
+            <NewsletterManager />
           )}
         </motion.div>
       </div>

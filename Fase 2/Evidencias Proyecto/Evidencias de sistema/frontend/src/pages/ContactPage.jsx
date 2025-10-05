@@ -7,7 +7,7 @@ const ContactPage = () => {
   const [showCotizacionForm, setShowCotizacionForm] = useState(false)
 
   return (
-    <div className="min-h-screen pt-32 pb-16 bg-gradient-to-br from-bg-primary to-bg-secondary">
+    <div className="min-h-screen pt-36 pb-16 bg-gradient-to-br from-bg-primary to-bg-secondary">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <motion.div
