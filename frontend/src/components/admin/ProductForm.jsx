@@ -15,7 +15,7 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
   })
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
-  const [imageUploadType, setImageUploadType] = useState('url') // 'cloudinary', 'local', or 'url'
+  const [imageUploadType, setImageUploadType] = useState('local') // 'cloudinary', 'local', or 'url'
   const [uploadProgress, setUploadProgress] = useState(false)
   const [uploadedImage, setUploadedImage] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
@@ -77,6 +77,15 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
   }
 
   const isValidUrl = (string) => {
+    
+    if (!string) {
+      return false
+    }
+
+    if (string.startsWith('/')) {
+      return true
+    }
+
     try {
       new URL(string)
       return true
@@ -88,10 +97,15 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
+    console.log('🚀 DEBUG: Iniciando envío del formulario...')
+    console.log('📋 DEBUG: Datos del formulario:', formData)
+
     if (!validateForm()) {
+      console.log('❌ DEBUG: Validación del formulario falló')
       return
     }
 
+    console.log('✅ DEBUG: Validación del formulario exitosa')
     setLoading(true)
     try {
       // Prepare data for submission
@@ -103,6 +117,8 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
         size_id: formData.size_id ? parseInt(formData.size_id) : null,
         stock: parseInt(formData.stock) || 0
       }
+
+      console.log('📤 DEBUG: Datos a enviar:', submitData)
 
       let response
       let optimisticData
@@ -196,36 +212,54 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
   const handleFileUpload = async (file) => {
     if (!file) return
 
+    console.log('🧪 DEBUG: Archivo seleccionado:', {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      lastModified: file.lastModified
+    })
+
     // Validar tipo de archivo
     if (!file.type.startsWith('image/')) {
+      console.error('❌ DEBUG: Tipo de archivo inválido:', file.type)
       setErrors({ image: 'Solo se permiten archivos de imagen' })
       return
     }
 
     // Validar tamaño (10MB máximo para productos)
     if (file.size > 10 * 1024 * 1024) {
+      console.error('❌ DEBUG: Archivo muy grande:', file.size)
       setErrors({ image: 'La imagen no puede ser mayor a 10MB' })
       return
     }
+
+    console.log('✅ DEBUG: Archivo válido, iniciando subida...')
+    console.log('📋 DEBUG: Tipo de subida seleccionado:', imageUploadType)
 
     setUploadProgress(true)
     setErrors({ image: '' })
 
     try {
+      console.log('🔄 DEBUG: Iniciando proceso de subida...')
+      
       // Usar la función correcta según el tipo seleccionado
       const response = imageUploadType === 'cloudinary'
         ? await uploadProductImage(file)
         : await uploadProductImageLocal(file)
 
+      console.log('📡 DEBUG: Respuesta del servidor:', response)
+
       if (response.success) {
+        console.log('✅ DEBUG: Subida exitosa!')
         setUploadedImage(response.data)
         setImagePreview(URL.createObjectURL(file))
         setFormData(prev => ({ ...prev, image_url: response.data.imageUrl }))
       } else {
+        console.error('❌ DEBUG: Error en respuesta del servidor:', response)
         setErrors({ image: response.message || 'Error subiendo la imagen' })
       }
     } catch (error) {
-      console.error('Error uploading image:', error)
+      console.error('❌ DEBUG: Error durante la subida:', error)
       setErrors({ image: 'Error subiendo la imagen. Intenta nuevamente.' })
     } finally {
       setUploadProgress(false)

@@ -1,4 +1,4 @@
-import { query } from '../config/database.js'
+import NewsletterSubscriber from '../models/NewsletterSubscriber.js'
 import logger from '../config/logger.js'
 import { sendNewsletterWelcomeEmail } from '../services/emailService.js'
 
@@ -25,22 +25,12 @@ export const subscribe = async (req, res) => {
     }
 
     // Verificar si ya está suscrito
-    const existingSubscriber = await query(
-      'SELECT id, status FROM newsletter_subscribers WHERE email = $1',
-      [email.toLowerCase()]
-    )
+    const existingSubscriber = await NewsletterSubscriber.findByEmail(email)
 
-    if (existingSubscriber.rows.length > 0) {
-      const subscriber = existingSubscriber.rows[0]
-
+    if (existingSubscriber) {
       // Si estaba desuscrito, reactivar
-      if (subscriber.status === 'unsubscribed') {
-        await query(
-          `UPDATE newsletter_subscribers
-           SET status = 'active', subscribed_at = NOW(), unsubscribed_at = NULL, updated_at = NOW()
-           WHERE id = $1`,
-          [subscriber.id]
-        )
+      if (existingSubscriber.status === 'unsubscribed') {
+        await NewsletterSubscriber.reactivate(existingSubscriber.id)
 
         logger.info('Suscriptor reactivado', { email: email.toLowerCase() })
 
@@ -70,26 +60,21 @@ export const subscribe = async (req, res) => {
     }
 
     // Crear nueva suscripción
-    const newSubscriber = await query(
-      `INSERT INTO newsletter_subscribers (email, status, subscribed_at, created_at, updated_at)
-       VALUES ($1, 'active', NOW(), NOW(), NOW())
-       RETURNING id, email, subscribed_at`,
-      [email.toLowerCase()]
-    )
+    const newSubscriber = await NewsletterSubscriber.create(email)
 
     logger.info('Nuevo suscriptor al newsletter', {
-      subscriberId: newSubscriber.rows[0].id,
+      subscriberId: newSubscriber.id,
       email: email.toLowerCase()
     })
 
     // Enviar email de bienvenida
     const emailResult = await sendNewsletterWelcomeEmail({
-      to: newSubscriber.rows[0].email
+      to: newSubscriber.email
     })
 
     if (!emailResult.success) {
       logger.warn('No se pudo enviar email de bienvenida', {
-        email: newSubscriber.rows[0].email,
+        email: newSubscriber.email,
         error: emailResult.error
       })
       // No fallar la suscripción si el email falla
@@ -99,8 +84,8 @@ export const subscribe = async (req, res) => {
       success: true,
       message: '¡Gracias por suscribirte! Revisa tu correo para más información.',
       data: {
-        email: newSubscriber.rows[0].email,
-        subscribedAt: newSubscriber.rows[0].subscribed_at
+        email: newSubscriber.email,
+        subscribedAt: newSubscriber.subscribed_at
       }
     })
 
@@ -127,19 +112,16 @@ export const unsubscribe = async (req, res) => {
     }
 
     // Buscar suscriptor
-    const subscriber = await query(
-      'SELECT id, status FROM newsletter_subscribers WHERE email = $1',
-      [email.toLowerCase()]
-    )
+    const subscriber = await NewsletterSubscriber.findByEmail(email)
 
-    if (subscriber.rows.length === 0) {
+    if (!subscriber) {
       return res.status(404).json({
         success: false,
         message: 'Este email no está suscrito'
       })
     }
 
-    if (subscriber.rows[0].status === 'unsubscribed') {
+    if (subscriber.status === 'unsubscribed') {
       return res.status(400).json({
         success: false,
         message: 'Este email ya está desuscrito'
@@ -147,15 +129,10 @@ export const unsubscribe = async (req, res) => {
     }
 
     // Desuscribir
-    await query(
-      `UPDATE newsletter_subscribers
-       SET status = 'unsubscribed', unsubscribed_at = NOW(), updated_at = NOW()
-       WHERE id = $1`,
-      [subscriber.rows[0].id]
-    )
+    await NewsletterSubscriber.unsubscribe(subscriber.id)
 
     logger.info('Suscriptor desuscrito del newsletter', {
-      subscriberId: subscriber.rows[0].id,
+      subscriberId: subscriber.id,
       email: email.toLowerCase()
     })
 
@@ -178,33 +155,17 @@ export const getAllSubscribers = async (req, res) => {
   try {
     const { status, limit = 100, offset = 0 } = req.query
 
-    let queryText = 'SELECT id, email, status, subscribed_at, unsubscribed_at, created_at FROM newsletter_subscribers'
-    const params = []
-
-    // Filtrar por estado si se proporciona
-    if (status && ['active', 'unsubscribed'].includes(status)) {
-      queryText += ' WHERE status = $1'
-      params.push(status)
-    }
-
-    queryText += ' ORDER BY created_at DESC LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2)
-    params.push(parseInt(limit), parseInt(offset))
-
-    const subscribers = await query(queryText, params)
-
-    // Contar total
-    const countQuery = status && ['active', 'unsubscribed'].includes(status)
-      ? 'SELECT COUNT(*) FROM newsletter_subscribers WHERE status = $1'
-      : 'SELECT COUNT(*) FROM newsletter_subscribers'
-
-    const countParams = status && ['active', 'unsubscribed'].includes(status) ? [status] : []
-    const countResult = await query(countQuery, countParams)
+    const { subscribers, total } = await NewsletterSubscriber.findAll({
+      status,
+      limit,
+      offset
+    })
 
     res.json({
       success: true,
       data: {
-        subscribers: subscribers.rows,
-        total: parseInt(countResult.rows[0].count),
+        subscribers,
+        total,
         limit: parseInt(limit),
         offset: parseInt(offset)
       }
@@ -222,25 +183,11 @@ export const getAllSubscribers = async (req, res) => {
 // Obtener estadísticas de suscriptores (solo admin)
 export const getSubscriberStats = async (req, res) => {
   try {
-    const stats = await query(`
-      SELECT
-        COUNT(*) as total,
-        COUNT(CASE WHEN status = 'active' THEN 1 END) as active,
-        COUNT(CASE WHEN status = 'unsubscribed' THEN 1 END) as unsubscribed,
-        COUNT(CASE WHEN subscribed_at >= NOW() - INTERVAL '7 days' THEN 1 END) as last_7_days,
-        COUNT(CASE WHEN subscribed_at >= NOW() - INTERVAL '30 days' THEN 1 END) as last_30_days
-      FROM newsletter_subscribers
-    `)
+    const stats = await NewsletterSubscriber.getStats()
 
     res.json({
       success: true,
-      data: {
-        total: parseInt(stats.rows[0].total),
-        active: parseInt(stats.rows[0].active),
-        unsubscribed: parseInt(stats.rows[0].unsubscribed),
-        last7Days: parseInt(stats.rows[0].last_7_days),
-        last30Days: parseInt(stats.rows[0].last_30_days)
-      }
+      data: stats
     })
 
   } catch (error) {

@@ -1,13 +1,13 @@
-import { query } from '../config/database.js'
+import Category from '../models/Category.js'
 
 export const getAllCategories = async (req, res) => {
   try {
-    const result = await query('SELECT * FROM categories ORDER BY id')
+    const categories = await Category.findAll()
     res.json({
       success: true,
       message: 'Categorías obtenidas exitosamente',
-      data: result.rows,
-      total: result.rowCount
+      data: categories,
+      total: categories.length
     })
   } catch (error) {
     console.error('❌ Error obteniendo categorías:', error)
@@ -22,9 +22,9 @@ export const getAllCategories = async (req, res) => {
 export const getCategoryById = async (req, res) => {
   try {
     const { id } = req.params
-    const result = await query('SELECT * FROM categories WHERE id = $1', [id])
+    const category = await Category.findById(id)
 
-    if (result.rowCount === 0) {
+    if (!category) {
       return res.status(404).json({
         success: false,
         message: 'Categoría no encontrada'
@@ -34,7 +34,7 @@ export const getCategoryById = async (req, res) => {
     res.json({
       success: true,
       message: 'Categoría obtenida exitosamente',
-      data: result.rows[0]
+      data: category
     })
   } catch (error) {
     console.error('❌ Error obteniendo categoría:', error)
@@ -57,15 +57,12 @@ export const createCategory = async (req, res) => {
       })
     }
 
-    const result = await query(
-      'INSERT INTO categories (name, image_url) VALUES ($1, $2) RETURNING *',
-      [name, image_url || null]
-    )
+    const newCategory = await Category.create({ name, image_url: image_url || null })
 
     res.status(201).json({
       success: true,
       message: 'Categoría creada exitosamente',
-      data: result.rows[0]
+      data: newCategory
     })
   } catch (error) {
     console.error('❌ Error creando categoría:', error)
@@ -89,12 +86,9 @@ export const updateCategory = async (req, res) => {
       })
     }
 
-    const result = await query(
-      'UPDATE categories SET name = $1, image_url = $2, updated_at = NOW() WHERE id = $3 RETURNING *',
-      [name, image_url || null, id]
-    )
+    const updatedCategory = await Category.update(id, { name, image_url: image_url || null })
 
-    if (result.rowCount === 0) {
+    if (!updatedCategory) {
       return res.status(404).json({
         success: false,
         message: 'Categoría no encontrada'
@@ -104,7 +98,7 @@ export const updateCategory = async (req, res) => {
     res.json({
       success: true,
       message: 'Categoría actualizada exitosamente',
-      data: result.rows[0]
+      data: updatedCategory
     })
   } catch (error) {
     console.error('❌ Error actualizando categoría:', error)
@@ -121,8 +115,7 @@ export const deleteCategory = async (req, res) => {
     const { id } = req.params
 
     // Verificar si la categoría tiene productos asociados
-    const productsResult = await query('SELECT COUNT(*) FROM products WHERE category_id = $1', [id])
-    const productCount = parseInt(productsResult.rows[0].count)
+    const productCount = await Category.countProducts(id)
 
     if (productCount > 0) {
       return res.status(400).json({
@@ -131,9 +124,9 @@ export const deleteCategory = async (req, res) => {
       })
     }
 
-    const result = await query('DELETE FROM categories WHERE id = $1 RETURNING *', [id])
+    const deletedCategory = await Category.delete(id)
 
-    if (result.rowCount === 0) {
+    if (!deletedCategory) {
       return res.status(404).json({
         success: false,
         message: 'Categoría no encontrada'
@@ -143,7 +136,7 @@ export const deleteCategory = async (req, res) => {
     res.json({
       success: true,
       message: 'Categoría eliminada exitosamente',
-      data: result.rows[0]
+      data: deletedCategory
     })
   } catch (error) {
     console.error('❌ Error eliminando categoría:', error)

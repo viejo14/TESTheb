@@ -1,6 +1,7 @@
 import pkg from 'transbank-sdk'
 const { WebpayPlus, Options, IntegrationCommerceCodes, IntegrationApiKeys, Environment } = pkg
-import { query } from '../config/database.js'
+import Order from '../models/Order.js'
+import OrderItem from '../models/OrderItem.js'
 import { catchAsync } from '../middleware/errorHandler.js'
 import { AppError } from '../middleware/errorHandler.js'
 import logger from '../config/logger.js'
@@ -76,37 +77,20 @@ export const createTransaction = catchAsync(async (req, res) => {
       const customerInfo = orderData.customerInfo || {}
       const cartItems = orderData.cartItems || []
 
-      await query(`
-        INSERT INTO orders (
-          buy_order,
-          session_id,
-          amount,
-          total,
-          status,
-          token_ws,
-          items,
-          customer_name,
-          customer_email,
-          customer_phone,
-          shipping_address,
-          shipping_city,
-          created_at,
-          updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), NOW())
-      `, [
-        buyOrder,
-        sessionId,
-        sanitizedAmount,
-        sanitizedAmount, // total = amount for WebPay
-        'created',
-        response.token,
-        JSON.stringify(cartItems),
-        customerInfo.name || '',
-        customerInfo.email || '',
-        customerInfo.phone || '',
-        customerInfo.address || '',
-        customerInfo.city || ''
-      ])
+      await Order.create({
+        buy_order: buyOrder,
+        session_id: sessionId,
+        amount: sanitizedAmount,
+        total: sanitizedAmount,
+        status: 'created',
+        token_ws: response.token,
+        items: cartItems,
+        customer_name: customerInfo.name || '',
+        customer_email: customerInfo.email || '',
+        customer_phone: customerInfo.phone || '',
+        shipping_address: customerInfo.address || '',
+        shipping_city: customerInfo.city || ''
+      })
 
       logger.info('💾 Orden guardada en base de datos', { buyOrder })
     } catch (dbError) {
@@ -159,11 +143,7 @@ export const commitTransaction = catchAsync(async (req, res) => {
 
       // Actualizar orden en DB
       try {
-        await query(`
-          UPDATE orders
-          SET status = $1, updated_at = NOW(), result_json = $2
-          WHERE buy_order = $3
-        `, ['aborted', JSON.stringify({ TBK_TOKEN, TBK_ORDEN_COMPRA }), TBK_ORDEN_COMPRA])
+        await Order.updateStatus(TBK_ORDEN_COMPRA, 'aborted', { TBK_TOKEN, TBK_ORDEN_COMPRA })
       } catch (dbError) {
         logger.error('❌ Error actualizando orden cancelada en DB:', dbError)
       }
@@ -208,22 +188,15 @@ export const commitTransaction = catchAsync(async (req, res) => {
 
         // Actualizar orden en DB con datos completos de WebPay
         try {
-          await query(`
-            UPDATE orders
-            SET status = $1, updated_at = NOW(), result_json = $2,
-                authorization_code = $3, response_code = $4,
-                payment_type_code = $5, card_last4 = $6, installments_number = $7
-            WHERE buy_order = $8
-          `, [
+          await Order.updateWithPaymentResult(response.buy_order, {
             status,
-            JSON.stringify(response),
-            response.authorization_code,
-            response.response_code,
-            response.payment_type_code,
-            response.card_detail?.card_number || null,
-            response.installments_number || 0,
-            response.buy_order
-          ])
+            result_json: response,
+            authorization_code: response.authorization_code,
+            response_code: response.response_code,
+            payment_type_code: response.payment_type_code,
+            card_last4: response.card_detail?.card_number || null,
+            installments_number: response.installments_number || 0
+          })
 
           logger.info('💾 Orden actualizada en DB', { buyOrder: response.buy_order, status })
 
@@ -231,27 +204,13 @@ export const commitTransaction = catchAsync(async (req, res) => {
           if (status === 'authorized') {
             try {
               // Obtener el ID de la orden y los items
-              const orderResult = await query(
-                'SELECT id, items FROM orders WHERE buy_order = $1',
-                [response.buy_order]
-              )
+              const order = await Order.getWithItems(response.buy_order)
 
-              if (orderResult.rows.length > 0) {
-                const order = orderResult.rows[0]
+              if (order) {
                 const items = order.items || [] // Ya viene parseado desde PostgreSQL (JSONB)
 
-                // Insertar cada item en order_items
-                for (const item of items) {
-                  await query(`
-                    INSERT INTO order_items (order_id, product_id, quantity, price, created_at)
-                    VALUES ($1, $2, $3, $4, NOW())
-                  `, [
-                    order.id,
-                    item.id || item.product_id,
-                    item.quantity,
-                    parseFloat(item.price) // price puede venir como string
-                  ])
-                }
+                // Insertar items usando el modelo
+                await OrderItem.createBulk(order.id, items)
 
                 logger.info('✅ Order items creados en DB', {
                   buyOrder: response.buy_order,
@@ -298,16 +257,11 @@ export const getOrderStatus = catchAsync(async (req, res) => {
     throw new AppError('Buy Order es requerido', 400)
   }
 
-  const result = await query(
-    'SELECT * FROM orders WHERE buy_order = $1',
-    [buyOrder]
-  )
+  const order = await Order.findByBuyOrder(buyOrder)
 
-  if (result.rows.length === 0) {
+  if (!order) {
     throw new AppError('Orden no encontrada', 404)
   }
-
-  const order = result.rows[0]
 
   res.json({
     success: true,

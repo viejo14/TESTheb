@@ -10,18 +10,37 @@ const router = express.Router()
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// Configurar directorio de subida local
-const uploadDir = path.join(__dirname, '../../..', 'frontend', 'public', 'images', 'categories')
+// Configurar directorios de subida local
+const categoriesUploadDir = path.join(__dirname, '../../..', 'frontend', 'public', 'images', 'categories')
+const productsUploadDir = path.join(__dirname, '../../..', 'frontend', 'public', 'images', 'products')
 
-// Crear directorio si no existe
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true })
+// Crear directorios si no existen
+if (!fs.existsSync(categoriesUploadDir)) {
+  fs.mkdirSync(categoriesUploadDir, { recursive: true })
 }
 
-// Configuración de multer para almacenamiento local
-const localStorage = multer.diskStorage({
+if (!fs.existsSync(productsUploadDir)) {
+  fs.mkdirSync(productsUploadDir, { recursive: true })
+}
+
+// Configuración de multer para almacenamiento local de categorías
+const localStorageCategories = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, uploadDir)
+    cb(null, categoriesUploadDir)
+  },
+  filename: function (req, file, cb) {
+    const timestamp = Date.now()
+    const ext = path.extname(file.originalname)
+    const name = path.basename(file.originalname, ext)
+    const sanitizedName = name.replace(/[^a-zA-Z0-9_-]/g, '_')
+    cb(null, `${sanitizedName}_${timestamp}${ext}`)
+  }
+})
+
+// Configuración de multer para almacenamiento local de productos
+const localStorageProducts = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, productsUploadDir)
   },
   filename: function (req, file, cb) {
     const timestamp = Date.now()
@@ -53,12 +72,21 @@ const uploadCloudinary = multer({
   }
 })
 
-// Multer para upload local
-const uploadLocal = multer({
-  storage: localStorage,
+// Multer para upload local de categorías
+const uploadLocalCategories = multer({
+  storage: localStorageCategories,
   fileFilter: fileFilter,
   limits: {
     fileSize: 5 * 1024 * 1024 // 5MB máximo
+  }
+})
+
+// Multer para upload local de productos
+const uploadLocalProducts = multer({
+  storage: localStorageProducts,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB máximo para productos
   }
 })
 
@@ -217,7 +245,7 @@ router.delete('/product-image/:cloudinaryId', async (req, res) => {
 // ==================== ENDPOINTS PARA UPLOAD LOCAL ====================
 
 // Endpoint para subir imagen de categoría localmente
-router.post('/category-image-local', uploadLocal.single('image'), (req, res) => {
+router.post('/category-image-local', uploadLocalCategories.single('image'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -250,7 +278,7 @@ router.post('/category-image-local', uploadLocal.single('image'), (req, res) => 
 })
 
 // Endpoint para subir imagen de producto localmente
-router.post('/product-image-local', uploadLocal.single('image'), (req, res) => {
+router.post('/product-image-local', uploadLocalProducts.single('image'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -259,8 +287,8 @@ router.post('/product-image-local', uploadLocal.single('image'), (req, res) => {
       })
     }
 
-    // Devolver la URL relativa de la imagen
-    const imageUrl = `/images/categories/${req.file.filename}`
+    // Devolver la URL relativa de la imagen para productos
+    const imageUrl = `/images/products/${req.file.filename}`
 
     res.json({
       success: true,
@@ -286,7 +314,7 @@ router.post('/product-image-local', uploadLocal.single('image'), (req, res) => {
 router.delete('/category-image-local/:filename', (req, res) => {
   try {
     const { filename } = req.params
-    const filePath = path.join(uploadDir, filename)
+    const filePath = path.join(categoriesUploadDir, filename)
 
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath)
@@ -314,7 +342,7 @@ router.delete('/category-image-local/:filename', (req, res) => {
 router.delete('/product-image-local/:filename', (req, res) => {
   try {
     const { filename } = req.params
-    const filePath = path.join(uploadDir, filename)
+    const filePath = path.join(productsUploadDir, filename)
 
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath)
