@@ -157,7 +157,7 @@ const CotizacionesManager = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-yellow-400 p-6 rounded-lg shadow-md"
+            className="bg-yellow-500 p-6 rounded-lg shadow-md"
           >
             <div className="flex items-center justify-between">
               <div>
@@ -178,7 +178,7 @@ const CotizacionesManager = () => {
               <p className="text-gray-900 text-sm mb-2">Por Estado</p>
               <div className="space-y-1">
                 {stats.cotizacionesByStatus.map(item => (
-                  <div key={item.status} className="flex justify-between text-sm">
+                  <div key={item.status} className="flex justify-between text-sm text-black">
                     <span className="capitalize">{getStatusLabel(item.status)}:</span>
                     <span className="font-semibold">{item.count}</span>
                   </div>
@@ -190,7 +190,7 @@ const CotizacionesManager = () => {
       )}
 
       {/* Filters and Bulk Actions */}
-      <div className="bg-yellow-400 p-4 rounded-lg shadow-md">
+      <div className="bg-yellow-500 p-4 rounded-lg shadow-md">
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
           <div className="flex flex-col md:flex-row gap-3 flex-1">
             <select
@@ -234,10 +234,10 @@ const CotizacionesManager = () => {
       </div>
 
       {/* Cotizaciones Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-gray-700 rounded-lg shadow-md overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-yellow-400">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <input
@@ -275,7 +275,7 @@ const CotizacionesManager = () => {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-gray-200 divide-y divide-gray-300">
               <AnimatePresence>
                 {cotizaciones.map((cotizacion) => (
                   <motion.tr
@@ -355,7 +355,7 @@ const CotizacionesManager = () => {
 
         {/* Pagination */}
         {pagination.totalPages > 1 && (
-          <div className="bg-gray-50 px-4 py-3 flex items-center justify-between border-t border-gray-200">
+          <div className="bg-yellow-500 px-4 py-3 flex items-center justify-between border-t border-gray-200">
             <div className="flex-1 flex justify-between sm:hidden">
               <button
                 onClick={() => setPagination(prev => ({ ...prev, currentPage: prev.currentPage - 1 }))}

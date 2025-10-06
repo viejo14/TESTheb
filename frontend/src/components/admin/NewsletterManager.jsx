@@ -126,7 +126,7 @@ const NewsletterManager = () => {
                 <p className="text-2xl font-bold text-yellow-400">{stats.last7Days}</p>
               </div>
               <div className="w-8 h-8 rounded-full bg-yellow-400/20 flex items-center justify-center">
-                <span className="text-yellow-400 text-xl">7</span>
+                <span className="text-yellow-400 text-xl">N°{stats.last7Days}</span>
               </div>
             </div>
           </div>

@@ -199,8 +199,8 @@ const DashboardStats = () => {
         <div className="space-y-4">
           {stats.salesByCategory && stats.salesByCategory.length > 0 ? (
             stats.salesByCategory.map((category, index) => {
-              const maxIngresos = Math.max(...stats.salesByCategory.map(c => parseFloat(c.ingresos)))
-              const percentage = maxIngresos > 0 ? (parseFloat(category.ingresos) / maxIngresos) * 100 : 0
+              const maxProductosVendidos = Math.max(...stats.salesByCategory.map(c => parseInt(c.productos_vendidos)))
+              const percentage = maxProductosVendidos > 0 ? (parseInt(category.productos_vendidos) / maxProductosVendidos) * 100 : 0
 
               return (
                 <motion.div
