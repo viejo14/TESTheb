@@ -100,7 +100,7 @@ const CategoryCarousel = ({ categories = [] }) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-  <div className="relative w-full h-80 md:h-64 md:h-[520px] lg:h-[640px] xl:h-[720px] overflow-hidden rounded-3xl shadow-2xl">
+  <div className="relative w-full h-64 sm:h-80 md:h-[520px] lg:h-[640px] xl:h-[720px] overflow-hidden rounded-3xl shadow-2xl">
         {/* Navigation Buttons */}
         {totalSlides > slidesToShow && (
           <>
@@ -147,15 +147,15 @@ const CategoryCarousel = ({ categories = [] }) => {
                     className="w-full h-full object-cover transition-transform duration-600 group-hover:scale-110"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-black/10 to-black/60 flex items-end p-10 transition-all duration-300 group-hover:from-black/50 group-hover:via-black/20 group-hover:to-black/70">
-                    <div className="text-white text-left transform translate-y-2.5 transition-transform duration-300 group-hover:translate-y-0">
-                      <h3 className="text-3xl font-bold mb-2 text-white text-shadow-lg">
+                  <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-black/10 to-black/60 flex items-end p-4 sm:p-6 md:p-8 lg:p-10 transition-all duration-300 group-hover:from-black/50 group-hover:via-black/20 group-hover:to-black/70">
+                    <div className="text-white text-left transform translate-y-2.5 transition-transform duration-300 group-hover:translate-y-0 w-full">
+                      <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2 text-white text-shadow-lg break-words">
                         {category.name}
                       </h3>
-                      <p className="text-base leading-5 mb-4 text-white/90 opacity-0 transform translate-y-5 transition-all duration-300 delay-100 group-hover:opacity-100 group-hover:translate-y-0">
+                      <p className="text-xs sm:text-sm md:text-base leading-tight sm:leading-5 mb-2 sm:mb-3 md:mb-4 text-white/90 opacity-0 transform translate-y-5 transition-all duration-300 delay-100 group-hover:opacity-100 group-hover:translate-y-0 line-clamp-2">
                         {category.description}
                       </p>
-                      <span className="inline-block px-6 py-3 bg-white/20 border-2 border-white/30 rounded-full text-white font-semibold text-sm uppercase tracking-wide transition-all duration-300 backdrop-blur-sm opacity-0 transform translate-y-5 group-hover:opacity-100 group-hover:translate-y-0 group-hover:bg-white/30 group-hover:border-white/50">
+                      <span className="inline-block px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-3 bg-white/20 border-2 border-white/30 rounded-full text-white font-semibold text-xs sm:text-sm uppercase tracking-wide transition-all duration-300 backdrop-blur-sm opacity-0 transform translate-y-5 group-hover:opacity-100 group-hover:translate-y-0 group-hover:bg-white/30 group-hover:border-white/50">
                         Ver productos
                       </span>
                     </div>
