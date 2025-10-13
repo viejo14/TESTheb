@@ -58,3 +58,11 @@ Thumbs.db
 
 # Keep example files
 !**/.env.example
+
+# User documents
+**/Documentos/
+Documentos/
+
+# Tests - NO ignorar, son importantes para el proyecto
+# __tests__/ folders should be versioned
+
