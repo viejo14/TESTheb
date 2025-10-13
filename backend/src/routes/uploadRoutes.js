@@ -314,7 +314,29 @@ router.post('/product-image-local', uploadLocalProducts.single('image'), (req, r
 router.delete('/category-image-local/:filename', (req, res) => {
   try {
     const { filename } = req.params
-    const filePath = path.join(categoriesUploadDir, filename)
+
+    // ✅ SEGURIDAD: Validar que el filename no contenga caracteres peligrosos
+    // Previene Path Traversal attacks (../, ..\, etc.)
+    if (!filename || filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nombre de archivo inválido'
+      })
+    }
+
+    // ✅ SEGURIDAD: Usar path.basename para asegurar que solo se use el nombre del archivo
+    // Esto elimina cualquier intento de acceder a directorios superiores
+    const safeFilename = path.basename(filename)
+    const filePath = path.join(categoriesUploadDir, safeFilename)
+
+    // ✅ SEGURIDAD: Verificar que el path resultante esté dentro del directorio permitido
+    const normalizedPath = path.normalize(filePath)
+    if (!normalizedPath.startsWith(path.normalize(categoriesUploadDir))) {
+      return res.status(403).json({
+        success: false,
+        message: 'Acceso denegado'
+      })
+    }
 
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath)
@@ -342,7 +364,29 @@ router.delete('/category-image-local/:filename', (req, res) => {
 router.delete('/product-image-local/:filename', (req, res) => {
   try {
     const { filename } = req.params
-    const filePath = path.join(productsUploadDir, filename)
+
+    // ✅ SEGURIDAD: Validar que el filename no contenga caracteres peligrosos
+    // Previene Path Traversal attacks (../, ..\, etc.)
+    if (!filename || filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nombre de archivo inválido'
+      })
+    }
+
+    // ✅ SEGURIDAD: Usar path.basename para asegurar que solo se use el nombre del archivo
+    // Esto elimina cualquier intento de acceder a directorios superiores
+    const safeFilename = path.basename(filename)
+    const filePath = path.join(productsUploadDir, safeFilename)
+
+    // ✅ SEGURIDAD: Verificar que el path resultante esté dentro del directorio permitido
+    const normalizedPath = path.normalize(filePath)
+    if (!normalizedPath.startsWith(path.normalize(productsUploadDir))) {
+      return res.status(403).json({
+        success: false,
+        message: 'Acceso denegado'
+      })
+    }
 
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath)

@@ -1,0 +1,60 @@
+# ========================================
+# GITIGNORE GLOBAL - TESTheb Proyecto
+# ========================================
+
+# Environment variables - NUNCA SUBIR
+**/.env
+**/.env.local
+**/.env.*.local
+**/.env.development
+**/.env.production
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+**/node_modules/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+**/dist/
+**/build/
+**/.next/
+**/.nuxt/
+**/.vite/
+
+# Logs
+logs/
+*.log
+**/*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Coverage
+**/coverage/
+**/.nyc_output/
+
+# Uploads (archivos subidos por usuarios)
+**/uploads/
+!**/uploads/.gitkeep
+
+# Cache
+.cache/
+**/.cache/
+
+# Keep example files
+!**/.env.example

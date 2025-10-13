@@ -2,6 +2,20 @@ import jwt from 'jsonwebtoken'
 import { query } from '../config/database.js'
 import logger from '../config/logger.js'
 
+// ✅ SEGURIDAD: Validar que las variables de entorno críticas existan
+const JWT_SECRET = process.env.JWT_SECRET
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET
+
+if (!JWT_SECRET) {
+  logger.error('❌ CRITICAL: JWT_SECRET is not defined in environment variables')
+  throw new Error('JWT_SECRET must be defined in environment variables')
+}
+
+if (!JWT_REFRESH_SECRET) {
+  logger.error('❌ CRITICAL: JWT_REFRESH_SECRET is not defined in environment variables')
+  throw new Error('JWT_REFRESH_SECRET must be defined in environment variables')
+}
+
 // Middleware para verificar JWT token
 export const authenticateToken = async (req, res, next) => {
   try {
@@ -16,7 +30,7 @@ export const authenticateToken = async (req, res, next) => {
     }
 
     // Verificar el token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'testheb-secret-key-2025')
+    const decoded = jwt.verify(token, JWT_SECRET)
 
     // Verificar que el usuario aún existe en la base de datos
     const userResult = await query(
@@ -96,7 +110,7 @@ export const optionalAuth = async (req, res, next) => {
       return next()
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'testheb-secret-key-2025')
+    const decoded = jwt.verify(token, JWT_SECRET)
 
     const userResult = await query(
       'SELECT id, email, name, role, created_at FROM users WHERE id = $1 AND active = true',
@@ -131,7 +145,7 @@ export const generateToken = (user) => {
 
   return jwt.sign(
     payload,
-    process.env.JWT_SECRET || 'testheb-secret-key-2025',
+    JWT_SECRET,
     {
       expiresIn: process.env.JWT_EXPIRES_IN || '24h',
       issuer: 'testheb-api',
@@ -149,7 +163,7 @@ export const generateRefreshToken = (user) => {
 
   return jwt.sign(
     payload,
-    process.env.JWT_REFRESH_SECRET || 'testheb-refresh-secret-2025',
+    JWT_REFRESH_SECRET,
     {
       expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
       issuer: 'testheb-api',

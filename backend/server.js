@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import morgan from 'morgan'
+import rateLimit from 'express-rate-limit'
 import { query } from './src/config/database.js'
 import logger from './src/config/logger.js'
 import { globalErrorHandler, notFoundHandler } from './src/middleware/errorHandler.js'
@@ -21,6 +22,43 @@ dotenv.config()
 const app = express()
 const PORT = process.env.PORT || 3000
 
+// ✅ SEGURIDAD: Deshabilitar header X-Powered-By
+// Previene que atacantes sepan que usas Express.js
+app.disable('x-powered-by')
+
+// ✅ SEGURIDAD: Rate limiting global
+// Limita las peticiones por IP para prevenir ataques de fuerza bruta y DDoS
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // Máximo 100 peticiones por ventana
+  message: 'Demasiadas peticiones desde esta IP, por favor intenta de nuevo más tarde',
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
+// ✅ SEGURIDAD: Rate limiting para uploads (más restrictivo)
+// Previene abuso en operaciones costosas de sistema de archivos
+const uploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 20, // Máximo 20 uploads por ventana
+  message: 'Demasiadas subidas de archivos, por favor intenta de nuevo más tarde',
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
+// ✅ SEGURIDAD: Rate limiting para autenticación (muy restrictivo)
+// Previene ataques de fuerza bruta en login
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 5, // Máximo 5 intentos de login por ventana
+  message: 'Demasiados intentos de inicio de sesión, por favor intenta de nuevo más tarde',
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
+// Aplicar rate limiting global a todas las rutas
+app.use(limiter)
+
 // Middlewares básicos
 app.use(cors())
 app.use(express.json({ limit: '10mb' }))
@@ -35,14 +73,14 @@ app.use(morgan('combined', {
 }))
 
 // Rutas de la API
-app.use('/api/auth', authRoutes)
+app.use('/api/auth', authLimiter, authRoutes) // ✅ Rate limiting para autenticación
 app.use('/api/categories', categoryRoutes)
 app.use('/api/products', productRoutes)
 app.use('/api/payments', paymentRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/cotizaciones', cotizacionRoutes)
 app.use('/api/webpay', webpayRoutes)
-app.use('/api/upload', uploadRoutes)
+app.use('/api/upload', uploadLimiter, uploadRoutes) // ✅ Rate limiting para uploads
 app.use('/api/stats', statsRoutes)
 app.use('/api/newsletter', newsletterRoutes)
 
@@ -280,9 +318,14 @@ app.get('/api/setup/create-admin', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Admin creado exitosamente ✅',
-      admin: adminResult.rows[0],
-      password: 'admin123'
+      message: 'Admin creado exitosamente ✅ (Credenciales: admin@testheb.cl / admin123)',
+      admin: {
+        id: adminResult.rows[0].id,
+        name: adminResult.rows[0].name,
+        email: adminResult.rows[0].email,
+        role: adminResult.rows[0].role
+      }
+      // ✅ SEGURIDAD: No enviar password_hash ni contraseñas en respuestas
     })
   } catch (error) {
     logger.error('Error creando admin:', error)
