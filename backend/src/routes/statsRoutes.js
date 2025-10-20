@@ -1,8 +1,12 @@
 import express from 'express'
-import { getDashboardStats } from '../controllers/statsController.js'
+import { getDashboardStats, getTopProducts } from '../controllers/statsController.js'
 import { authenticateToken, requireRole } from '../middleware/auth.js'
 
 const router = express.Router()
+
+// Rutas públicas (sin autenticación)
+// GET /api/stats/top-products - Productos más vendidos (para Home)
+router.get('/top-products', getTopProducts)
 
 // Rutas protegidas - solo admin
 router.use(authenticateToken, requireRole('admin'))

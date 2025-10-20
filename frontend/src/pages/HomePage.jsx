@@ -47,19 +47,21 @@ const HomePage = () => {
       try {
         setLoading(true)
 
-        // Load categories and products in parallel
-        const [categoriesResponse, productsResponse] = await Promise.all([
+        // Load categories and top products in parallel
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+
+        const [categoriesResponse, topProductsResponse] = await Promise.all([
           fetchCategories(),
-          fetchProducts()
+          fetch(`${API_URL}/stats/top-products?limit=6`).then(res => res.json())
         ])
 
         if (categoriesResponse.success) {
           setCategories(categoriesResponse.data)
         }
 
-        if (productsResponse.success) {
-          // Show first 4 products as featured
-          setFeaturedProducts(productsResponse.data.slice(0, 4))
+        if (topProductsResponse.success) {
+          // Show top 6 most sold products
+          setFeaturedProducts(topProductsResponse.data)
         }
       } catch (err) {
         setError('Error cargando los datos')
@@ -252,7 +254,7 @@ const HomePage = () => {
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              Productos Destacados
+              🏆 Productos Más Vendidos
             </motion.h2>
             <motion.p
               className="text-lg text-center text-text-secondary mb-12 max-w-2xl mx-auto"
@@ -261,7 +263,7 @@ const HomePage = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true }}
             >
-              Algunos de nuestros trabajos más populares
+              Los favoritos de nuestros clientes - ¡Los más pedidos!
             </motion.p>
 
             <motion.div

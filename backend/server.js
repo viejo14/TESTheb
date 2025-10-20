@@ -16,6 +16,7 @@ import authRoutes from './src/routes/authRoutes.js'
 import uploadRoutes from './src/routes/uploadRoutes.js'
 import statsRoutes from './src/routes/statsRoutes.js'
 import newsletterRoutes from './src/routes/newsletterRoutes.js'
+import orderRoutes from './src/routes/orderRoutes.js'
 
 dotenv.config()
 
@@ -83,6 +84,7 @@ app.use('/api/webpay', webpayRoutes)
 app.use('/api/upload', uploadLimiter, uploadRoutes) // ✅ Rate limiting para uploads
 app.use('/api/stats', statsRoutes)
 app.use('/api/newsletter', newsletterRoutes)
+app.use('/api/orders', orderRoutes)
 
 // Health check básico
 app.get('/api/health', (req, res) => {

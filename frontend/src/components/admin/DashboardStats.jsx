@@ -17,10 +17,21 @@ const DashboardStats = () => {
     try {
       setLoading(true)
       const token = localStorage.getItem('token')
-      const response = await axios.get(`${API_URL}/stats/dashboard`, {
-        headers: { Authorization: `Bearer ${token}` }
+
+      // Obtener estadísticas del dashboard y de órdenes en paralelo
+      const [dashboardResponse, ordersResponse] = await Promise.all([
+        axios.get(`${API_URL}/stats/dashboard`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get(`${API_URL}/orders/stats`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).catch(() => ({ data: { data: null } })) // Si falla, retornar null
+      ])
+
+      setStats({
+        ...dashboardResponse.data.data,
+        ordersStats: ordersResponse.data.data
       })
-      setStats(response.data.data)
     } catch (err) {
       setError('Error cargando estadísticas')
       console.error(err)
@@ -53,29 +64,30 @@ const DashboardStats = () => {
 
   const statCards = [
     {
-      title: 'Total Órdenes (Boletas / Facturas)',
-      value: stats.salesStats?.total_ordenes || 0,
+      title: 'Órdenes del Mes',
+      value: stats.ordersStats?.orders_this_month || stats.salesStats?.total_ordenes || 0,
+      subtitle: stats.ordersStats?.pending_orders ? `${stats.ordersStats.pending_orders} pendientes` : null,
       icon: '📦',
       color: 'bg-blue-500/20 border-blue-400'
     },
     {
-      title: 'Ingresos Totales Vendidos',
-      value: `$${parseFloat(stats.salesStats?.ingresos_totales || 0).toLocaleString()}`,
+      title: 'Ingresos del Mes',
+      value: `$${parseFloat(stats.ordersStats?.revenue_this_month || stats.salesStats?.ingresos_totales || 0).toLocaleString()}`,
       icon: '💰',
       color: 'bg-green-500/20 border-green-400'
     },
     {
-      title: 'Valor Promedio de Boletas / Facturas',
-      value: `$${Math.round(parseFloat(stats.salesStats?.ticket_promedio || 0)).toLocaleString()}`,
+      title: 'Ticket Promedio',
+      value: `$${Math.round(parseFloat(stats.ordersStats?.average_order_value || stats.salesStats?.ticket_promedio || 0)).toLocaleString()}`,
       icon: '🎫',
       color: 'bg-purple-500/20 border-purple-400'
     },
     {
-      title: 'Cotizaciones Últimos 30 días',
-      value: stats.recentQuotes?.total_cotizaciones || 0,
-      subtitle: `${stats.recentQuotes?.pendientes || 0} pendientes`,
-      icon: '📝',
-      color: 'bg-yellow-500/20 border-yellow-400'
+      title: 'Ventas Hoy',
+      value: stats.ordersStats?.orders_today || 0,
+      subtitle: stats.ordersStats?.revenue_today ? `$${parseFloat(stats.ordersStats.revenue_today).toLocaleString()}` : null,
+      icon: '📊',
+      color: 'bg-orange-500/20 border-orange-400'
     }
   ]
 
