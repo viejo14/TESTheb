@@ -127,15 +127,15 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    console.log('🚀 DEBUG: Iniciando envío del formulario...')
-    console.log('📋 DEBUG: Datos del formulario:', formData)
+    //console.log('🚀 DEBUG: Iniciando envío del formulario...')
+    //console.log('📋 DEBUG: Datos del formulario:', formData)
 
     if (!validateForm()) {
-      console.log('❌ DEBUG: Validación del formulario falló')
+      //console.log('❌ DEBUG: Validación del formulario falló')
       return
     }
 
-    console.log('✅ DEBUG: Validación del formulario exitosa')
+    //console.log('✅ DEBUG: Validación del formulario exitosa')
     setLoading(true)
     try {
       // Prepare data for submission
@@ -148,7 +148,7 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
         stock: parseInt(formData.stock) || 0
       }
 
-      console.log('📤 DEBUG: Datos a enviar:', submitData)
+      //console.log('📤 DEBUG: Datos a enviar:', submitData)
 
       let response
       let optimisticData
@@ -247,12 +247,12 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
   const handleFileUpload = async (file) => {
     if (!file) return
 
-    console.log('🧪 DEBUG: Archivo seleccionado:', {
-      name: file.name,
-      type: file.type,
-      size: file.size,
-      lastModified: file.lastModified
-    })
+    //console.log('🧪 DEBUG: Archivo seleccionado:', {
+    //  name: file.name,
+    //  type: file.type,
+    //  size: file.size,
+    //  lastModified: file.lastModified
+    //})
 
     // Validar tipo de archivo
     if (!file.type.startsWith('image/')) {
@@ -268,29 +268,29 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
       return
     }
 
-    console.log('✅ DEBUG: Archivo válido, iniciando subida...')
-    console.log('📋 DEBUG: Tipo de subida seleccionado:', imageUploadType)
+    //console.log('✅ DEBUG: Archivo válido, iniciando subida...')
+    //console.log('📋 DEBUG: Tipo de subida seleccionado:', imageUploadType)
 
     setUploadProgress(true)
     setErrors({ image: '' })
 
     try {
-      console.log('🔄 DEBUG: Iniciando proceso de subida...')
+      //console.log('🔄 DEBUG: Iniciando proceso de subida...')
       
       // Usar la función correcta según el tipo seleccionado
       const response = imageUploadType === 'cloudinary'
         ? await uploadProductImage(file)
         : await uploadProductImageLocal(file)
 
-      console.log('📡 DEBUG: Respuesta del servidor:', response)
+      //console.log('📡 DEBUG: Respuesta del servidor:', response)
 
       if (response.success) {
-        console.log('✅ DEBUG: Subida exitosa!')
+        //console.log('✅ DEBUG: Subida exitosa!')
         setUploadedImage(response.data)
         setImagePreview(URL.createObjectURL(file))
         setFormData(prev => ({ ...prev, image_url: response.data.imageUrl }))
       } else {
-        console.error('❌ DEBUG: Error en respuesta del servidor:', response)
+        console.error('Error en respuesta del servidor:', response.message || response.error || 'Error desconocido')
         setErrors({ image: response.message || 'Error subiendo la imagen' })
       }
     } catch (error) {
@@ -487,7 +487,7 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
       const data = await response.json()
       
       if (data.success) {
-        console.log('✅ Imágenes guardadas exitosamente')
+        //console.log('✅ Imágenes guardadas exitosamente')
       }
     } catch (error) {
       console.error('Error guardando imágenes:', error)

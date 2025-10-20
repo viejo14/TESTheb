@@ -5,9 +5,30 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://postgresql.org/)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind-4+-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 
-Plataforma de e-commerce especializada en bordados personalizados. Proyecto capstone APT122 con sistema completo de autenticación, panel administrativo, integración WebPay y gestión de inventario.
+Plataforma de e-commerce especializada en bordados personalizados. Proyecto capstone APT122 con sistema completo de autenticación, panel administrativo, integración WebPay y gestión de inventario en tiempo real.
 
-**Características principales:** E-commerce completo, autenticación JWT, panel admin, pagos WebPay, responsive design, gestión de imágenes con Cloudinary.
+**Características principales:** E-commerce completo, autenticación JWT, panel admin, pagos WebPay, control de inventario con descuento automático, responsive design, gestión de imágenes con Cloudinary.
+
+## ✨ ¿Qué hace este sistema?
+
+### ✅ **SÍ INCLUYE:**
+- **Catálogo de productos** - Sistema completo con categorías, búsqueda y filtros
+- **Cotizaciones automáticas** - Carrito de compras con cálculo de precios en tiempo real
+- **Pagos Transbank/WebPay** - Integración completa con WebPay Plus para pagos en línea
+- **Panel administrativo** - Dashboard con gestión de productos, categorías, usuarios y pedidos
+- **Inventario en tiempo real** - Control de stock con descuento automático al realizar compras
+- **Gestión de imágenes** - Múltiples imágenes por producto con Cloudinary
+- **Autenticación JWT** - Sistema seguro de login y registro de usuarios
+- **Responsive design** - Funciona perfectamente en móviles, tablets y desktop
+
+### ❌ **NO INCLUYE:**
+- **ERP completo** - No gestiona proveedores, contabilidad empresarial o recursos humanos
+- **Inventario multi-bodega** - Stock en una sola ubicación (no múltiples sucursales)
+- **Alertas de stock bajo** - No notifica automáticamente cuando el stock es bajo
+- **Marketplace multi-vendedor** - Es una tienda única, no una plataforma de múltiples vendedores
+- **Trazabilidad de movimientos** - No registra historial detallado de entradas/salidas de inventario
+
+**En resumen:** Es una plataforma e-commerce B2C completa y funcional, ideal para una tienda online que quiere vender productos, gestionar inventario básico y procesar pagos en línea.
 
 ## 🛠️ Tecnologías
 
@@ -122,9 +143,6 @@ testheb-proyecto/
 │           └── 📂 frontend/    # Código frontend Fase 2
 │
 ├── 📄 README.md                # Este archivo
-├── 📄 ESTADO_ACTUAL_SISTEMA.md # Estado técnico detallado
-├── 📄 RESUMEN_PROYECTO_TALLAS.md # Historia del desarrollo
-└── 📄 COMO_ACTIVAR_TALLAS.md   # Guía para activar sistema de tallas
 ```
 
 ## 📊 Base de Datos
@@ -149,8 +167,10 @@ testheb-proyecto/
 ├── id (PK)
 ├── name, description, price
 ├── image_url, category_id (FK)
-├── size_id (FK), stock
+├── size_id (FK), stock (inventario)
+├── sku (código único)
 └── timestamps
+# Stock se descuenta automáticamente al confirmar pago
 
 📏 sizes           # Tallas disponibles
 ├── id (PK)
@@ -289,11 +309,33 @@ npm run dev     # http://localhost:5173
 Acceder a `/admin` con credenciales de administrador:
 
 - 📊 **Dashboard**: Estadísticas y métricas del sistema
-- 📦 **Productos**: CRUD completo de productos
+- 📦 **Productos**: CRUD completo de productos con control de stock
 - 🏷️ **Categorías**: Gestión de categorías
 - 👥 **Usuarios**: Administración de cuentas
 - 📸 **Imágenes**: Subida automática a Cloudinary
 - 🛒 **Pedidos**: Seguimiento de transacciones
+
+### 📦 Sistema de Inventario
+
+El sistema incluye gestión de inventario básico pero funcional:
+
+**Funcionalidades:**
+- ✅ Cada producto tiene un campo `stock` que se visualiza en el panel admin
+- ✅ Al crear/editar productos, el admin puede establecer la cantidad disponible
+- ✅ Cuando un cliente completa una compra, el stock se **descuenta automáticamente**
+- ✅ El frontend muestra la disponibilidad de productos en tiempo real
+- ✅ El sistema previene ventas con stock negativo (`Math.max(0, stock - cantidad)`)
+
+**Cómo funciona:**
+1. Cliente agrega productos al carrito
+2. Cliente procede al checkout y paga con WebPay
+3. Al confirmar el pago exitoso, se crean los `order_items`
+4. El sistema automáticamente ejecuta: `stock = stock - cantidad_comprada`
+5. El nuevo stock se refleja inmediatamente en el admin y el catálogo
+
+**Ubicación del código:**
+- Modelo de productos: [backend/src/models/Product.js:240](backend/src/models/Product.js#L240)
+- Descuento de stock: [backend/src/models/OrderItem.js:45-59](backend/src/models/OrderItem.js#L45-L59)
 
 ## 🔌 API Endpoints
 
@@ -433,12 +475,13 @@ npm run build
 
 ### Fase 2 (Actual) - Septiembre 2025
 - ✅ Sistema de autenticación JWT completo
-- ✅ Panel administrativo funcional
-- ✅ Integración WebPay preparada
+- ✅ Panel administrativo funcional con gestión de inventario
+- ✅ Control de stock en tiempo real con descuento automático
+- ✅ Integración WebPay Plus operativa
 - ✅ Frontend React moderno con TailwindCSS
 - ✅ Sistema de tallas preparado (no activado)
-- ✅ Gestión de imágenes con Cloudinary
-- ✅ API RESTful robusta
+- ✅ Gestión de imágenes múltiples con Cloudinary
+- ✅ API RESTful robusta y segura
 
 ### Fase 1 - Septiembre 2025
 - 📋 Documentación del proyecto

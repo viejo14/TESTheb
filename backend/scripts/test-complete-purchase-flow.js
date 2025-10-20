@@ -31,7 +31,7 @@ const colors = {
  * Imprime mensaje con color
  */
 function print(message, color = 'reset') {
-  console.log(`${colors[color]}${message}${colors.reset}`)
+  //console.log(`${colors[color]}${message}${colors.reset}`)
 }
 
 /**

@@ -65,12 +65,12 @@ app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 app.use(express.static('uploads'))
 
-// Logging de requests HTTP
-app.use(morgan('combined', {
-  stream: {
-    write: (message) => logger.info(message.trim())
-  }
-}))
+// Logging de requests HTTP desactivado para ocultar logs en terminal
+// app.use(morgan('combined', {
+//   stream: {
+//     write: (message) => logger.info(message.trim())
+//   }
+// }))
 
 // Rutas de la API
 app.use('/api/auth', authLimiter, authRoutes) // ✅ Rate limiting para autenticación

@@ -36,8 +36,8 @@ async function createTestImage() {
 }
 
 async function testLocalUpload() {
-  console.log('\n🏠 TEST 1: SUBIDA LOCAL')
-  console.log('=' .repeat(50))
+  //console.log('\n🏠 TEST 1: SUBIDA LOCAL')
+  //console.log('=' .repeat(50))
   
   try {
     const testImagePath = await createTestImage()
@@ -56,34 +56,34 @@ async function testLocalUpload() {
     const result = await response.json()
     
     if (response.ok && result.success) {
-      console.log('✅ SUBIDA LOCAL EXITOSA!')
-      console.log('📂 Archivo:', result.data.filename)
-      console.log('🔗 URL:', result.data.imageUrl)
-      console.log('📊 Tamaño:', result.data.size, 'bytes')
+      //console.log('✅ SUBIDA LOCAL EXITOSA!')
+      //console.log('📂 Archivo:', result.data.filename)
+      //console.log('🔗 URL:', result.data.imageUrl)
+      //console.log('📊 Tamaño:', result.data.size, 'bytes')
       
       // Verificar que el archivo existe
       const expectedPath = path.join(process.cwd(), 'frontend', 'public', 'images', 'products', result.data.filename)
       if (fs.existsSync(expectedPath)) {
-        console.log('✅ Archivo guardado correctamente en el servidor')
+        //console.log('✅ Archivo guardado correctamente en el servidor')
       } else {
-        console.log('❌ Archivo NO encontrado en el servidor')
+        //console.log('❌ Archivo NO encontrado en el servidor')
       }
       
       return result.data
     } else {
-      console.log('❌ ERROR EN SUBIDA LOCAL:', result)
+      //console.log('❌ ERROR EN SUBIDA LOCAL:', result)
       return null
     }
     
   } catch (error) {
-    console.log('❌ ERROR EN TEST LOCAL:', error.message)
+    //console.log('❌ ERROR EN TEST LOCAL:', error.message)
     return null
   }
 }
 
 async function testCloudinaryUpload() {
-  console.log('\n☁️ TEST 2: SUBIDA CLOUDINARY')
-  console.log('=' .repeat(50))
+  //console.log('\n☁️ TEST 2: SUBIDA CLOUDINARY')
+  //console.log('=' .repeat(50))
   
   try {
     const testImagePath = await createTestImage()
@@ -102,33 +102,33 @@ async function testCloudinaryUpload() {
     const result = await response.json()
     
     if (response.ok && result.success) {
-      console.log('✅ SUBIDA CLOUDINARY EXITOSA!')
-      console.log('🆔 Cloudinary ID:', result.data.cloudinaryId)
-      console.log('🔗 URL Optimizada:', result.data.optimizedUrl)
-      console.log('🔗 URL Original:', result.data.originalUrl)
-      console.log('📊 Tamaño:', result.data.size, 'bytes')
-      console.log('📁 Carpeta:', result.data.folder)
+      //console.log('✅ SUBIDA CLOUDINARY EXITOSA!')
+      //console.log('🆔 Cloudinary ID:', result.data.cloudinaryId)
+      //console.log('🔗 URL Optimizada:', result.data.optimizedUrl)
+      //console.log('🔗 URL Original:', result.data.originalUrl)
+      //console.log('📊 Tamaño:', result.data.size, 'bytes')
+      //console.log('📁 Carpeta:', result.data.folder)
       
       return result.data
     } else {
-      console.log('❌ ERROR EN SUBIDA CLOUDINARY:', result)
+      //console.log('❌ ERROR EN SUBIDA CLOUDINARY:', result)
       return null
     }
     
   } catch (error) {
-    console.log('❌ ERROR EN TEST CLOUDINARY:', error.message)
+    //console.log('❌ ERROR EN TEST CLOUDINARY:', error.message)
     return null
   }
 }
 
 async function testProductCreation(localImageData, cloudinaryImageData) {
-  console.log('\n🛍️ TEST 3: CREACIÓN DE PRODUCTOS')
-  console.log('=' .repeat(50))
+  //console.log('\n🛍️ TEST 3: CREACIÓN DE PRODUCTOS')
+  //console.log('=' .repeat(50))
   
   try {
     // Test producto con imagen local
     if (localImageData) {
-      console.log('\n📤 Creando producto con imagen local...')
+      //console.log('\n📤 Creando producto con imagen local...')
       
       const localProductData = {
         name: 'Producto Test Local',
@@ -150,16 +150,16 @@ async function testProductCreation(localImageData, cloudinaryImageData) {
       const localResult = await localResponse.json()
       
       if (localResponse.ok && localResult.success) {
-        console.log('✅ Producto con imagen local creado exitosamente!')
-        console.log('🆔 ID del producto:', localResult.data.id)
+        //console.log('✅ Producto con imagen local creado exitosamente!')
+        //console.log('🆔 ID del producto:', localResult.data.id)
       } else {
-        console.log('❌ Error creando producto local:', localResult)
+        //console.log('❌ Error creando producto local:', localResult)
       }
     }
     
     // Test producto con imagen Cloudinary
     if (cloudinaryImageData) {
-      console.log('\n☁️ Creando producto con imagen Cloudinary...')
+      //console.log('\n☁️ Creando producto con imagen Cloudinary...')
       
       const cloudinaryProductData = {
         name: 'Producto Test Cloudinary',
@@ -181,47 +181,47 @@ async function testProductCreation(localImageData, cloudinaryImageData) {
       const cloudinaryResult = await cloudinaryResponse.json()
       
       if (cloudinaryResponse.ok && cloudinaryResult.success) {
-        console.log('✅ Producto con imagen Cloudinary creado exitosamente!')
-        console.log('🆔 ID del producto:', cloudinaryResult.data.id)
+        //console.log('✅ Producto con imagen Cloudinary creado exitosamente!')
+        //console.log('🆔 ID del producto:', cloudinaryResult.data.id)
       } else {
-        console.log('❌ Error creando producto Cloudinary:', cloudinaryResult)
+        //console.log('❌ Error creando producto Cloudinary:', cloudinaryResult)
       }
     }
     
   } catch (error) {
-    console.log('❌ ERROR EN CREACIÓN DE PRODUCTOS:', error.message)
+    //console.log('❌ ERROR EN CREACIÓN DE PRODUCTOS:', error.message)
   }
 }
 
 async function runCompleteTest() {
-  console.log('🚀 INICIANDO TEST COMPLETO DE SUBIDA DE IMÁGENES')
-  console.log('=' .repeat(70))
-  console.log('Este test verificará:')
-  console.log('1. ✅ Subida local de imágenes')
-  console.log('2. ✅ Subida a Cloudinary')
-  console.log('3. ✅ Creación de productos con ambos tipos de imagen')
-  console.log('=' .repeat(70))
+  //console.log('🚀 INICIANDO TEST COMPLETO DE SUBIDA DE IMÁGENES')
+  //console.log('=' .repeat(70))
+  //console.log('Este test verificará:')
+  //console.log('1. ✅ Subida local de imágenes')
+  //console.log('2. ✅ Subida a Cloudinary')
+  //console.log('3. ✅ Creación de productos con ambos tipos de imagen')
+  //console.log('=' .repeat(70))
   
   const localImageData = await testLocalUpload()
   const cloudinaryImageData = await testCloudinaryUpload()
   
   await testProductCreation(localImageData, cloudinaryImageData)
   
-  console.log('\n🎉 TEST COMPLETO FINALIZADO')
-  console.log('=' .repeat(50))
+  //console.log('\n🎉 TEST COMPLETO FINALIZADO')
+  //console.log('=' .repeat(50))
   
   // Resumen
   if (localImageData && cloudinaryImageData) {
-    console.log('✅ AMBOS MÉTODOS DE SUBIDA FUNCIONAN CORRECTAMENTE!')
-    console.log('✅ Puedes usar tanto subida local como Cloudinary')
+    //console.log('✅ AMBOS MÉTODOS DE SUBIDA FUNCIONAN CORRECTAMENTE!')
+    //console.log('✅ Puedes usar tanto subida local como Cloudinary')
   } else if (localImageData) {
-    console.log('✅ Subida local funciona')
-    console.log('⚠️  Cloudinary tiene problemas - revisa configuración')
+    //console.log('✅ Subida local funciona')
+    //console.log('⚠️  Cloudinary tiene problemas - revisa configuración')
   } else if (cloudinaryImageData) {
-    console.log('✅ Cloudinary funciona')
-    console.log('⚠️  Subida local tiene problemas')
+    //console.log('✅ Cloudinary funciona')
+    //console.log('⚠️  Subida local tiene problemas')
   } else {
-    console.log('❌ Ambos métodos tienen problemas')
+    //console.log('❌ Ambos métodos tienen problemas')
   }
   
   // Limpiar archivos de prueba
@@ -232,9 +232,9 @@ async function runCompleteTest() {
         fs.unlinkSync(file)
       }
     })
-    console.log('🧹 Archivos de prueba eliminados')
+    //console.log('🧹 Archivos de prueba eliminados')
   } catch (error) {
-    console.log('⚠️  Error limpiando archivos de prueba:', error.message)
+    //console.log('⚠️  Error limpiando archivos de prueba:', error.message)
   }
 }
 

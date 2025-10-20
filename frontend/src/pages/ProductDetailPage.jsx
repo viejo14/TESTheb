@@ -451,6 +451,16 @@ const ProductDetailPage = () => {
               {formatPrice(product.price)}
             </div>
 
+            {/* SKU */}
+            {product.sku && (
+              <div className="flex items-center gap-3 text-base">
+                <span className="text-gray-400 font-medium">SKU:</span>
+                <span className="text-text-primary font-mono bg-gray-800/50 px-4 py-2 rounded-lg border border-gray-600">
+                  {product.sku}
+                </span>
+              </div>
+            )}
+
             <div className="text-lg">
               {isOutOfStock ? (
                 <span className="text-red-400 font-medium">Sin stock</span>

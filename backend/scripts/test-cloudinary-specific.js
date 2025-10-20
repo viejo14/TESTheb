@@ -30,11 +30,11 @@ async function createRealTestImage() {
 }
 
 async function testCloudinaryEndpoint() {
-  console.log('🧪 Test específico de Cloudinary...\n')
+  //console.log('🧪 Test específico de Cloudinary...\n')
   
   try {
     const testImagePath = await createRealTestImage()
-    console.log('✅ Imagen de prueba creada:', testImagePath)
+    //console.log('✅ Imagen de prueba creada:', testImagePath)
     
     const formData = new FormData()
     formData.append('image', fs.createReadStream(testImagePath), {
@@ -42,36 +42,36 @@ async function testCloudinaryEndpoint() {
       contentType: 'image/png'
     })
     
-    console.log('📤 Enviando a:', `${API_BASE_URL}/upload/product-image`)
+    //console.log('📤 Enviando a:', `${API_BASE_URL}/upload/product-image`)
     
     const response = await fetch(`${API_BASE_URL}/upload/product-image`, {
       method: 'POST',
       body: formData
     })
     
-    console.log('📊 Status HTTP:', response.status)
-    console.log('📊 Headers:', Object.fromEntries(response.headers.entries()))
+    //console.log('📊 Status HTTP:', response.status)
+    //console.log('📊 Headers:', Object.fromEntries(response.headers.entries()))
     
     const responseText = await response.text()
-    console.log('📄 Raw Response:', responseText)
+    //console.log('📄 Raw Response:', responseText)
     
     try {
       const result = JSON.parse(responseText)
-      console.log('📋 Parsed Response:', result)
+      //console.log('📋 Parsed Response:', result)
       
       if (response.ok && result.success) {
-        console.log('✅ CLOUDINARY FUNCIONA!')
+        //console.log('✅ CLOUDINARY FUNCIONA!')
       } else {
-        console.log('❌ Error en Cloudinary:', result)
+        //console.log('❌ Error en Cloudinary:', result)
       }
     } catch (parseError) {
-      console.log('❌ Error parseando respuesta JSON:', parseError.message)
+      //console.log('❌ Error parseando respuesta JSON:', parseError.message)
     }
     
     // Limpiar
     if (fs.existsSync(testImagePath)) {
       fs.unlinkSync(testImagePath)
-      console.log('🧹 Archivo de prueba eliminado')
+      //console.log('🧹 Archivo de prueba eliminado')
     }
     
   } catch (error) {

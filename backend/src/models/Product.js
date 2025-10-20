@@ -128,6 +128,7 @@ export const Product = {
    * @returns {Promise<Object>} Producto creado
    */
   async create({ name, description, price, category_id, image_url, size_id, stock }) {
+    // Primero crear el producto sin SKU para obtener el ID
     const result = await query(
       `INSERT INTO products (name, description, price, category_id, image_url, size_id, stock, created_at, updated_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
@@ -135,7 +136,18 @@ export const Product = {
       [name, description, price, category_id || null, image_url, size_id || null, stock || 0]
     )
 
-    return result.rows[0]
+    const product = result.rows[0]
+
+    // Generar SKU automático basado en el ID del producto recién creado
+    const sku = await this.generateSKU(product.id, category_id, size_id)
+
+    // Actualizar el producto con el SKU generado
+    const updateResult = await query(
+      'UPDATE products SET sku = $1 WHERE id = $2 RETURNING *',
+      [sku, product.id]
+    )
+
+    return updateResult.rows[0]
   },
 
   /**
@@ -145,23 +157,37 @@ export const Product = {
    * @returns {Promise<Object|null>} Producto actualizado o null
    */
   async update(id, updates) {
-    const result = await query(
-      `UPDATE products
+    // Regenerar SKU si cambiaron categoría o talla
+    let newSku = null
+    if (updates.category_id !== undefined || updates.size_id !== undefined) {
+      newSku = await this.generateSKU(id, updates.category_id, updates.size_id)
+    }
+
+    // Construir query dinámicamente
+    let queryText = `UPDATE products
        SET name = $1, description = $2, price = $3, category_id = $4,
-           image_url = $5, size_id = $6, stock = $7, updated_at = NOW()
-       WHERE id = $8
-       RETURNING *`,
-      [
-        updates.name,
-        updates.description,
-        updates.price,
-        updates.category_id,
-        updates.image_url,
-        updates.size_id,
-        updates.stock,
-        id
-      ]
-    )
+           image_url = $5, size_id = $6, stock = $7`
+
+    const params = [
+      updates.name,
+      updates.description,
+      updates.price,
+      updates.category_id,
+      updates.image_url,
+      updates.size_id,
+      updates.stock
+    ]
+
+    // Agregar SKU si se regeneró
+    if (newSku) {
+      queryText += `, sku = $8, updated_at = NOW() WHERE id = $9 RETURNING *`
+      params.push(newSku, id)
+    } else {
+      queryText += `, updated_at = NOW() WHERE id = $8 RETURNING *`
+      params.push(id)
+    }
+
+    const result = await query(queryText, params)
 
     if (result.rows.length === 0) {
       return null
@@ -222,6 +248,66 @@ export const Product = {
     }
 
     return result.rows[0]
+  },
+
+  /**
+   * Genera un SKU automático para un producto
+   * Formato: [CATEGORIA]-[ID]-[TALLA]
+   * Ejemplo: BOR-12-M (Bordados, producto 12, talla M)
+   * @param {number} productId - ID del producto
+   * @param {number|null} categoryId - ID de la categoría (opcional)
+   * @param {number|null} sizeId - ID de la talla (opcional)
+   * @returns {Promise<string>} SKU generado
+   */
+  async generateSKU(productId, categoryId = null, sizeId = null) {
+    // Obtener código de categoría (primeras 3 letras en mayúsculas)
+    let categoryCode = 'GEN' // Código por defecto
+
+    if (categoryId) {
+      const categoryResult = await query(
+        'SELECT name FROM categories WHERE id = $1',
+        [categoryId]
+      )
+      if (categoryResult.rows.length > 0) {
+        const categoryName = categoryResult.rows[0].name
+        categoryCode = categoryName.substring(0, 3).toUpperCase()
+      }
+    }
+
+    // Obtener código de talla
+    let sizeCode = 'U' // Código por defecto (Único)
+
+    if (sizeId) {
+      const sizeResult = await query(
+        'SELECT name FROM sizes WHERE id = $1',
+        [sizeId]
+      )
+      if (sizeResult.rows.length > 0) {
+        sizeCode = sizeResult.rows[0].name
+      }
+    }
+
+    // Generar SKU: CATEGORIA-ID-TALLA
+    return `${categoryCode}-${productId}-${sizeCode}`
+  },
+
+  /**
+   * Verifica si un SKU ya existe en la base de datos
+   * @param {string} sku - SKU a verificar
+   * @param {number|null} excludeId - ID de producto a excluir de la búsqueda (para updates)
+   * @returns {Promise<boolean>} true si el SKU existe
+   */
+  async skuExists(sku, excludeId = null) {
+    let queryText = 'SELECT id FROM products WHERE sku = $1'
+    const params = [sku]
+
+    if (excludeId) {
+      queryText += ' AND id != $2'
+      params.push(excludeId)
+    }
+
+    const result = await query(queryText, params)
+    return result.rows.length > 0
   }
 }
 

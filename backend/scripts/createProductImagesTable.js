@@ -26,19 +26,19 @@ async function runMigration() {
   })
 
   try {
-    console.log('🔌 Conectando a la base de datos...')
+    //console.log('🔌 Conectando a la base de datos...')
     await client.connect()
-    console.log('✅ Conectado exitosamente')
+    //console.log('✅ Conectado exitosamente')
 
-    console.log('📄 Leyendo archivo de migración...')
+    //console.log('📄 Leyendo archivo de migración...')
     const sqlPath = join(__dirname, '..', 'sql', 'create_product_images_table.sql')
     const sql = readFileSync(sqlPath, 'utf8')
 
-    console.log('🚀 Ejecutando migración...')
+    //console.log('🚀 Ejecutando migración...')
     await client.query(sql)
 
-    console.log('✅ Tabla product_images creada exitosamente')
-    console.log('📸 Ahora los productos pueden tener hasta 4 imágenes')
+    //console.log('✅ Tabla product_images creada exitosamente')
+    //console.log('📸 Ahora los productos pueden tener hasta 4 imágenes')
 
     // Verificar la creación
     const checkTable = await client.query(`
@@ -48,11 +48,11 @@ async function runMigration() {
     `)
 
     if (checkTable.rows[0].count > 0) {
-      console.log('✓ Tabla verificada correctamente')
+      //console.log('✓ Tabla verificada correctamente')
       
       // Contar imágenes migradas
       const migrated = await client.query('SELECT COUNT(*) as count FROM product_images')
-      console.log(`📊 Imágenes migradas: ${migrated.rows[0].count}`)
+      //console.log(`📊 Imágenes migradas: ${migrated.rows[0].count}`)
     }
 
   } catch (error) {
@@ -60,7 +60,7 @@ async function runMigration() {
     process.exit(1)
   } finally {
     await client.end()
-    console.log('👋 Conexión cerrada')
+    //console.log('👋 Conexión cerrada')
   }
 }
 

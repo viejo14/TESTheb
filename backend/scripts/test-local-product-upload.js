@@ -12,7 +12,7 @@ const API_BASE_URL = 'http://localhost:3000/api'
 
 async function testLocalProductImageUpload() {
   try {
-    console.log('🧪 Test de subida LOCAL de imagen de producto...\n')
+    //console.log('🧪 Test de subida LOCAL de imagen de producto...\n')
     
     // Crear una imagen de prueba simple
     const testImagePath = path.join(process.cwd(), 'test-product-image.jpg')
@@ -36,10 +36,10 @@ async function testLocalProductImageUpload() {
     ])
     
     fs.writeFileSync(testImagePath, jpegHeader)
-    console.log('✅ Imagen de prueba creada:', testImagePath)
+    //console.log('✅ Imagen de prueba creada:', testImagePath)
     
     // Test: Subida local con el nombre del archivo que mencionaste
-    console.log('\n📤 Subiendo imagen: logo1_1759703164522.jpg...')
+    //console.log('\n📤 Subiendo imagen: logo1_1759703164522.jpg...')
     
     const formData = new FormData()
     formData.append('image', fs.createReadStream(testImagePath), {
@@ -52,31 +52,31 @@ async function testLocalProductImageUpload() {
       body: formData
     })
     
-    console.log('📊 Status HTTP:', response.status)
-    console.log('📊 Status Text:', response.statusText)
+    //console.log('📊 Status HTTP:', response.status)
+    //console.log('📊 Status Text:', response.statusText)
     
     const result = await response.json()
     
     if (response.ok) {
-      console.log('✅ SUBIDA EXITOSA!')
-      console.log('📄 Respuesta completa:')
-      console.log(JSON.stringify(result, null, 2))
+      //console.log('✅ SUBIDA EXITOSA!')
+      //console.log('📄 Respuesta completa:')
+      //console.log(JSON.stringify(result, null, 2))
       
       // Verificar que el archivo se guardó en la ubicación correcta
       const expectedPath = path.join(process.cwd(), 'frontend', 'public', 'images', 'products', result.data.filename)
-      console.log('🔍 Verificando archivo en:', expectedPath)
+      //console.log('🔍 Verificando archivo en:', expectedPath)
       
       if (fs.existsSync(expectedPath)) {
-        console.log('✅ ¡Archivo guardado correctamente!')
-        console.log('📂 URL de imagen:', result.data.imageUrl)
+        //console.log('✅ ¡Archivo guardado correctamente!')
+        //console.log('📂 URL de imagen:', result.data.imageUrl)
         
         // Leer información del archivo guardado
         const stats = fs.statSync(expectedPath)
-        console.log('📊 Tamaño del archivo:', stats.size, 'bytes')
-        console.log('📅 Fecha de creación:', stats.birthtime)
+        //console.log('📊 Tamaño del archivo:', stats.size, 'bytes')
+        //console.log('📅 Fecha de creación:', stats.birthtime)
         
       } else {
-        console.log('❌ Archivo NO encontrado en la ubicación esperada')
+        //console.log('❌ Archivo NO encontrado en la ubicación esperada')
         
         // Verificar otras ubicaciones posibles
         const possiblePaths = [
@@ -85,24 +85,24 @@ async function testLocalProductImageUpload() {
           path.join(process.cwd(), 'uploads', result.data.filename)
         ]
         
-        console.log('\n🔍 Buscando en otras ubicaciones...')
+        //console.log('\n🔍 Buscando en otras ubicaciones...')
         for (const possiblePath of possiblePaths) {
           if (fs.existsSync(possiblePath)) {
-            console.log('📁 Encontrado en:', possiblePath)
+            //console.log('📁 Encontrado en:', possiblePath)
           }
         }
       }
       
     } else {
-      console.log('❌ ERROR EN SUBIDA:')
-      console.log('📄 Respuesta de error:')
-      console.log(JSON.stringify(result, null, 2))
+      //console.log('❌ ERROR EN SUBIDA:')
+      //console.log('📄 Respuesta de error:')
+      //console.log(JSON.stringify(result, null, 2))
     }
     
     // Limpiar archivo de prueba
     if (fs.existsSync(testImagePath)) {
       fs.unlinkSync(testImagePath)
-      console.log('\n🧹 Archivo de prueba eliminado')
+      //console.log('\n🧹 Archivo de prueba eliminado')
     }
     
   } catch (error) {
@@ -112,5 +112,5 @@ async function testLocalProductImageUpload() {
 }
 
 // Ejecutar test
-console.log('🚀 Iniciando test de subida local de productos...\n')
+//console.log('🚀 Iniciando test de subida local de productos...\n')
 testLocalProductImageUpload()

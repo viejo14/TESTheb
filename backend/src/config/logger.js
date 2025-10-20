@@ -48,7 +48,7 @@ const consoleFormat = winston.format.combine(
 
 // Crear el logger
 const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
+  level: process.env.LOG_LEVEL || 'error',
   format: logFormat,
   defaultMeta: { service: 'testheb-api' },
   transports: [
@@ -103,12 +103,12 @@ if (!fs.existsSync('logs')) {
 
 // Función helper para logging de base de datos
 export const logQuery = (query, params, duration, rowCount) => {
-  logger.debug('Database Query', {
-    query: query.substring(0, 100) + (query.length > 100 ? '...' : ''),
-    params: params ? params.length : 0,
-    duration: `${duration}ms`,
-    rowCount
-  })
+  // logger.debug('Database Query', {
+  //   query: query.substring(0, 100) + (query.length > 100 ? '...' : ''),
+  //   params: params ? params.length : 0,
+  //   duration: `${duration}ms`,
+  //   rowCount
+  // })
 }
 
 // Función helper para logging de errores HTTP

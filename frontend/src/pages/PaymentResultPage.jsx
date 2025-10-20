@@ -20,6 +20,8 @@ const PaymentResultPage = () => {
   const [paymentData, setPaymentData] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  const [orderItems, setOrderItems] = useState([])
+
   useEffect(() => {
     // Extraer parámetros de la URL
     const params = new URLSearchParams(location.search)
@@ -37,6 +39,18 @@ const PaymentResultPage = () => {
     }
 
     setPaymentData(data)
+
+    // Recuperar productos de la orden
+    try {
+      const currentOrder = localStorage.getItem('testheb_current_order')
+      if (currentOrder) {
+        const orderData = JSON.parse(currentOrder)
+        setOrderItems(orderData.cartItems || [])
+      }
+    } catch (err) {
+      console.error('Error recuperando orden:', err)
+    }
+
     setLoading(false)
 
     // Limpiar carrito si el pago fue exitoso
@@ -114,6 +128,18 @@ const PaymentResultPage = () => {
   const downloadVoucher = () => {
     if (!paymentData) return
 
+    const productsSection = orderItems.length > 0 ? `
+PRODUCTOS COMPRADOS:
+--------------------------
+${orderItems.map((item, index) => `
+${index + 1}. ${item.name}
+   ${item.sku ? `SKU: ${item.sku}` : ''}
+   Cantidad: ${item.quantity}
+   Precio unitario: ${formatAmount(item.price)}
+   Subtotal: ${formatAmount(item.price * item.quantity)}
+`).join('\n')}
+` : ''
+
     const voucherContent = `
 COMPROBANTE DE PAGO - TESTheb
 ==============================
@@ -132,6 +158,7 @@ Tipo de Pago: ${PAYMENT_TYPES[paymentData.paymentTypeCode] || paymentData.paymen
 Número de Cuotas: ${paymentData.installmentsNumber || '1'}
 Tarjeta: ****${paymentData.cardNumber?.slice(-4) || 'N/A'}
 ` : ''}
+${productsSection}
 
 Gracias por tu compra en TESTheb - Bordados de Calidad
 
@@ -268,6 +295,51 @@ Para consultas: contacto@testheb.cl
                     )}
                   </>
                 )}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Productos Comprados */}
+          {orderItems.length > 0 && paymentData?.status === 'authorized' && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="bg-gray-700 rounded-lg p-6 mb-6"
+            >
+              <h2 className="text-xl font-semibold text-white mb-4">Productos Comprados</h2>
+              <div className="space-y-3">
+                {orderItems.map((item, index) => (
+                  <div key={index} className="flex items-center gap-3 p-3 bg-gray-800 rounded-lg">
+                    <div className="w-16 h-16 bg-gray-600 rounded-lg overflow-hidden flex-shrink-0">
+                      {item.image_url ? (
+                        <img
+                          src={item.image_url}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          📦
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-white font-medium">{item.name}</h4>
+                      {item.sku && (
+                        <p className="text-gray-400 text-sm font-mono">
+                          SKU: {item.sku}
+                        </p>
+                      )}
+                      <p className="text-gray-300 text-sm">
+                        Cantidad: {item.quantity} x {formatAmount(item.price)}
+                      </p>
+                    </div>
+                    <span className="text-yellow-400 font-semibold">
+                      {formatAmount(item.price * item.quantity)}
+                    </span>
+                  </div>
+                ))}
               </div>
             </motion.div>
           )}

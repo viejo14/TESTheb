@@ -65,7 +65,7 @@ export const deleteProductImage = async (publicId) => {
   try {
     // Esta función requiere hacer el delete desde el backend por seguridad
     // Por ahora solo retornamos success
-    console.log('Image deletion requested for:', publicId)
+    //console.log('Image deletion requested for:', publicId)
     return {
       success: true,
       message: 'Image deletion requested'
