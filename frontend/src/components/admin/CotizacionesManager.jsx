@@ -196,7 +196,7 @@ const CotizacionesManager = () => {
             <select
               value={filters.status}
               onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-              className="px-4 py-2 text-zinc-900  border border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-600"
+              className="bg-gray-800 px-4 py-2 text-zinc-100  border border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-600"
             >
               <option value="">Todos los estados</option>
               <option value="pendiente">Pendiente</option>
@@ -210,7 +210,7 @@ const CotizacionesManager = () => {
               placeholder="Buscar por nombre, email o mensaje..."
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-              className="flex-1 px-4 py-2 border border-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-500 text-black"
+              className="bg-gray-800 flex-1 px-4 py-2 border border-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-500 text-zinc-100"
             />
           </div>
 
@@ -275,7 +275,7 @@ const CotizacionesManager = () => {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-zinc-700 divide-y divide-gray-900">
+            <tbody className="bg-zinc-900 divide-y divide-gray-600">
               <AnimatePresence>
                 {cotizaciones.map((cotizacion) => (
                   <motion.tr

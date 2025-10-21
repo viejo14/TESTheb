@@ -2,7 +2,7 @@ import { query } from '../src/config/database.js'
 
 async function describeOrderItemsTable() {
   try {
-    console.log('📋 Estructura de la tabla order_items:\n')
+    //console.log('📋 Estructura de la tabla order_items:\n')
 
     const result = await query(`
       SELECT
@@ -17,17 +17,17 @@ async function describeOrderItemsTable() {
     `)
 
     if (result.rows.length === 0) {
-      console.log('❌ La tabla order_items no existe.')
+      //console.log('❌ La tabla order_items no existe.')
     } else {
-      console.log('Columna              | Tipo              | Nullable | Default')
-      console.log('---------------------|-------------------|----------|------------------')
+      //console.log('Columna              | Tipo              | Nullable | Default')
+      //console.log('---------------------|-------------------|----------|------------------')
       result.rows.forEach(row => {
         const type = row.character_maximum_length
           ? `${row.data_type}(${row.character_maximum_length})`
           : row.data_type
         const nullable = row.is_nullable === 'YES' ? 'SÍ' : 'NO'
         const defaultVal = row.column_default || '-'
-        console.log(
+        //console.log(
           `${row.column_name.padEnd(20)} | ${type.padEnd(17)} | ${nullable.padEnd(8)} | ${defaultVal}`
         )
       })

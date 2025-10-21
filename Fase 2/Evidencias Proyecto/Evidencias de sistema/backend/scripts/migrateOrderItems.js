@@ -2,7 +2,7 @@ import { query } from '../src/config/database.js'
 
 async function migrateOrderItems() {
   try {
-    console.log('🔄 Migrando order_items de órdenes existentes...\n')
+    //console.log('🔄 Migrando order_items de órdenes existentes...\n')
 
     // Obtener todas las órdenes autorizadas
     const orders = await query(`
@@ -12,7 +12,7 @@ async function migrateOrderItems() {
       ORDER BY created_at DESC
     `)
 
-    console.log(`📦 Órdenes autorizadas encontradas: ${orders.rows.length}\n`)
+    //console.log(`📦 Órdenes autorizadas encontradas: ${orders.rows.length}\n`)
 
     let migratedCount = 0
     let skippedCount = 0
@@ -27,7 +27,7 @@ async function migrateOrderItems() {
         )
 
         if (existingItems.rows[0].count > 0) {
-          console.log(`⏭️  Orden #${order.id} (${order.buy_order}) - ya tiene items, omitiendo...`)
+          //console.log(`⏭️  Orden #${order.id} (${order.buy_order}) - ya tiene items, omitiendo...`)
           skippedCount++
           continue
         }
@@ -36,7 +36,7 @@ async function migrateOrderItems() {
         const items = order.items || []
 
         if (!Array.isArray(items) || items.length === 0) {
-          console.log(`⚠️  Orden #${order.id} (${order.buy_order}) - sin items, omitiendo...`)
+          //console.log(`⚠️  Orden #${order.id} (${order.buy_order}) - sin items, omitiendo...`)
           skippedCount++
           continue
         }
@@ -54,7 +54,7 @@ async function migrateOrderItems() {
           ])
         }
 
-        console.log(`✅ Orden #${order.id} (${order.buy_order}) - ${items.length} items migrados`)
+        //console.log(`✅ Orden #${order.id} (${order.buy_order}) - ${items.length} items migrados`)
         migratedCount++
 
       } catch (itemError) {
@@ -63,14 +63,14 @@ async function migrateOrderItems() {
       }
     }
 
-    console.log('\n📊 Resumen de migración:')
-    console.log(`  ✅ Órdenes migradas: ${migratedCount}`)
-    console.log(`  ⏭️  Órdenes omitidas: ${skippedCount}`)
-    console.log(`  ❌ Errores: ${errorCount}`)
+    //console.log('\n📊 Resumen de migración:')
+    //console.log(`  ✅ Órdenes migradas: ${migratedCount}`)
+    //console.log(`  ⏭️  Órdenes omitidas: ${skippedCount}`)
+    //console.log(`  ❌ Errores: ${errorCount}`)
 
     // Mostrar estadísticas finales
     const totalItems = await query('SELECT COUNT(*) as count FROM order_items')
-    console.log(`\n📦 Total de order_items en la base de datos: ${totalItems.rows[0].count}`)
+    //console.log(`\n📦 Total de order_items en la base de datos: ${totalItems.rows[0].count}`)
 
     process.exit(0)
   } catch (error) {

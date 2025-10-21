@@ -2,6 +2,44 @@ import { query } from '../config/database.js'
 import { catchAsync } from '../middleware/errorHandler.js'
 
 /**
+ * Obtener productos más vendidos (público - para Home)
+ */
+export const getTopProducts = catchAsync(async (req, res) => {
+  const limit = parseInt(req.query.limit) || 6
+
+  const topProducts = await query(`
+    SELECT
+      p.id,
+      p.name,
+      p.image_url,
+      p.price,
+      p.sku,
+      p.stock,
+      c.name as category_name,
+      s.name as size_name,
+      s.display_name as size_display_name,
+      COALESCE(SUM(oi.quantity), 0) as total_vendido,
+      COALESCE(SUM(oi.quantity * oi.price), 0) as ingresos_totales
+    FROM products p
+    LEFT JOIN order_items oi ON p.id = oi.product_id
+    LEFT JOIN orders o ON oi.order_id = o.id
+    LEFT JOIN categories c ON p.category_id = c.id
+    LEFT JOIN sizes s ON p.size_id = s.id
+    WHERE (o.status IN ('authorized', 'completed', 'confirmed') OR o.id IS NULL)
+      AND p.stock > 0
+    GROUP BY p.id, p.name, p.image_url, p.price, p.sku, p.stock, c.name, s.name, s.display_name
+    ORDER BY total_vendido DESC
+    LIMIT $1
+  `, [limit])
+
+  res.json({
+    success: true,
+    message: 'Productos más vendidos obtenidos exitosamente',
+    data: topProducts.rows
+  })
+})
+
+/**
  * Obtener estadísticas del dashboard
  */
 export const getDashboardStats = catchAsync(async (req, res) => {

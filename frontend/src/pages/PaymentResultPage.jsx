@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FiCheckCircle, FiXCircle, FiAlertCircle, FiDownload, FiHome, FiShoppingBag } from 'react-icons/fi'
+import jsPDF from 'jspdf'
 
 // Mapeo de tipos de pago según documentación Transbank
 const PAYMENT_TYPES = {
@@ -128,53 +129,254 @@ const PaymentResultPage = () => {
   const downloadVoucher = () => {
     if (!paymentData) return
 
-    const productsSection = orderItems.length > 0 ? `
-PRODUCTOS COMPRADOS:
---------------------------
-${orderItems.map((item, index) => `
-${index + 1}. ${item.name}
-   ${item.sku ? `SKU: ${item.sku}` : ''}
-   Cantidad: ${item.quantity}
-   Precio unitario: ${formatAmount(item.price)}
-   Subtotal: ${formatAmount(item.price * item.quantity)}
-`).join('\n')}
-` : ''
+    // Crear un nuevo documento PDF
+    const doc = new jsPDF()
 
-    const voucherContent = `
-COMPROBANTE DE PAGO - TESTheb
-==============================
+    // Configuración de colores
+    const primaryColor = [59, 130, 246] // Azul
+    const darkColor = [31, 41, 55] // Gris oscuro
+    const grayColor = [107, 114, 128] // Gris medio
+    const greenColor = [16, 185, 129] // Verde
 
-Fecha: ${formatDateTime()}
-Estado: ${getStatusConfig().title}
-Orden de Compra: ${paymentData.buyOrder || 'N/A'}
-Monto: ${formatAmount(paymentData.amount)}
+    let yPosition = 20
 
-${paymentData.status === 'authorized' ? `
-DETALLES DE AUTORIZACIÓN:
---------------------------
-Código de Autorización: ${paymentData.authorizationCode || 'N/A'}
-Código de Respuesta: ${paymentData.responseCode || 'N/A'}
-Tipo de Pago: ${PAYMENT_TYPES[paymentData.paymentTypeCode] || paymentData.paymentTypeCode || 'N/A'}
-Número de Cuotas: ${paymentData.installmentsNumber || '1'}
-Tarjeta: ****${paymentData.cardNumber?.slice(-4) || 'N/A'}
-` : ''}
-${productsSection}
+    // === ENCABEZADO ===
+    // Título principal
+    doc.setFillColor(...primaryColor)
+    doc.rect(0, 0, 210, 35, 'F')
 
-Gracias por tu compra en TESTheb - Bordados de Calidad
+    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(24)
+    doc.setFont('helvetica', 'bold')
+    doc.text('TESTheb', 105, 15, { align: 'center' })
 
-Para consultas: contacto@testheb.cl
-==============================
-    `.trim()
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Bordados de Calidad', 105, 25, { align: 'center' })
 
-    const blob = new Blob([voucherContent], { type: 'text/plain;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `comprobante-${paymentData.buyOrder || 'pago'}.txt`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    yPosition = 45
+
+    // Estado del pago
+    doc.setFontSize(18)
+    doc.setFont('helvetica', 'bold')
+    if (paymentData.status === 'authorized') {
+      doc.setTextColor(...greenColor)
+      doc.text('¡PAGO AUTORIZADO!', 105, yPosition, { align: 'center' })
+    } else {
+      doc.setTextColor(220, 38, 38)
+      doc.text(getStatusConfig().title.toUpperCase(), 105, yPosition, { align: 'center' })
+    }
+
+    yPosition += 5
+    doc.setFontSize(10)
+    doc.setTextColor(...grayColor)
+    doc.text(getStatusConfig().message, 105, yPosition, { align: 'center' })
+
+    yPosition += 15
+
+    // === INFORMACIÓN DE LA TRANSACCIÓN ===
+    doc.setFillColor(245, 245, 245)
+    doc.rect(15, yPosition - 5, 180, 10, 'F')
+
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(...darkColor)
+    doc.text('DETALLES DE LA TRANSACCIÓN', 20, yPosition)
+
+    yPosition += 10
+
+    // Grid de información
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+
+    const leftColumn = 20
+    const rightColumn = 110
+    const lineHeight = 7
+
+    // Columna izquierda
+    doc.setTextColor(...grayColor)
+    doc.text('Orden de Compra:', leftColumn, yPosition)
+    doc.setTextColor(...darkColor)
+    doc.setFont('helvetica', 'bold')
+    doc.text(paymentData.buyOrder || 'N/A', leftColumn, yPosition + 4)
+
+    // Columna derecha
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(...grayColor)
+    doc.text('Monto:', rightColumn, yPosition)
+    doc.setTextColor(...darkColor)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(11)
+    doc.text(formatAmount(paymentData.amount), rightColumn, yPosition + 4)
+
+    yPosition += 12
+
+    // Segunda fila
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(...grayColor)
+    doc.text('Fecha y Hora:', leftColumn, yPosition)
+    doc.setTextColor(...darkColor)
+    doc.setFont('helvetica', 'bold')
+    doc.text(formatDateTime(), leftColumn, yPosition + 4)
+
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(...grayColor)
+    doc.text('Estado:', rightColumn, yPosition)
+    doc.setTextColor(...greenColor)
+    doc.setFont('helvetica', 'bold')
+    doc.text(getStatusConfig().title, rightColumn, yPosition + 4)
+
+    yPosition += 15
+
+    // Detalles adicionales solo para pagos autorizados
+    if (paymentData.status === 'authorized') {
+      doc.setFillColor(245, 245, 245)
+      doc.rect(15, yPosition - 5, 180, 10, 'F')
+
+      doc.setFontSize(12)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(...darkColor)
+      doc.text('DETALLES DE AUTORIZACIÓN', 20, yPosition)
+
+      yPosition += 10
+
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'normal')
+
+      // Primera fila
+      doc.setTextColor(...grayColor)
+      doc.text('Código de Autorización:', leftColumn, yPosition)
+      doc.setTextColor(...darkColor)
+      doc.setFont('helvetica', 'bold')
+      doc.text(paymentData.authorizationCode || 'N/A', leftColumn, yPosition + 4)
+
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(...grayColor)
+      doc.text('Tipo de Pago:', rightColumn, yPosition)
+      doc.setTextColor(...darkColor)
+      doc.setFont('helvetica', 'bold')
+      doc.text(PAYMENT_TYPES[paymentData.paymentTypeCode] || paymentData.paymentTypeCode || 'N/A', rightColumn, yPosition + 4)
+
+      yPosition += 12
+
+      // Segunda fila
+      if (paymentData.installmentsNumber && paymentData.installmentsNumber > 1) {
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(...grayColor)
+        doc.text('Cuotas:', leftColumn, yPosition)
+        doc.setTextColor(...darkColor)
+        doc.setFont('helvetica', 'bold')
+        doc.text(paymentData.installmentsNumber.toString(), leftColumn, yPosition + 4)
+      }
+
+      if (paymentData.cardNumber) {
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(...grayColor)
+        doc.text('Tarjeta:', rightColumn, yPosition)
+        doc.setTextColor(...darkColor)
+        doc.setFont('helvetica', 'bold')
+        doc.text(`**** ${paymentData.cardNumber.slice(-4)}`, rightColumn, yPosition + 4)
+      }
+
+      yPosition += 15
+    }
+
+    // === PRODUCTOS COMPRADOS ===
+    if (orderItems.length > 0 && paymentData.status === 'authorized') {
+      doc.setFillColor(245, 245, 245)
+      doc.rect(15, yPosition - 5, 180, 10, 'F')
+
+      doc.setFontSize(12)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(...darkColor)
+      doc.text('PRODUCTOS COMPRADOS', 20, yPosition)
+
+      yPosition += 10
+
+      doc.setFontSize(9)
+
+      orderItems.forEach((item, index) => {
+        // Verificar si necesitamos una nueva página
+        if (yPosition > 250) {
+          doc.addPage()
+          yPosition = 20
+        }
+
+        // Fondo alternado para cada producto
+        if (index % 2 === 0) {
+          doc.setFillColor(250, 250, 250)
+          doc.rect(15, yPosition - 3, 180, 18, 'F')
+        }
+
+        // Número del producto
+        doc.setTextColor(...grayColor)
+        doc.setFont('helvetica', 'bold')
+        doc.text(`${index + 1}.`, leftColumn, yPosition)
+
+        // Nombre del producto
+        doc.setTextColor(...darkColor)
+        doc.setFont('helvetica', 'bold')
+        doc.text(item.name, leftColumn + 5, yPosition)
+
+        yPosition += 5
+
+        // SKU
+        if (item.sku) {
+          doc.setFont('helvetica', 'normal')
+          doc.setTextColor(...grayColor)
+          doc.text(`Código: ${item.sku}`, leftColumn + 5, yPosition)
+          yPosition += 4
+        }
+
+        // Cantidad y precio
+        doc.setTextColor(...grayColor)
+        doc.text(`Cantidad: ${item.quantity} x ${formatAmount(item.price)}`, leftColumn + 5, yPosition)
+
+        // Subtotal
+        doc.setTextColor(...darkColor)
+        doc.setFont('helvetica', 'bold')
+        doc.text(formatAmount(item.price * item.quantity), 185, yPosition, { align: 'right' })
+
+        yPosition += 10
+      })
+
+      // Total
+      yPosition += 5
+      doc.setDrawColor(...darkColor)
+      doc.setLineWidth(0.5)
+      doc.line(15, yPosition - 3, 195, yPosition - 3)
+
+      doc.setFontSize(11)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(...darkColor)
+      doc.text('TOTAL:', 150, yPosition)
+      doc.setFontSize(12)
+      doc.text(formatAmount(paymentData.amount), 185, yPosition, { align: 'right' })
+
+      yPosition += 10
+    }
+
+    // === PIE DE PÁGINA ===
+    // Línea separadora
+    doc.setDrawColor(...grayColor)
+    doc.setLineWidth(0.3)
+    doc.line(15, 270, 195, 270)
+
+    // Información de contacto
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(...grayColor)
+    doc.text('Gracias por tu compra en TESTheb - Bordados de Calidad', 105, 277, { align: 'center' })
+    doc.text('Para consultas: contacto@testheb.cl', 105, 282, { align: 'center' })
+
+    // Mensaje de autenticidad
+    doc.setFontSize(7)
+    doc.setTextColor(150, 150, 150)
+    doc.text('Este es un documento electrónico válido. No requiere firma ni timbre.', 105, 287, { align: 'center' })
+
+    // Guardar el PDF
+    doc.save(`comprobante-${paymentData.buyOrder || 'pago'}.pdf`)
   }
 
   if (loading) {

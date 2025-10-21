@@ -27,38 +27,43 @@ const PORT = process.env.PORT || 3000
 // Previene que atacantes sepan que usas Express.js
 app.disable('x-powered-by')
 
-// ✅ SEGURIDAD: Rate limiting global
-// Limita las peticiones por IP para prevenir ataques de fuerza bruta y DDoS
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // Máximo 100 peticiones por ventana
-  message: 'Demasiadas peticiones desde esta IP, por favor intenta de nuevo más tarde',
-  standardHeaders: true,
-  legacyHeaders: false,
-})
+// ✅ SEGURIDAD: Rate limiting global DESACTIVADO
+// RAZÓN: Es un e-commerce. Los clientes pueden navegar todo el día evaluando productos
+// especialmente clientes empresariales que quieren comprar masivamente.
+// El rate limiting se mantiene SOLO en rutas críticas (login, uploads)
+//
+// const limiter = rateLimit({
+//   windowMs: 60 * 60 * 1000,
+//   max: 2000,
+//   message: 'Demasiadas peticiones desde esta IP, por favor intenta de nuevo más tarde',
+//   standardHeaders: true,
+//   legacyHeaders: false,
+// })
 
-// ✅ SEGURIDAD: Rate limiting para uploads (más restrictivo)
+// ✅ SEGURIDAD: Rate limiting para uploads (permisivo pero con límite)
 // Previene abuso en operaciones costosas de sistema de archivos
+// Aumentado para permitir que clientes empresariales suban múltiples imágenes de referencia
 const uploadLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 20, // Máximo 20 uploads por ventana
+  windowMs: 60 * 60 * 1000, // 1 hora
+  max: 100, // Máximo 100 uploads por hora (antes 20/15min, muy restrictivo)
   message: 'Demasiadas subidas de archivos, por favor intenta de nuevo más tarde',
   standardHeaders: true,
   legacyHeaders: false,
 })
 
-// ✅ SEGURIDAD: Rate limiting para autenticación (muy restrictivo)
+// ✅ SEGURIDAD: Rate limiting para autenticación
 // Previene ataques de fuerza bruta en login
+// NOTA: Más permisivo para clientes que navegan todo el día con sesión activa
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // Máximo 5 intentos de login por ventana
-  message: 'Demasiados intentos de inicio de sesión, por favor intenta de nuevo más tarde',
+  windowMs: 60 * 60 * 1000, // 1 hora
+  max: 200, // Máximo 200 peticiones por hora (verificaciones de perfil + intentos de login)
+  message: 'Demasiadas peticiones de autenticación, por favor intenta de nuevo más tarde',
   standardHeaders: true,
   legacyHeaders: false,
 })
 
-// Aplicar rate limiting global a todas las rutas
-app.use(limiter)
+// ✅ NO aplicar rate limiting global - E-commerce necesita navegación libre
+// app.use(limiter) ← COMENTADO: Clientes pueden navegar sin límites
 
 // Middlewares básicos
 app.use(cors())

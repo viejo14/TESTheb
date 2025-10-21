@@ -17,10 +17,21 @@ const DashboardStats = () => {
     try {
       setLoading(true)
       const token = localStorage.getItem('token')
-      const response = await axios.get(`${API_URL}/stats/dashboard`, {
-        headers: { Authorization: `Bearer ${token}` }
+
+      // Obtener estadísticas del dashboard y de órdenes en paralelo
+      const [dashboardResponse, ordersResponse] = await Promise.all([
+        axios.get(`${API_URL}/stats/dashboard`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get(`${API_URL}/orders/stats`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).catch(() => ({ data: { data: null } })) // Si falla, retornar null
+      ])
+
+      setStats({
+        ...dashboardResponse.data.data,
+        ordersStats: ordersResponse.data.data
       })
-      setStats(response.data.data)
     } catch (err) {
       setError('Error cargando estadísticas')
       console.error(err)
@@ -53,29 +64,30 @@ const DashboardStats = () => {
 
   const statCards = [
     {
-      title: 'Total Órdenes',
-      value: stats.salesStats?.total_ordenes || 0,
+      title: 'Órdenes del Mes',
+      value: stats.ordersStats?.orders_this_month || stats.salesStats?.total_ordenes || 0,
+      subtitle: stats.ordersStats?.pending_orders ? `${stats.ordersStats.pending_orders} pendientes` : null,
       icon: '📦',
       color: 'bg-blue-500/20 border-blue-400'
     },
     {
-      title: 'Ingresos Totales',
-      value: `$${parseFloat(stats.salesStats?.ingresos_totales || 0).toLocaleString()}`,
+      title: 'Ingresos del Mes',
+      value: `$${parseFloat(stats.ordersStats?.revenue_this_month || stats.salesStats?.ingresos_totales || 0).toLocaleString()}`,
       icon: '💰',
       color: 'bg-green-500/20 border-green-400'
     },
     {
       title: 'Ticket Promedio',
-      value: `$${Math.round(parseFloat(stats.salesStats?.ticket_promedio || 0)).toLocaleString()}`,
+      value: `$${Math.round(parseFloat(stats.ordersStats?.average_order_value || stats.salesStats?.ticket_promedio || 0)).toLocaleString()}`,
       icon: '🎫',
       color: 'bg-purple-500/20 border-purple-400'
     },
     {
-      title: 'Cotizaciones (30d)',
-      value: stats.recentQuotes?.total_cotizaciones || 0,
-      subtitle: `${stats.recentQuotes?.pendientes || 0} pendientes`,
-      icon: '📝',
-      color: 'bg-yellow-500/20 border-yellow-400'
+      title: 'Ventas Hoy',
+      value: stats.ordersStats?.orders_today || 0,
+      subtitle: stats.ordersStats?.revenue_today ? `$${parseFloat(stats.ordersStats.revenue_today).toLocaleString()}` : null,
+      icon: '📊',
+      color: 'bg-orange-500/20 border-orange-400'
     }
   ]
 
@@ -188,7 +200,7 @@ const DashboardStats = () => {
         </div>
       </motion.div>
 
-      {/* Ventas por Categoría */}
+      {/* Ventas por Categoría - Barras Verticales */}
       <motion.div
         className="bg-bg-primary/80 border-2 border-gray-500/30 rounded-xl p-6 backdrop-blur-sm"
         initial={{ opacity: 0, y: 20 }}
@@ -196,44 +208,81 @@ const DashboardStats = () => {
         transition={{ duration: 0.6, delay: 0.6 }}
       >
         <h3 className="text-xl font-bold text-white mb-6">📊 Ventas por Categoría</h3>
-        <div className="space-y-4">
-          {stats.salesByCategory && stats.salesByCategory.length > 0 ? (
-            stats.salesByCategory.map((category, index) => {
-              const maxIngresos = Math.max(...stats.salesByCategory.map(c => parseFloat(c.ingresos)))
-              const percentage = maxIngresos > 0 ? (parseFloat(category.ingresos) / maxIngresos) * 100 : 0
 
-              return (
-                <motion.div
-                  key={category.categoria}
-                  className="flex items-center justify-between"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2, delay: index * 0.03 }}
-                >
-                  <div className="flex items-center gap-3 flex-1">
-                    <span className="text-white font-medium min-w-[120px]">{category.categoria}</span>
-                    <div className="flex-1 h-3 bg-gray-600 rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${percentage}%` }}
-                        transition={{ duration: 0.6, delay: index * 0.05 }}
-                      />
-                    </div>
-                  </div>
-                  <div className="text-right ml-4 min-w-[140px]">
-                    <span className="text-white font-bold">{category.productos_vendidos} vendidos</span>
-                    <p className="text-green-400 text-sm">${parseFloat(category.ingresos).toLocaleString()}</p>
-                  </div>
-                </motion.div>
-              )
-            })
-          ) : (
-            <div className="text-center py-8 text-white/60">
-              No hay ventas por categoría registradas
+        {stats.salesByCategory && stats.salesByCategory.length > 0 ? (
+          <div className="relative pb-4">
+            {/* Grid lines de fondo */}
+            <div className="absolute inset-0 flex flex-col justify-between pointer-events-none mb-16">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="border-t border-gray-600/30"></div>
+              ))}
             </div>
-          )}
-        </div>
+
+            {/* Contenedor de barras */}
+            <div className="relative flex items-end justify-around gap-3 px-4 pt-4 mb-16" style={{ height: '320px' }}>
+              {stats.salesByCategory.map((category, index) => {
+                const maxProductosVendidos = Math.max(...stats.salesByCategory.map(c => parseInt(c.productos_vendidos)))
+                const productosVendidos = parseInt(category.productos_vendidos)
+
+                // Calcular altura en pixels directamente
+                const heightPx = maxProductosVendidos > 0
+                  ? Math.max((productosVendidos / maxProductosVendidos) * 300, productosVendidos > 0 ? 30 : 0)
+                  : 0
+
+                return (
+                  <motion.div
+                    key={category.categoria}
+                    className="flex flex-col items-center flex-1 max-w-[100px]"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                  >
+                    {/* Contenedor de la barra */}
+                    <div className="w-full flex flex-col justify-end items-center" style={{ height: '300px' }}>
+                      {productosVendidos > 0 ? (
+                        <motion.div
+                          className="w-full bg-gradient-to-t from-yellow-400 via-yellow-500 to-yellow-600 rounded-t-lg shadow-lg hover:shadow-xl transition-shadow relative group cursor-pointer min-h-[30px]"
+                          initial={{ height: 0 }}
+                          animate={{ height: heightPx }}
+                          transition={{ duration: 0.8, delay: index * 0.05, ease: 'easeOut' }}
+                        >
+                          {/* Tooltip al hacer hover */}
+                          <div className="absolute -top-14 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                            <div className="bg-gray-900/95 px-3 py-2 rounded-lg shadow-xl border border-yellow-400/50 whitespace-nowrap">
+                              <p className="text-yellow-400 font-bold text-sm">{productosVendidos} vendidos</p>
+                              <p className="text-green-400 text-xs">${parseFloat(category.ingresos).toLocaleString()}</p>
+                            </div>
+                          </div>
+
+                          {/* Número dentro de la barra */}
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <p className="text-gray-900 font-bold text-sm">{productosVendidos}</p>
+                          </div>
+                        </motion.div>
+                      ) : (
+                        <div className="w-full h-2 bg-gray-700 rounded opacity-50"></div>
+                      )}
+                    </div>
+
+                    {/* Etiqueta de categoría */}
+                    <div className="mt-3 text-center">
+                      <p className="text-white font-medium text-xs leading-tight mb-1">
+                        {category.categoria}
+                      </p>
+                      <p className="text-green-400 text-xs">
+                        ${parseFloat(category.ingresos).toLocaleString()}
+                      </p>
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-8 text-white/60">
+            No hay ventas por categoría registradas
+          </div>
+        )}
       </motion.div>
 
       {/* Ventas Recientes (Últimos 7 días) */}

@@ -59,11 +59,11 @@ export const CartProvider = ({ children }) => {
             quantity: parseInt(quantity) || 1,
             addedAt: new Date().toISOString()
           }
-          console.log('Adding new product:', newProduct)
+          //console.log('Adding new product:', newProduct)
           newItems = [...prevItems, newProduct]
         }
 
-        console.log('CartContext - New items:', newItems)
+        //console.log('CartContext - New items:', newItems)
         return newItems
       })
 

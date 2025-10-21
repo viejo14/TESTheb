@@ -42,9 +42,9 @@ export const getImagePath = (imageName) => {
 
 // Función para descargar imágenes de Unsplash para uso local
 export const downloadCategoryImages = async () => {
-  console.log('🖼️ Instrucciones para preparar imágenes locales:')
-  console.log('1. Crear carpeta: public/images/categories/')
-  console.log('2. Descargar estas imágenes optimizadas:')
+  //console.log('🖼️ Instrucciones para preparar imágenes locales:')
+  //console.log('1. Crear carpeta: public/images/categories/')
+  //console.log('2. Descargar estas imágenes optimizadas:')
 
   const imagesToDownload = [
     { name: 'colegios', url: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&h=600&fit=crop&crop=center&q=80' },
@@ -61,15 +61,15 @@ export const downloadCategoryImages = async () => {
   ]
 
   imagesToDownload.forEach(img => {
-    console.log(`   - ${img.name}.jpg: ${img.url}`)
+    //console.log(`   - ${img.name}.jpg: ${img.url}`)
   })
 
-  console.log('3. Cambiar IMAGE_CONFIG.useLocalImages = true en imageUtils.js')
-  console.log('✅ Listo para producción!')
+  //console.log('3. Cambiar IMAGE_CONFIG.useLocalImages = true en imageUtils.js')
+  //console.log('✅ Listo para producción!')
 }
 
 // Log para desarrollo
 if (!IS_PRODUCTION) {
-  console.log('🔧 Modo desarrollo: usando imágenes de Unsplash')
-  console.log('📦 Para producción, ejecuta: downloadCategoryImages()')
+  //console.log('🔧 Modo desarrollo: usando imágenes de Unsplash')
+  //console.log('📦 Para producción, ejecuta: downloadCategoryImages()')
 }

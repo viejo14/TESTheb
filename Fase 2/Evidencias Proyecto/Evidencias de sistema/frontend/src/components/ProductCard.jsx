@@ -60,7 +60,7 @@ const ProductCard = ({ product }) => {
 
           <div className="p-4 flex-1 flex flex-col justify-between">
             <div className="space-y-3">
-              <div className="text-xs text-blue-400 font-medium uppercase tracking-wide transition-colors duration-200 group-hover:text-blue-300">
+              <div className="text-xs text-white font-medium uppercase tracking-wide transition-colors duration-200 group-hover:text-yellow-400">
                 {category_name}
               </div>
 

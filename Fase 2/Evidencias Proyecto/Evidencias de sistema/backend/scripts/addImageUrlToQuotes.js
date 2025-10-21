@@ -8,14 +8,14 @@ const __dirname = path.dirname(__filename)
 
 async function addImageUrlColumn() {
   try {
-    console.log('📝 Agregando columna image_url a la tabla quotes...\n')
+    //console.log('📝 Agregando columna image_url a la tabla quotes...\n')
 
     const sqlPath = path.join(__dirname, '../sql/add_image_url_to_quotes.sql')
     const sql = fs.readFileSync(sqlPath, 'utf8')
 
     await query(sql)
 
-    console.log('✅ Columna image_url agregada exitosamente')
+    //console.log('✅ Columna image_url agregada exitosamente')
 
     // Verificar la estructura actualizada
     const result = await query(`
@@ -25,12 +25,12 @@ async function addImageUrlColumn() {
       ORDER BY ordinal_position;
     `)
 
-    console.log('\n📋 Estructura actualizada de quotes:\n')
-    console.log('Columna              | Tipo              | Nullable')
-    console.log('---------------------|-------------------|----------')
+    //console.log('\n📋 Estructura actualizada de quotes:\n')
+    //console.log('Columna              | Tipo              | Nullable')
+    //console.log('---------------------|-------------------|----------')
     result.rows.forEach(row => {
       const nullable = row.is_nullable === 'YES' ? 'SÍ' : 'NO'
-      console.log(`${row.column_name.padEnd(20)} | ${row.data_type.padEnd(17)} | ${nullable}`)
+      //console.log(`${row.column_name.padEnd(20)} | ${row.data_type.padEnd(17)} | ${nullable}`)
     })
 
     process.exit(0)

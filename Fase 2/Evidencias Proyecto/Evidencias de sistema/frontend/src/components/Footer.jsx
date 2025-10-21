@@ -125,8 +125,8 @@ const Footer = () => {
   ]
 
   return (
-    <footer className="bg-gradient-to-b from-bg-secondary to-bg-primary border-t border-gray-500/20">
-      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer className="relative bg-gradient-to-b from-bg-secondary to-bg-primary border-t border-yellow-400 overflow-hidden">
+      <div className="relative max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
         <div className="py-12 lg:py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
@@ -141,10 +141,15 @@ const Footer = () => {
             >
               <Link to="/" className="flex items-center gap-3 group">
                 <motion.div
-                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.3 }}
+                  className="flex-shrink-0"
                 >
-                  <RiShirtLine className="h-12 w-12 text-yellow-400" />
+                  <img 
+                    src="/testheb-logo.png" 
+                    alt="TESTheb Logo" 
+                    className="h-12 w-12 object-cover rounded-full border-2 border-white"
+                  />
                 </motion.div>
                 <span className="text-xl font-bold text-white group-hover:text-yellow-400 transition-colors duration-300">
                   TESTheb Bordados
@@ -295,7 +300,7 @@ const Footer = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="border-t border-gray-500/20 py-6"
+          className="border-t border-yellow-400 py-6"
         >
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-text-muted text-sm text-center md:text-left">
