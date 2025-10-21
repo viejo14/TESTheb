@@ -2,7 +2,7 @@ import { query } from '../src/config/database.js'
 
 async function listTables() {
   try {
-    console.log('📋 Listando todas las tablas en bordados_testheb...\n')
+    //console.log('📋 Listando todas las tablas en bordados_testheb...\n')
 
     const result = await query(`
       SELECT
@@ -15,13 +15,13 @@ async function listTables() {
     `)
 
     if (result.rows.length === 0) {
-      console.log('No se encontraron tablas en la base de datos.')
+      //console.log('No se encontraron tablas en la base de datos.')
     } else {
-      console.log(`Total de tablas: ${result.rows.length}\n`)
-      console.log('Tabla                      | Columnas')
-      console.log('---------------------------|---------')
+      //console.log(`Total de tablas: ${result.rows.length}\n`)
+      //console.log('Tabla                      | Columnas')
+      //console.log('---------------------------|---------')
       result.rows.forEach(row => {
-        console.log(`${row.table_name.padEnd(26)} | ${row.column_count}`)
+        //console.log(`${row.table_name.padEnd(26)} | ${row.column_count}`)
       })
     }
 

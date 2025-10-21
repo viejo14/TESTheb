@@ -194,6 +194,134 @@ export const Order = {
       ingresos_totales: 0,
       ticket_promedio: 0
     }
+  },
+
+  /**
+   * Obtiene todas las órdenes con filtros opcionales
+   * @param {Object} filters - Filtros para la búsqueda
+   * @returns {Promise<Array>} Lista de órdenes
+   */
+  async findAll(filters = {}) {
+    const { status, startDate, endDate, page = 1, limit = 50, search } = filters
+
+    let queryText = `
+      SELECT
+        o.*,
+        COALESCE(SUM(oi.quantity), 0) as items_count
+      FROM orders o
+      LEFT JOIN order_items oi ON o.id = oi.order_id
+      WHERE 1=1
+    `
+    const params = []
+    let paramIndex = 1
+
+    // Filtro por estado
+    if (status) {
+      queryText += ` AND o.status = $${paramIndex}`
+      params.push(status)
+      paramIndex++
+    }
+
+    // Filtro por fecha de inicio
+    if (startDate) {
+      queryText += ` AND o.created_at >= $${paramIndex}`
+      params.push(startDate)
+      paramIndex++
+    }
+
+    // Filtro por fecha de fin
+    if (endDate) {
+      queryText += ` AND o.created_at <= $${paramIndex}`
+      params.push(endDate)
+      paramIndex++
+    }
+
+    // Búsqueda por nombre de cliente, email o buy_order
+    if (search) {
+      queryText += ` AND (
+        o.customer_name ILIKE $${paramIndex} OR
+        o.customer_email ILIKE $${paramIndex} OR
+        o.buy_order ILIKE $${paramIndex}
+      )`
+      params.push(`%${search}%`)
+      paramIndex++
+    }
+
+    // Agrupar y ordenar
+    queryText += `
+      GROUP BY o.id
+      ORDER BY o.created_at DESC
+    `
+
+    // Paginación
+    const offset = (page - 1) * limit
+    queryText += ` LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
+    params.push(limit, offset)
+
+    const result = await query(queryText, params)
+    return result.rows
+  },
+
+  /**
+   * Actualiza solo el estado de una orden (para panel admin)
+   * @param {number} id - ID de la orden
+   * @param {string} status - Nuevo estado
+   * @param {string} notes - Notas adicionales
+   * @returns {Promise<Object|null>} Orden actualizada o null
+   */
+  async updateOrderStatus(id, status, notes = '') {
+    const result = await query(`
+      UPDATE orders
+      SET status = $1, updated_at = NOW()
+      WHERE id = $2
+      RETURNING *
+    `, [status, id])
+
+    return result.rows[0] || null
+  },
+
+  /**
+   * Obtiene estadísticas generales de órdenes
+   * @returns {Promise<Object>} Estadísticas
+   */
+  async getStats() {
+    // Total de órdenes y ventas
+    const totalsResult = await query(`
+      SELECT
+        COUNT(*) as total_orders,
+        COUNT(CASE WHEN status IN ('authorized', 'confirmed', 'completed') THEN 1 END) as successful_orders,
+        COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_orders,
+        COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_orders,
+        COALESCE(SUM(CASE WHEN status IN ('authorized', 'confirmed', 'completed') THEN total ELSE 0 END), 0) as total_revenue,
+        COALESCE(AVG(CASE WHEN status IN ('authorized', 'confirmed', 'completed') THEN total END), 0) as average_order_value
+      FROM orders
+    `)
+
+    // Órdenes del mes actual
+    const monthResult = await query(`
+      SELECT
+        COUNT(*) as orders_this_month,
+        COALESCE(SUM(total), 0) as revenue_this_month
+      FROM orders
+      WHERE created_at >= DATE_TRUNC('month', CURRENT_DATE)
+        AND status IN ('authorized', 'confirmed', 'completed')
+    `)
+
+    // Órdenes de hoy
+    const todayResult = await query(`
+      SELECT
+        COUNT(*) as orders_today,
+        COALESCE(SUM(total), 0) as revenue_today
+      FROM orders
+      WHERE DATE(created_at) = CURRENT_DATE
+        AND status IN ('authorized', 'confirmed', 'completed')
+    `)
+
+    return {
+      ...totalsResult.rows[0],
+      ...monthResult.rows[0],
+      ...todayResult.rows[0]
+    }
   }
 }
 

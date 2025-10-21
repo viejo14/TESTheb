@@ -18,12 +18,16 @@ const pool = new Pool({
 })
 
 // Verificar conexión al inicializar
-pool.connect((err, client, release) => {
+pool.connect(async (err, client, release) => {
   if (err) {
-    console.error('❌ Error conectando a PostgreSQL:', err.stack)
+    const { default: logger } = await import('./logger.js')
+    logger.error('Error conectando a PostgreSQL', {
+      error: err.message,
+      stack: err.stack
+    })
   } else {
-    console.log('✅ Conectado a PostgreSQL - Base de datos: bordados_testheb')
-    console.log(`📊 Usuario: ${client.user}, Host: ${client.host}:${client.port}`)
+    //console.log('✅ Conectado a PostgreSQL - Base de datos: bordados_testheb')
+    //console.log(`📊 Usuario: ${client.user}, Host: ${client.host}:${client.port}`)
     release()
   }
 })

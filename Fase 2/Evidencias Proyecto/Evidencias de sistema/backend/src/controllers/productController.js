@@ -1,14 +1,27 @@
 import Product from '../models/Product.js'
+import ProductImage from '../models/ProductImage.js'
 
 export const getAllProducts = async (req, res) => {
   try {
     const products = await Product.findAll()
 
+    // Agregar imágenes a cada producto
+    const productsWithImages = await Promise.all(
+      products.map(async (product) => {
+        const images = await ProductImage.findByProductId(product.id)
+        return {
+          ...product,
+          images: images || [],
+          primary_image: images.find(img => img.is_primary)?.image_url || product.image_url || images[0]?.image_url
+        }
+      })
+    )
+
     res.json({
       success: true,
       message: 'Productos obtenidos exitosamente',
-      data: products,
-      total: products.length
+      data: productsWithImages,
+      total: productsWithImages.length
     })
   } catch (error) {
     console.error('❌ Error obteniendo productos:', error)
@@ -32,10 +45,18 @@ export const getProductById = async (req, res) => {
       })
     }
 
+    // Agregar imágenes al producto
+    const images = await ProductImage.findByProductId(id)
+    const productWithImages = {
+      ...product,
+      images: images || [],
+      primary_image: images.find(img => img.is_primary)?.image_url || product.image_url || images[0]?.image_url
+    }
+
     res.json({
       success: true,
       message: 'Producto obtenido exitosamente',
-      data: product
+      data: productWithImages
     })
   } catch (error) {
     console.error('❌ Error obteniendo producto:', error)
@@ -269,6 +290,256 @@ export const updateProductSizeStock = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error actualizando stock',
+      error: error.message
+    })
+  }
+}
+
+// ============ CONTROLADORES DE IMÁGENES ============
+
+/**
+ * Obtener todas las imágenes de un producto
+ */
+export const getProductImages = async (req, res) => {
+  try {
+    const { productId } = req.params
+    const images = await ProductImage.findByProductId(productId)
+
+    res.json({
+      success: true,
+      message: 'Imágenes obtenidas exitosamente',
+      data: images
+    })
+  } catch (error) {
+    console.error('❌ Error obteniendo imágenes:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Error obteniendo imágenes del producto',
+      error: error.message
+    })
+  }
+}
+
+/**
+ * Agregar una imagen a un producto
+ */
+export const addProductImage = async (req, res) => {
+  try {
+    const { productId } = req.params
+    const { image_url, display_order, is_primary } = req.body
+
+    // Verificar que el producto existe
+    const product = await Product.findById(productId)
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Producto no encontrado'
+      })
+    }
+
+    // Verificar límite de imágenes (máximo 4)
+    const count = await ProductImage.countByProductId(productId)
+    if (count >= 4) {
+      return res.status(400).json({
+        success: false,
+        message: 'El producto ya tiene el máximo de 4 imágenes'
+      })
+    }
+
+    const image = await ProductImage.create({
+      product_id: productId,
+      image_url,
+      display_order: display_order ?? count,
+      is_primary: is_primary ?? (count === 0)
+    })
+
+    res.status(201).json({
+      success: true,
+      message: 'Imagen agregada exitosamente',
+      data: image
+    })
+  } catch (error) {
+    console.error('❌ Error agregando imagen:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Error agregando imagen al producto',
+      error: error.message
+    })
+  }
+}
+
+/**
+ * Agregar múltiples imágenes a un producto
+ */
+export const addProductImages = async (req, res) => {
+  try {
+    const { productId } = req.params
+    const { image_urls } = req.body
+
+    if (!Array.isArray(image_urls) || image_urls.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Se requiere un array de URLs de imágenes'
+      })
+    }
+
+    // Verificar que el producto existe
+    const product = await Product.findById(productId)
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Producto no encontrado'
+      })
+    }
+
+    // Verificar límite de imágenes
+    const currentCount = await ProductImage.countByProductId(productId)
+    const availableSlots = 4 - currentCount
+
+    if (availableSlots <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'El producto ya tiene el máximo de 4 imágenes'
+      })
+    }
+
+    const urlsToAdd = image_urls.slice(0, availableSlots)
+    const images = await ProductImage.createBulk(productId, urlsToAdd)
+
+    res.status(201).json({
+      success: true,
+      message: `${images.length} imágenes agregadas exitosamente`,
+      data: images
+    })
+  } catch (error) {
+    console.error('❌ Error agregando imágenes:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Error agregando imágenes al producto',
+      error: error.message
+    })
+  }
+}
+
+/**
+ * Actualizar una imagen
+ */
+export const updateProductImage = async (req, res) => {
+  try {
+    const { imageId } = req.params
+    const updates = req.body
+
+    const image = await ProductImage.update(imageId, updates)
+
+    if (!image) {
+      return res.status(404).json({
+        success: false,
+        message: 'Imagen no encontrada'
+      })
+    }
+
+    res.json({
+      success: true,
+      message: 'Imagen actualizada exitosamente',
+      data: image
+    })
+  } catch (error) {
+    console.error('❌ Error actualizando imagen:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Error actualizando imagen',
+      error: error.message
+    })
+  }
+}
+
+/**
+ * Marcar imagen como principal
+ */
+export const setProductImagePrimary = async (req, res) => {
+  try {
+    const { imageId } = req.params
+
+    const image = await ProductImage.setPrimary(imageId)
+
+    if (!image) {
+      return res.status(404).json({
+        success: false,
+        message: 'Imagen no encontrada'
+      })
+    }
+
+    res.json({
+      success: true,
+      message: 'Imagen marcada como principal',
+      data: image
+    })
+  } catch (error) {
+    console.error('❌ Error actualizando imagen principal:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Error actualizando imagen principal',
+      error: error.message
+    })
+  }
+}
+
+/**
+ * Eliminar una imagen
+ */
+export const deleteProductImage = async (req, res) => {
+  try {
+    const { imageId } = req.params
+
+    const deleted = await ProductImage.delete(imageId)
+
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: 'Imagen no encontrada'
+      })
+    }
+
+    res.json({
+      success: true,
+      message: 'Imagen eliminada exitosamente'
+    })
+  } catch (error) {
+    console.error('❌ Error eliminando imagen:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Error eliminando imagen',
+      error: error.message
+    })
+  }
+}
+
+/**
+ * Reordenar imágenes de un producto
+ */
+export const reorderProductImages = async (req, res) => {
+  try {
+    const { productId } = req.params
+    const { image_ids } = req.body
+
+    if (!Array.isArray(image_ids)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Se requiere un array de IDs de imágenes'
+      })
+    }
+
+    await ProductImage.reorder(productId, image_ids)
+
+    res.json({
+      success: true,
+      message: 'Imágenes reordenadas exitosamente'
+    })
+  } catch (error) {
+    console.error('❌ Error reordenando imágenes:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Error reordenando imágenes',
       error: error.message
     })
   }

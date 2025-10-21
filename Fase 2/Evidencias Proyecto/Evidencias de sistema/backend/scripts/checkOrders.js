@@ -2,7 +2,7 @@ import { query } from '../src/config/database.js'
 
 async function checkOrders() {
   try {
-    console.log('📦 Verificando órdenes en la base de datos...\n')
+    //console.log('📦 Verificando órdenes en la base de datos...\n')
 
     // Ver todas las órdenes
     const orders = await query(`
@@ -17,24 +17,24 @@ async function checkOrders() {
       LIMIT 10
     `)
 
-    console.log(`Total de órdenes: ${orders.rows.length}\n`)
+    //console.log(`Total de órdenes: ${orders.rows.length}\n`)
 
     if (orders.rows.length > 0) {
-      console.log('ID   | Estado      | Total    | Fecha')
-      console.log('-----|-------------|----------|-------------------')
+      //console.log('ID   | Estado      | Total    | Fecha')
+      //console.log('-----|-------------|----------|-------------------')
       orders.rows.forEach(order => {
-        console.log(
+        //console.log(
           `${order.id.toString().padEnd(4)} | ${order.status.padEnd(11)} | $${order.total.toString().padEnd(7)} | ${new Date(order.created_at).toLocaleString('es-CL')}`
         )
       })
     } else {
-      console.log('❌ No hay órdenes en la base de datos')
+      //console.log('❌ No hay órdenes en la base de datos')
     }
 
     // Ver order_items de la última orden
     if (orders.rows.length > 0) {
       const lastOrderId = orders.rows[0].id
-      console.log(`\n📋 Items de la orden #${lastOrderId}:\n`)
+      //console.log(`\n📋 Items de la orden #${lastOrderId}:\n`)
 
       const items = await query(`
         SELECT
@@ -49,13 +49,13 @@ async function checkOrders() {
       `, [lastOrderId])
 
       if (items.rows.length > 0) {
-        console.log('Producto               | Cantidad | Precio')
-        console.log('-----------------------|----------|--------')
+        //console.log('Producto               | Cantidad | Precio')
+        //console.log('-----------------------|----------|--------')
         items.rows.forEach(item => {
-          console.log(`${item.product_name.padEnd(22)} | ${item.quantity.toString().padEnd(8)} | $${item.price}`)
+          //console.log(`${item.product_name.padEnd(22)} | ${item.quantity.toString().padEnd(8)} | $${item.price}`)
         })
       } else {
-        console.log('❌ No hay items en esta orden')
+        //console.log('❌ No hay items en esta orden')
       }
     }
 

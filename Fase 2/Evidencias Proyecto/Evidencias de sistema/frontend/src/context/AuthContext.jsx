@@ -131,7 +131,7 @@ export const AuthProvider = ({ children }) => {
         setUser(user)
         setIsAuthenticated(true)
 
-        console.log('✅ Inicio de sesión exitoso. Token expira en 24 horas.')
+        //console.log('✅ Inicio de sesión exitoso. Token expira en 24 horas.')
 
         return { success: true, user }
       } else {
@@ -188,7 +188,7 @@ export const AuthProvider = ({ children }) => {
   // Logout function
   const logout = () => {
     clearAuth()
-    console.log('👋 Sesión cerrada correctamente.')
+    //console.log('👋 Sesión cerrada correctamente.')
   }
 
   // Update user profile (placeholder for future implementation)

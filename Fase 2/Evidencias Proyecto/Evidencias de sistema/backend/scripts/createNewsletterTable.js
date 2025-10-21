@@ -18,7 +18,7 @@ const pool = new Pool({
 
 async function createNewsletterTable() {
   try {
-    console.log('📧 Creando tabla newsletter_subscribers...\n')
+    //console.log('📧 Creando tabla newsletter_subscribers...\n')
 
     const sql = `
 -- Tabla para suscriptores del newsletter
@@ -48,9 +48,9 @@ COMMENT ON COLUMN newsletter_subscribers.unsubscribed_at IS 'Fecha de desuscripc
 
     await pool.query(sql)
 
-    console.log('✅ Tabla newsletter_subscribers creada exitosamente')
-    console.log('✅ Índices creados correctamente')
-    console.log('\n📊 Verificando estructura de la tabla...\n')
+    //console.log('✅ Tabla newsletter_subscribers creada exitosamente')
+    //console.log('✅ Índices creados correctamente')
+    //console.log('\n📊 Verificando estructura de la tabla...\n')
 
     const result = await pool.query(`
       SELECT column_name, data_type, is_nullable, column_default
@@ -61,7 +61,7 @@ COMMENT ON COLUMN newsletter_subscribers.unsubscribed_at IS 'Fecha de desuscripc
 
     console.table(result.rows)
 
-    console.log('\n✅ ¡Todo listo! El sistema de newsletter está operativo.\n')
+    //console.log('\n✅ ¡Todo listo! El sistema de newsletter está operativo.\n')
 
   } catch (error) {
     console.error('❌ Error creando tabla:', error.message)

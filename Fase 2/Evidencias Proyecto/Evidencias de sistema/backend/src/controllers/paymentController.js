@@ -1,5 +1,6 @@
 import { webpayPlus } from '../config/transbank.js'
 import crypto from 'crypto'
+import logger from '../config/logger.js'
 
 // Crear transacción de pago
 export const createTransaction = async (req, res) => {
@@ -27,7 +28,10 @@ export const createTransaction = async (req, res) => {
     })
 
   } catch (error) {
-    console.error('❌ Error creando transacción:', error)
+    logger.error('Error creando transacción', {
+      message: error.message,
+      stack: error.stack
+    })
     res.status(500).json({
       success: false,
       message: 'Error creando transacción',
@@ -74,7 +78,10 @@ export const confirmTransaction = async (req, res) => {
     }
 
   } catch (error) {
-    console.error('❌ Error confirmando transacción:', error)
+    logger.error('Error confirmando transacción', {
+      message: error.message,
+      stack: error.stack
+    })
     res.status(500).json({
       success: false,
       message: 'Error confirmando transacción',
@@ -104,7 +111,10 @@ export const getTransactionStatus = async (req, res) => {
     })
 
   } catch (error) {
-    console.error('❌ Error obteniendo estado:', error)
+    logger.error('Error obteniendo estado de transacción', {
+      message: error.message,
+      stack: error.stack
+    })
     res.status(500).json({
       success: false,
       message: 'Error obteniendo estado de transacción',
@@ -166,13 +176,13 @@ export const createCheckout = async (req, res) => {
     )
 
     // Guardar información de la orden (opcional - podrías guardarlo en BD)
-    console.log('💳 Checkout creado:', {
-      buyOrder,
-      sessionId,
-      amount: totalAmount,
-      customerInfo,
-      cartItems: cartItems.length
-    })
+    // console.log('💳 Checkout creado:', {
+    //   buyOrder,
+    //   sessionId,
+    //   amount: totalAmount,
+    //   customerInfo,
+    //   cartItems: cartItems.length
+    // })
 
     res.json({
       success: true,
@@ -190,7 +200,10 @@ export const createCheckout = async (req, res) => {
     })
 
   } catch (error) {
-    console.error('❌ Error creando checkout:', error)
+    logger.error('Error creando checkout', {
+      message: error.message,
+      stack: error.stack
+    })
     res.status(500).json({
       success: false,
       message: 'Error creando checkout',

@@ -47,19 +47,21 @@ const HomePage = () => {
       try {
         setLoading(true)
 
-        // Load categories and products in parallel
-        const [categoriesResponse, productsResponse] = await Promise.all([
+        // Load categories and top products in parallel
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+
+        const [categoriesResponse, topProductsResponse] = await Promise.all([
           fetchCategories(),
-          fetchProducts()
+          fetch(`${API_URL}/stats/top-products?limit=6`).then(res => res.json())
         ])
 
         if (categoriesResponse.success) {
           setCategories(categoriesResponse.data)
         }
 
-        if (productsResponse.success) {
-          // Show first 4 products as featured
-          setFeaturedProducts(productsResponse.data.slice(0, 4))
+        if (topProductsResponse.success) {
+          // Show top 6 most sold products
+          setFeaturedProducts(topProductsResponse.data)
         }
       } catch (err) {
         setError('Error cargando los datos')
@@ -252,7 +254,7 @@ const HomePage = () => {
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              Productos Destacados
+              🏆 Productos Más Vendidos
             </motion.h2>
             <motion.p
               className="text-lg text-center text-text-secondary mb-12 max-w-2xl mx-auto"
@@ -261,7 +263,7 @@ const HomePage = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true }}
             >
-              Algunos de nuestros trabajos más populares
+              Los favoritos de nuestros clientes - ¡Los más pedidos!
             </motion.p>
 
             <motion.div
@@ -288,27 +290,82 @@ const HomePage = () => {
             </motion.div>
 
             <motion.div
-              className="text-center"
+              className="text-center mt-8"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
               viewport={{ once: true }}
             >
+              {/* Decorative divider */}
+              <div className="flex items-center justify-center gap-4 mb-8">
+                <div className="h-px w-20 bg-gradient-to-r from-transparent to-yellow-400"></div>
+                <span className="text-yellow-400 text-3xl">✨</span>
+                <div className="h-px w-20 bg-gradient-to-l from-transparent to-yellow-400"></div>
+              </div>
+
               <motion.h3
-                className="text-2xl md:text-3xl font-bold text-text-primary mb-6"
+                className="text-3xl md:text-4xl font-bold text-text-primary mb-4"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.7 }}
                 viewport={{ once: true }}
               >
-                Explora nuestros productos
+                ¿Te gustó lo que viste? 
+                <span className="block text-yellow-400 mt-2">¡Hay mucho más!</span>
               </motion.h3>
-              <Link
-                to="/catalog"
-                className="inline-block px-38 py-4 bg-bg-accent/80 text-text-primary no-underline rounded-full border-2 border-gray-500/30 font-medium transition-all duration-300 backdrop-blur-sm hover:border-yellow-400 hover:bg-bg-accent/90 hover:-translate-y-1 hover:shadow-[0_6px_20px_rgba(251,191,36,0.2)]"
+              
+              <motion.p
+                className="text-lg text-text-secondary mb-8 max-w-xl mx-auto"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.8 }}
+                viewport={{ once: true }}
               >
-                Ver Todos los Productos
-              </Link>
+                Descubre nuestra colección completa de bordados personalizados para todas las ocasiones
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.9 }}
+                viewport={{ once: true }}
+              >
+                <Link
+                  to="/catalog"
+                  className="group relative inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 no-underline rounded-full font-bold text-lg overflow-hidden transition-all duration-300 hover:shadow-[0_0_30px_rgba(251,191,36,0.5)] hover:-translate-y-1"
+                >
+                  {/* Shine effect */}
+                  <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
+                  
+                  <span className="relative text-xl group-hover:scale-110 transition-transform duration-300">🛍️</span>
+                  <span className="relative">Ver Catálogo Completo</span>
+                  <span className="relative text-xl group-hover:translate-x-1 transition-transform duration-300">→</span>
+                </Link>
+              </motion.div>
+
+              {/* Fun stats */}
+              <motion.div
+                className="flex flex-wrap items-center justify-center gap-6 mt-10"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1 }}
+                viewport={{ once: true }}
+              >
+                <div className="flex items-center gap-2 text-text-secondary">
+                  <span className="text-2xl">🎨</span>
+                  <span className="text-sm font-medium">Diseños únicos</span>
+                </div>
+                <div className="h-4 w-px bg-gray-600"></div>
+                <div className="flex items-center gap-2 text-text-secondary">
+                  <span className="text-2xl">⚡</span>
+                  <span className="text-sm font-medium">Entrega rápida</span>
+                </div>
+                <div className="h-4 w-px bg-gray-600"></div>
+                <div className="flex items-center gap-2 text-text-secondary">
+                  <span className="text-2xl">💯</span>
+                  <span className="text-sm font-medium">Calidad garantizada</span>
+                </div>
+              </motion.div>
             </motion.div>
           </div>
         </motion.section>

@@ -115,7 +115,7 @@ const ProductsManager = ({ products, categories, onRefresh, adminData }) => {
 
       {/* Products Grid */}
       <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
@@ -123,13 +123,13 @@ const ProductsManager = ({ products, categories, onRefresh, adminData }) => {
         {filteredProducts.map((product, index) => (
           <motion.div
             key={product.id}
-            className="bg-bg-primary/80 border-2 border-gray-500/30 hover:border-yellow-400/50 rounded-xl p-6 backdrop-blur-sm transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-lg"
+            className="bg-bg-primary/80 border-2 border-gray-500/30 hover:border-yellow-400/50 rounded-lg p-4 backdrop-blur-sm transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-lg"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
             {/* Product Image */}
-            <div className="aspect-square mb-4 rounded-lg overflow-hidden bg-gray-700">
+            <div className="aspect-square mb-3 rounded-lg overflow-hidden bg-gray-700">
               {product.image_url ? (
                 <img
                   src={product.image_url}
@@ -138,34 +138,46 @@ const ProductsManager = ({ products, categories, onRefresh, adminData }) => {
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  <span className="text-4xl">📦</span>
+                  <span className="text-3xl">📦</span>
                 </div>
               )}
             </div>
 
             {/* Product Info */}
-            <div className="space-y-2 mb-4">
-              <h3 className="text-lg font-bold text-white line-clamp-1">
+            <div className="space-y-1.5 mb-3">
+              <h3 className="text-base font-bold text-white line-clamp-1">
                 {product.name}
               </h3>
-              <p className="text-gray-300 text-sm line-clamp-2">
+              <p className="text-gray-300 text-xs line-clamp-2">
                 {product.description || 'Sin descripción'}
               </p>
-              <div className="flex items-center justify-between">
-                <span className="text-yellow-400 font-bold text-lg">
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-yellow-400 font-bold text-base">
                   ${parseFloat(product.price).toLocaleString()}
                 </span>
-                <span className="text-sm text-gray-400 bg-gray-800 px-2 py-1 rounded">
+                <span className="text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded">
                   {product.category_name || 'Sin categoría'}
                 </span>
               </div>
 
+              {/* SKU */}
+              {product.sku && (
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-xs text-gray-400">
+                    SKU:
+                  </span>
+                  <span className="text-xs text-gray-300 font-mono bg-gray-800 px-2 py-0.5 rounded">
+                    {product.sku}
+                  </span>
+                </div>
+              )}
+
               {/* Stock disponible */}
-              <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-600">
-                <span className="text-sm text-gray-400">
-                  Stock disponible:
+              <div className="flex items-center justify-between pt-1.5 border-t border-gray-600">
+                <span className="text-xs text-gray-400">
+                  Stock:
                 </span>
-                <span className={`text-sm font-bold px-2 py-1 rounded ${
+                <span className={`text-xs font-bold px-2 py-0.5 rounded ${
                   (product.stock || 0) > 0
                     ? 'text-green-400 bg-green-400/20'
                     : 'text-red-400 bg-red-400/20'
@@ -178,13 +190,13 @@ const ProductsManager = ({ products, categories, onRefresh, adminData }) => {
             {/* Action Buttons */}
             <div className="flex gap-2">
               <button
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                className="flex-1 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
                 onClick={() => handleEditProduct(product)}
               >
                 ✏️ Editar
               </button>
               <button
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                className="flex-1 px-3 py-1.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 hover:scale-105 active:scale-95"
                 onClick={() => setDeleteConfirm(product)}
               >
                 🗑️ Eliminar

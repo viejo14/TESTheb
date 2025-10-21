@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import morgan from 'morgan'
+import rateLimit from 'express-rate-limit'
 import { query } from './src/config/database.js'
 import logger from './src/config/logger.js'
 import { globalErrorHandler, notFoundHandler } from './src/middleware/errorHandler.js'
@@ -15,11 +16,54 @@ import authRoutes from './src/routes/authRoutes.js'
 import uploadRoutes from './src/routes/uploadRoutes.js'
 import statsRoutes from './src/routes/statsRoutes.js'
 import newsletterRoutes from './src/routes/newsletterRoutes.js'
+import orderRoutes from './src/routes/orderRoutes.js'
 
 dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 3000
+
+// ✅ SEGURIDAD: Deshabilitar header X-Powered-By
+// Previene que atacantes sepan que usas Express.js
+app.disable('x-powered-by')
+
+// ✅ SEGURIDAD: Rate limiting global DESACTIVADO
+// RAZÓN: Es un e-commerce. Los clientes pueden navegar todo el día evaluando productos
+// especialmente clientes empresariales que quieren comprar masivamente.
+// El rate limiting se mantiene SOLO en rutas críticas (login, uploads)
+//
+// const limiter = rateLimit({
+//   windowMs: 60 * 60 * 1000,
+//   max: 2000,
+//   message: 'Demasiadas peticiones desde esta IP, por favor intenta de nuevo más tarde',
+//   standardHeaders: true,
+//   legacyHeaders: false,
+// })
+
+// ✅ SEGURIDAD: Rate limiting para uploads (permisivo pero con límite)
+// Previene abuso en operaciones costosas de sistema de archivos
+// Aumentado para permitir que clientes empresariales suban múltiples imágenes de referencia
+const uploadLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hora
+  max: 100, // Máximo 100 uploads por hora (antes 20/15min, muy restrictivo)
+  message: 'Demasiadas subidas de archivos, por favor intenta de nuevo más tarde',
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
+// ✅ SEGURIDAD: Rate limiting para autenticación
+// Previene ataques de fuerza bruta en login
+// NOTA: Más permisivo para clientes que navegan todo el día con sesión activa
+const authLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hora
+  max: 200, // Máximo 200 peticiones por hora (verificaciones de perfil + intentos de login)
+  message: 'Demasiadas peticiones de autenticación, por favor intenta de nuevo más tarde',
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
+// ✅ NO aplicar rate limiting global - E-commerce necesita navegación libre
+// app.use(limiter) ← COMENTADO: Clientes pueden navegar sin límites
 
 // Middlewares básicos
 app.use(cors())
@@ -27,24 +71,25 @@ app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 app.use(express.static('uploads'))
 
-// Logging de requests HTTP
-app.use(morgan('combined', {
-  stream: {
-    write: (message) => logger.info(message.trim())
-  }
-}))
+// Logging de requests HTTP desactivado para ocultar logs en terminal
+// app.use(morgan('combined', {
+//   stream: {
+//     write: (message) => logger.info(message.trim())
+//   }
+// }))
 
 // Rutas de la API
-app.use('/api/auth', authRoutes)
+app.use('/api/auth', authLimiter, authRoutes) // ✅ Rate limiting para autenticación
 app.use('/api/categories', categoryRoutes)
 app.use('/api/products', productRoutes)
 app.use('/api/payments', paymentRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/cotizaciones', cotizacionRoutes)
 app.use('/api/webpay', webpayRoutes)
-app.use('/api/upload', uploadRoutes)
+app.use('/api/upload', uploadLimiter, uploadRoutes) // ✅ Rate limiting para uploads
 app.use('/api/stats', statsRoutes)
 app.use('/api/newsletter', newsletterRoutes)
+app.use('/api/orders', orderRoutes)
 
 // Health check básico
 app.get('/api/health', (req, res) => {
@@ -280,9 +325,14 @@ app.get('/api/setup/create-admin', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Admin creado exitosamente ✅',
-      admin: adminResult.rows[0],
-      password: 'admin123'
+      message: 'Admin creado exitosamente ✅ (Credenciales: admin@testheb.cl / admin123)',
+      admin: {
+        id: adminResult.rows[0].id,
+        name: adminResult.rows[0].name,
+        email: adminResult.rows[0].email,
+        role: adminResult.rows[0].role
+      }
+      // ✅ SEGURIDAD: No enviar password_hash ni contraseñas en respuestas
     })
   } catch (error) {
     logger.error('Error creando admin:', error)

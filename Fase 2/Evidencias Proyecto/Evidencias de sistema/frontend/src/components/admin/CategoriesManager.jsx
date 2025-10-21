@@ -71,7 +71,7 @@ const CategoriesManager = ({ categories, onRefresh }) => {
 
       {/* Categories Grid */}
       <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
@@ -79,13 +79,13 @@ const CategoriesManager = ({ categories, onRefresh }) => {
         {categories.map((category, index) => (
           <motion.div
             key={category.id}
-            className="bg-bg-primary/80 border-2 border-gray-500/30 hover:border-yellow-400/50 rounded-xl p-6 backdrop-blur-sm min-h-[400px] flex flex-col transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-lg"
+            className="bg-bg-primary/80 border-2 border-gray-500/30 hover:border-yellow-400/50 rounded-lg p-4 backdrop-blur-sm min-h-[280px] flex flex-col transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-lg"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
             {/* Category Image */}
-            <div className="aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700 flex-shrink-0">
+            <div className="aspect-square mb-3 rounded-lg overflow-hidden bg-gray-700 flex-shrink-0">
               {(() => {
                 const imageUrl = getCategoryImage(category)
                 if (imageUrl && imageUrl !== '/images/categories/default.jpg') {
@@ -103,30 +103,30 @@ const CategoriesManager = ({ categories, onRefresh }) => {
                 }
                 return (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    <span className="text-4xl">📂</span>
+                    <span className="text-3xl">📂</span>
                   </div>
                 )
               })()}
               {/* Fallback */}
               <div className="w-full h-full flex items-center justify-center text-gray-400" style={{ display: 'none' }}>
-                <span className="text-4xl">📂</span>
+                <span className="text-3xl">📂</span>
               </div>
             </div>
 
             {/* Category Info */}
             <div className="flex-grow flex flex-col justify-between">
-              <div className="space-y-3 mb-4">
-                <h3 className="text-xl font-bold text-white">
+              <div className="space-y-2 mb-3">
+                <h3 className="text-base font-bold text-white">
                   {category.name}
                 </h3>
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
                     <span className="text-gray-400">
-                      Identificación: {category.id}
+                      ID: {category.id}
                     </span>
                   </div>
-                  <div className="text-yellow-400 font-medium text-sm">
+                  <div className="text-yellow-400 font-medium text-xs">
                     {new Date(category.updated_at || category.created_at).toLocaleDateString('es-ES')}
                   </div>
                 </div>
@@ -135,13 +135,13 @@ const CategoriesManager = ({ categories, onRefresh }) => {
               {/* Action Buttons */}
               <div className="flex gap-2 mt-auto">
               <button
-                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium hover:scale-105 active:scale-95"
+                className="flex-1 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium hover:scale-105 active:scale-95"
                 onClick={() => handleEditCategory(category)}
               >
                 ✏️ Editar
               </button>
               <button
-                className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 font-medium hover:scale-105 active:scale-95"
+                className="flex-1 px-3 py-1.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 font-medium hover:scale-105 active:scale-95"
                 onClick={() => setDeleteConfirm(category)}
               >
                 🗑️ Eliminar

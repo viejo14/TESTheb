@@ -113,7 +113,7 @@ const CheckoutPage = () => {
       const data = await response.json()
 
       if (data.success) {
-        console.log('🎯 Transacción WebPay creada exitosamente:', data)
+        //console.log('🎯 Transacción WebPay creada exitosamente:', data)
 
         // Guardar información de la orden en localStorage para referencia
         localStorage.setItem('testheb_current_order', JSON.stringify({
@@ -131,7 +131,7 @@ const CheckoutPage = () => {
           token_ws: data.data.token
         })
       } else {
-        console.error('❌ Error creando transacción WebPay:', data)
+        console.error('Error creando transacción WebPay:', data.message || 'Error desconocido')
         alert(data.message || 'Error al procesar el checkout')
       }
     } catch (error) {
@@ -321,6 +321,11 @@ const CheckoutPage = () => {
                       <h4 className="text-white text-sm font-medium line-clamp-1">
                         {item.name}
                       </h4>
+                      {item.sku && (
+                        <p className="text-gray-400 text-xs font-mono">
+                          SKU: {item.sku}
+                        </p>
+                      )}
                       <p className="text-text-muted text-xs">
                         {item.quantity} x {formatPrice(item.price)}
                       </p>

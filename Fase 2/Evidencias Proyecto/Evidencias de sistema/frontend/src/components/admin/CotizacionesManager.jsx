@@ -178,7 +178,7 @@ const CotizacionesManager = () => {
               <p className="text-gray-900 text-sm mb-2">Por Estado</p>
               <div className="space-y-1">
                 {stats.cotizacionesByStatus.map(item => (
-                  <div key={item.status} className="flex justify-between text-sm">
+                  <div key={item.status} className="flex justify-between text-sm text-black">
                     <span className="capitalize">{getStatusLabel(item.status)}:</span>
                     <span className="font-semibold">{item.count}</span>
                   </div>
@@ -196,7 +196,7 @@ const CotizacionesManager = () => {
             <select
               value={filters.status}
               onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-              className="px-4 py-2 text-zinc-900  border border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-500"
+              className="bg-gray-800 px-4 py-2 text-zinc-100  border border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-600"
             >
               <option value="">Todos los estados</option>
               <option value="pendiente">Pendiente</option>
@@ -210,7 +210,7 @@ const CotizacionesManager = () => {
               placeholder="Buscar por nombre, email o mensaje..."
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-              className="flex-1 px-4 py-2 border border-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-500 text-black"
+              className="bg-gray-800 flex-1 px-4 py-2 border border-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-500 text-zinc-100"
             />
           </div>
 
@@ -234,10 +234,10 @@ const CotizacionesManager = () => {
       </div>
 
       {/* Cotizaciones Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-zinc-800 rounded-lg shadow-md overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-900">
+            <thead className="bg-yellow-400">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <input
@@ -252,30 +252,30 @@ const CotizacionesManager = () => {
                     checked={selectedCotizaciones.length === cotizaciones.length && cotizaciones.length > 0}
                   />
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
                   Cliente
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
                   Contacto
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
                   Mensaje
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
                   Imagen
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
                   Estado
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
                   Fecha
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-zinc-900 divide-y divide-gray-600">
               <AnimatePresence>
                 {cotizaciones.map((cotizacion) => (
                   <motion.tr
@@ -292,16 +292,30 @@ const CotizacionesManager = () => {
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{cotizacion.name}</div>
+                      <div className="text-sm font-medium text-gray-100">{cotizacion.name}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{cotizacion.email}</div>
+                      <a
+                        href={`mailto:${cotizacion.email}?subject=Respuesta a cotización - TESTheb&body=Hola ${cotizacion.name},%0A%0AGracias por tu solicitud de cotización.%0A%0ASaludos,%0ATESTheb`}
+                        className="text-gray-100 hover:text-blue-900 text-sm flex items-center gap-1 hover:underline transition-colors"
+                        title="Enviar email al cliente"
+                      >
+                        📧 {cotizacion.email}
+                      </a>
                       {cotizacion.phone && (
-                        <div className="text-sm text-gray-500">{cotizacion.phone}</div>
+                        <a
+                          href={`https://wa.me/56${cotizacion.phone.replace(/[^0-9]/g, '')}?text=Hola ${cotizacion.name}, gracias por contactarnos. Te respondo con respecto a tu cotización.`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-100 hover:text-green-800 text-sm flex items-center gap-1 hover:underline transition-colors mt-1"
+                          title="Enviar WhatsApp al cliente"
+                        >
+                          📱 {cotizacion.phone}
+                        </a>
                       )}
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 max-w-xs truncate" title={cotizacion.message}>
+                      <div className="text-sm text-gray-100 max-w-xs truncate" title={cotizacion.message}>
                         {cotizacion.message}
                       </div>
                     </td>
@@ -335,7 +349,7 @@ const CotizacionesManager = () => {
                         <option value="rechazada">Rechazada</option>
                       </select>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
                       {new Date(cotizacion.created_at).toLocaleDateString('es-CL')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -355,7 +369,7 @@ const CotizacionesManager = () => {
 
         {/* Pagination */}
         {pagination.totalPages > 1 && (
-          <div className="bg-gray-50 px-4 py-3 flex items-center justify-between border-t border-gray-200">
+          <div className="bg-yellow-400 px-4 py-3 flex items-center justify-between border-t border-gray-900">
             <div className="flex-1 flex justify-between sm:hidden">
               <button
                 onClick={() => setPagination(prev => ({ ...prev, currentPage: prev.currentPage - 1 }))}

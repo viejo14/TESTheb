@@ -63,6 +63,15 @@ export const createProductSchema = Joi.object({
     .messages({
       'number.min': 'El stock no puede ser negativo',
       'number.integer': 'El stock debe ser un número entero'
+    }),
+
+  sku: Joi.string()
+    .pattern(/^[A-Z]{3}-\d+-[A-Z0-9]+$/)
+    .max(50)
+    .allow(null)
+    .messages({
+      'string.pattern.base': 'El SKU debe tener el formato: CAT-ID-TALLA (ej: BOR-12-M)',
+      'string.max': 'El SKU no puede exceder 50 caracteres'
     })
 })
 
@@ -124,6 +133,15 @@ export const updateProductSchema = Joi.object({
     .messages({
       'number.min': 'El stock no puede ser negativo',
       'number.integer': 'El stock debe ser un número entero'
+    }),
+
+  sku: Joi.string()
+    .pattern(/^[A-Z]{3}-\d+-[A-Z0-9]+$/)
+    .max(50)
+    .allow(null)
+    .messages({
+      'string.pattern.base': 'El SKU debe tener el formato: CAT-ID-TALLA (ej: BOR-12-M)',
+      'string.max': 'El SKU no puede exceder 50 caracteres'
     })
 }).min(1).messages({
   'object.min': 'Debe proporcionar al menos un campo para actualizar'
