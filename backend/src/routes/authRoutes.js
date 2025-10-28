@@ -37,3 +37,4 @@ router.post('/logout', authenticateToken, logout)               // POST /api/aut
 router.delete('/account', authenticateToken, deleteAccount)     // DELETE /api/auth/account - Eliminar cuenta
 
 export default router
+//
