@@ -159,7 +159,8 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
         optimisticData = { ...product, ...submitData, category_name: categoryName }
         adminData?.updateProductOptimistic(product.id, optimisticData)
 
-        response = await updateProduct(product.id, submitData)
+        const token = localStorage.getItem('token')
+        response = await updateProduct(product.id, submitData, token)
       } else {
         // Optimistic update for create
         const tempId = Date.now() // Temporary ID
@@ -173,7 +174,8 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
         }
         adminData?.addProductOptimistic(optimisticData)
 
-        response = await createProduct(submitData)
+        const token = localStorage.getItem('token')
+        response = await createProduct(submitData, token)
       }
 
       if (response.success) {
@@ -195,9 +197,9 @@ const ProductForm = ({ product, categories, onClose, onSuccess, adminData }) => 
     } catch (error) {
       console.error('Error submitting product:', error)
       // Revert optimistic update on error
-      if (isEditing) {
+      if (isEditing && product) {
         adminData?.updateProductOptimistic(product.id, product) // Revert to original
-      } else if (optimisticData) {
+      } else if (optimisticData?.id) {
         adminData?.removeProductOptimistic(optimisticData.id) // Remove temp product
       }
       setErrors({ submit: 'Error de conexión. Intenta nuevamente.' })

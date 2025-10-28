@@ -33,7 +33,8 @@ const ProductsManager = ({ products, categories, onRefresh, adminData }) => {
       adminData.removeProductOptimistic(productId)
       setDeleteConfirm(null)
 
-      const response = await deleteProduct(productId)
+      const token = localStorage.getItem('token')
+      const response = await deleteProduct(productId, token)
       if (response.success) {
         // Success - the optimistic update was correct
         onRefresh() // Ensure data consistency

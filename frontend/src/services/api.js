@@ -60,44 +60,66 @@ export const testDatabase = async () => {
 }
 
 // Admin Products API functions
-export const createProduct = async (productData) => {
+export const createProduct = async (productData, token) => {
   return await apiRequest('/products', {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
     body: JSON.stringify(productData)
   })
 }
 
-export const updateProduct = async (id, productData) => {
+export const updateProduct = async (id, productData, token) => {
   return await apiRequest(`/products/${id}`, {
     method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
     body: JSON.stringify(productData)
   })
 }
 
-export const deleteProduct = async (id) => {
+export const deleteProduct = async (id, token) => {
   return await apiRequest(`/products/${id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
   })
 }
 
 // Admin Categories API functions
-export const createCategory = async (categoryData) => {
+export const createCategory = async (categoryData, token) => {
   return await apiRequest('/categories', {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
     body: JSON.stringify(categoryData)
   })
 }
 
-export const updateCategory = async (id, categoryData) => {
+export const updateCategory = async (id, categoryData, token) => {
   return await apiRequest(`/categories/${id}`, {
     method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
     body: JSON.stringify(categoryData)
   })
 }
 
-export const deleteCategory = async (id) => {
+export const deleteCategory = async (id, token) => {
   return await apiRequest(`/categories/${id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
   })
 }
 

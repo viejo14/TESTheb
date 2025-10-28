@@ -17,6 +17,9 @@ import {
   deleteProductImage,
   reorderProductImages
 } from '../controllers/productController.js'
+import { authenticateToken, requireRole } from '../middleware/auth.js'
+import { validateParams, validateBody } from '../middleware/validate.js'
+import { idParamSchema, categoryIdParamSchema, createProductSchema, updateProductSchema } from '../validators/productValidator.js'
 
 const router = Router()
 
@@ -27,19 +30,19 @@ router.get('/', getAllProducts)
 router.get('/search', searchProducts)
 
 // GET /api/products/category/:categoryId - Obtener productos por categoría
-router.get('/category/:categoryId', getProductsByCategory)
+router.get('/category/:categoryId', validateParams(categoryIdParamSchema), getProductsByCategory)
 
 // GET /api/products/:id - Obtener producto por ID
-router.get('/:id', getProductById)
+router.get('/:id', validateParams(idParamSchema), getProductById)
 
-// POST /api/products - Crear nuevo producto
-router.post('/', createProduct)
+// POST /api/products - Crear nuevo producto (requiere autenticación admin)
+router.post('/', authenticateToken, requireRole('admin'), validateBody(createProductSchema), createProduct)
 
-// PUT /api/products/:id - Actualizar producto
-router.put('/:id', updateProduct)
+// PUT /api/products/:id - Actualizar producto (requiere autenticación admin)
+router.put('/:id', authenticateToken, requireRole('admin'), validateParams(idParamSchema), validateBody(updateProductSchema), updateProduct)
 
-// DELETE /api/products/:id - Eliminar producto
-router.delete('/:id', deleteProduct)
+// DELETE /api/products/:id - Eliminar producto (requiere autenticación admin)
+router.delete('/:id', authenticateToken, requireRole('admin'), validateParams(idParamSchema), deleteProduct)
 
 // GET /api/products/sizes - Obtener todas las tallas disponibles
 router.get('/sizes/all', getAllSizes)

@@ -40,9 +40,12 @@ export const createProductSchema = Joi.object({
       'number.integer': 'El ID de categoría debe ser un número entero'
     }),
 
-  image_url: Joi.string()
-    .uri()
-    .allow('', null)
+  image_url: Joi.alternatives()
+    .try(
+      Joi.string().uri(),
+      Joi.string().allow(''),
+      Joi.allow(null)
+    )
     .messages({
       'string.uri': 'La URL de imagen debe ser válida'
     }),
@@ -111,9 +114,12 @@ export const updateProductSchema = Joi.object({
       'number.integer': 'El ID de categoría debe ser un número entero'
     }),
 
-  image_url: Joi.string()
-    .uri()
-    .allow('', null)
+  image_url: Joi.alternatives()
+    .try(
+      Joi.string().uri(),
+      Joi.string().allow(''),
+      Joi.allow(null)
+    )
     .messages({
       'string.uri': 'La URL de imagen debe ser válida'
     }),
@@ -174,5 +180,20 @@ export const idParamSchema = Joi.object({
       'number.positive': 'El ID debe ser un número positivo',
       'number.integer': 'El ID debe ser un número entero',
       'any.required': 'El ID es requerido'
+    })
+})
+
+/**
+ * Validador para parámetro categoryId
+ */
+export const categoryIdParamSchema = Joi.object({
+  categoryId: Joi.number()
+    .integer()
+    .positive()
+    .required()
+    .messages({
+      'number.positive': 'El ID de categoría debe ser un número positivo',
+      'number.integer': 'El ID de categoría debe ser un número entero',
+      'any.required': 'El ID de categoría es requerido'
     })
 })

@@ -21,7 +21,8 @@ const CategoriesManager = ({ categories, onRefresh }) => {
 
   const handleDeleteCategory = async (categoryId) => {
     try {
-      const response = await deleteCategory(categoryId)
+      const token = localStorage.getItem('token')
+      const response = await deleteCategory(categoryId, token)
       if (response.success) {
         onRefresh()
         setDeleteConfirm(null)

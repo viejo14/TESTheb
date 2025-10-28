@@ -1,6 +1,22 @@
 import Joi from 'joi'
 
 /**
+ * Validador para ID numérico
+ */
+export const idParamSchema = Joi.object({
+  id: Joi.number()
+    .integer()
+    .positive()
+    .required()
+    .messages({
+      'number.base': 'El ID debe ser un número',
+      'number.integer': 'El ID debe ser un número entero',
+      'number.positive': 'El ID debe ser positivo',
+      'any.required': 'El ID es requerido'
+    })
+})
+
+/**
  * Validador para crear categoría
  */
 export const createCategorySchema = Joi.object({
@@ -14,9 +30,12 @@ export const createCategorySchema = Joi.object({
       'any.required': 'El nombre es requerido'
     }),
 
-  image_url: Joi.string()
-    .uri()
-    .allow('', null)
+  image_url: Joi.alternatives()
+    .try(
+      Joi.string().uri(),
+      Joi.string().allow(''),
+      Joi.allow(null)
+    )
     .messages({
       'string.uri': 'La URL de imagen debe ser válida'
     })
@@ -36,9 +55,12 @@ export const updateCategorySchema = Joi.object({
       'any.required': 'El nombre es requerido'
     }),
 
-  image_url: Joi.string()
-    .uri()
-    .allow('', null)
+  image_url: Joi.alternatives()
+    .try(
+      Joi.string().uri(),
+      Joi.string().allow(''),
+      Joi.allow(null)
+    )
     .messages({
       'string.uri': 'La URL de imagen debe ser válida'
     })

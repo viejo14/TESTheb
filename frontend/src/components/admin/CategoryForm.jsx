@@ -166,11 +166,12 @@ const CategoryForm = ({ category, onClose, onSuccess }) => {
         image_url: finalImageUrl
       }
 
+      const token = localStorage.getItem('token')
       let response
       if (isEditing) {
-        response = await updateCategory(category.id, submitData)
+        response = await updateCategory(category.id, submitData, token)
       } else {
-        response = await createCategory(submitData)
+        response = await createCategory(submitData, token)
       }
 
       if (response.success) {
