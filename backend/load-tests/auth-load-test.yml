@@ -1,0 +1,65 @@
+# Prueba de carga para endpoints de autenticación
+# Ejecutar con: artillery run load-tests/auth-load-test.yml
+
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 60
+      arrivalRate: 20
+      name: "Auth load test"
+
+  ensure:
+    maxErrorRate: 2  # Autenticación puede tener hasta 2% error (credenciales inválidas)
+    p95: 1500
+    p99: 3000
+
+  # Variables de entorno
+  variables:
+    email: "test{{ $randomNumber() }}@testheb.cl"
+    password: "TestPassword123"
+
+scenarios:
+  # Escenario 1: Registro de usuario
+  - name: "User registration"
+    weight: 30
+    flow:
+      - post:
+          url: "/api/auth/register"
+          json:
+            name: "Test User {{ $randomNumber() }}"
+            email: "{{ email }}"
+            password: "{{ password }}"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+
+  # Escenario 2: Login de usuario
+  - name: "User login"
+    weight: 50
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "admin@testheb.cl"
+            password: "admin123"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      - think: 1
+      # Verificar perfil con el token
+      - get:
+          url: "/api/auth/profile"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+  # Escenario 3: Intentos de login fallidos (simular ataques)
+  - name: "Failed login attempts"
+    weight: 20
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "random@test.com"
+            password: "wrongpassword"
+          expect:
+            - statusCode: 401
