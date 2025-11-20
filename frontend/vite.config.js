@@ -18,6 +18,23 @@ export default defineConfig(({ mode }) => {
           secure: false,
         }
       }
+    },
+    preview: {
+      host: '0.0.0.0',
+      port: parseInt(process.env.PORT) || 5173,
+      strictPort: false
+    },
+    build: {
+      outDir: 'dist',
+      sourcemap: false,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            'ui-vendor': ['framer-motion', 'react-icons']
+          }
+        }
+      }
     }
   }
 })
