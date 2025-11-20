@@ -23,18 +23,18 @@ const pool = new Pool({
   ssl: shouldUseSSL ? { rejectUnauthorized: false } : false,
 })
 
-// Verificar conexion al inicializar
-pool.connect(async (err, client, release) => {
-  if (err) {
-    const { default: logger } = await import('./logger.js')
-    logger.error('Error conectando a PostgreSQL', {
-      error: err.message,
-      stack: err.stack
-    })
-  } else {
-    release()
-  }
-})
+// Verificar conexion al inicializar (comentado para no bloquear inicio)
+// pool.connect(async (err, client, release) => {
+//   if (err) {
+//     const { default: logger } = await import('./logger.js')
+//     logger.error('Error conectando a PostgreSQL', {
+//       error: err.message,
+//       stack: err.stack
+//     })
+//   } else {
+//     release()
+//   }
+// })
 
 // Funcion helper para ejecutar consultas
 export const query = async (text, params) => {
