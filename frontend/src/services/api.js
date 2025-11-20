@@ -1,4 +1,4 @@
-const API_BASE_URL = '/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
 // Generic function to handle API requests
 const apiRequest = async (endpoint, options = {}) => {
