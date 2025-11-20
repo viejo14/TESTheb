@@ -22,7 +22,8 @@ export default defineConfig(({ mode }) => {
     preview: {
       host: '0.0.0.0',
       port: parseInt(process.env.PORT) || 5173,
-      strictPort: false
+      strictPort: false,
+      allowedHosts: 'all' // Permitir acceso desde Railway y otros dominios
     },
     build: {
       outDir: 'dist',
