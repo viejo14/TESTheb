@@ -22,6 +22,33 @@ dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 3000
+const setupEnabled = process.env.ALLOW_SETUP === 'true'
+const allowedOrigins = (process.env.CORS_ORIGINS || process.env.FRONTEND_URL || 'http://localhost:5173')
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean)
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true)
+    if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+      return callback(null, true)
+    }
+    return callback(new Error('Not allowed by CORS'))
+  },
+  credentials: true,
+}
+
+const ensureSetupEnabled = (res) => {
+  if (!setupEnabled) {
+    res.status(403).json({
+      success: false,
+      message: 'Endpoints de setup/debug deshabilitados en este entorno'
+    })
+    return false
+  }
+  return true
+}
 
 // ✅ SEGURIDAD: Deshabilitar header X-Powered-By
 // Previene que atacantes sepan que usas Express.js
@@ -66,7 +93,7 @@ const authLimiter = rateLimit({
 // app.use(limiter) ← COMENTADO: Clientes pueden navegar sin límites
 
 // Middlewares básicos
-app.use(cors())
+app.use(cors(corsOptions))
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 app.use(express.static('uploads'))
@@ -124,6 +151,7 @@ app.get('/api/test-db', async (req, res) => {
 
 // Actualizar tabla users para autenticación (endpoint temporal)
 app.get('/api/setup/update-users-table', async (req, res) => {
+  if (!ensureSetupEnabled(res)) return
   try {
     // Agregar columnas faltantes para autenticación
     const updateTableQuery = `
@@ -173,6 +201,7 @@ app.get('/api/setup/update-users-table', async (req, res) => {
 
 // Crear tabla users (endpoint temporal)
 app.get('/api/setup/create-users-table', async (req, res) => {
+  if (!ensureSetupEnabled(res)) return
   try {
     const createTableQuery = `
       -- Crear tabla de usuarios para TESTheb
@@ -258,6 +287,7 @@ app.get('/api/setup/create-users-table', async (req, res) => {
 
 // Crear tabla orders (endpoint temporal)
 app.get('/api/setup/create-orders-table', async (req, res) => {
+  if (!ensureSetupEnabled(res)) return
   try {
     const createTableQuery = `
       CREATE TABLE IF NOT EXISTS orders (
@@ -299,6 +329,7 @@ app.get('/api/setup/create-orders-table', async (req, res) => {
 
 // Debug: Crear admin con contraseña correcta (endpoint temporal)
 app.get('/api/setup/create-admin', async (req, res) => {
+  if (!ensureSetupEnabled(res)) return
   try {
     const bcrypt = await import('bcrypt')
 
@@ -346,6 +377,7 @@ app.get('/api/setup/create-admin', async (req, res) => {
 
 // Debug: ASIGNAR PRODUCTOS A CATEGORÍAS (endpoint temporal) - UPDATED
 app.get('/api/debug/orders', async (req, res) => {
+  if (!ensureSetupEnabled(res)) return
   try {
     // EJECUTAR LAS ASIGNACIONES
     await query('UPDATE products SET category_id = 8 WHERE id = 3') // Polerón Niño -> Colegios
@@ -380,6 +412,7 @@ app.get('/api/debug/orders', async (req, res) => {
 
 // Debug: Asignar productos a categorías (endpoint temporal)
 app.get('/api/debug/table-structure', async (req, res) => {
+  if (!ensureSetupEnabled(res)) return
   try {
     // Ejecutar asignaciones
     await query('UPDATE products SET category_id = 8, updated_at = NOW() WHERE id = 3')
@@ -418,6 +451,7 @@ app.get('/api/debug/table-structure', async (req, res) => {
 
 // Asignar productos a categorías (endpoint temporal)
 app.get('/api/setup/assign-products-to-categories', async (req, res) => {
+  if (!ensureSetupEnabled(res)) return
   try {
     // Asignar productos específicos a categorías
     const assignments = [
@@ -460,6 +494,7 @@ app.get('/api/setup/assign-products-to-categories', async (req, res) => {
 
 // Debug: Ver todas las tablas de la base de datos
 app.get('/api/debug/all-tables', async (req, res) => {
+  if (!ensureSetupEnabled(res)) return
   try {
     // Obtener todas las tablas
     const tablesResult = await query(`

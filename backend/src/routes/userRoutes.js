@@ -7,15 +7,16 @@ import {
   deleteUser,
   getUserStats
 } from '../controllers/userController.js'
+import { authenticateToken, requireRole } from '../middleware/auth.js'
 
 const router = express.Router()
 
-// Rutas CRUD de usuarios
-router.get('/', getAllUsers)                    // GET /api/users - Obtener todos los usuarios (con paginación)
-router.get('/stats', getUserStats)              // GET /api/users/stats - Estadísticas de usuarios
-router.get('/:id', getUserById)                 // GET /api/users/:id - Obtener usuario por ID
-router.post('/', createUser)                    // POST /api/users - Crear nuevo usuario
-router.put('/:id', updateUser)                  // PUT /api/users/:id - Actualizar usuario
-router.delete('/:id', deleteUser)               // DELETE /api/users/:id - Eliminar usuario
+// Rutas CRUD de usuarios (restringidas a admin/employee)
+router.get('/', authenticateToken, requireRole('admin', 'employee'), getAllUsers) // GET /api/users - Listado con paginacion
+router.get('/stats', authenticateToken, requireRole('admin', 'employee'), getUserStats) // GET /api/users/stats - Estadisticas
+router.get('/:id', authenticateToken, requireRole('admin', 'employee'), getUserById) // GET /api/users/:id - Detalle
+router.post('/', authenticateToken, requireRole('admin', 'employee'), createUser) // POST /api/users - Crear
+router.put('/:id', authenticateToken, requireRole('admin', 'employee'), updateUser) // PUT /api/users/:id - Actualizar
+router.delete('/:id', authenticateToken, requireRole('admin', 'employee'), deleteUser) // DELETE /api/users/:id - Eliminar
 
 export default router

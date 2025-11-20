@@ -5,10 +5,14 @@ import fs from 'fs'
 import { fileURLToPath } from 'url'
 import cloudinary from '../config/cloudinary.js'
 import { Readable } from 'stream'
+import { authenticateToken, requireRole } from '../middleware/auth.js'
 
 const router = express.Router()
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
+// Protege todos los endpoints de subida para admin/employee
+router.use(authenticateToken, requireRole('admin', 'employee'))
 
 // Configurar directorios de subida local
 const categoriesUploadDir = path.join(__dirname, '../../..', 'frontend', 'public', 'images', 'categories')
