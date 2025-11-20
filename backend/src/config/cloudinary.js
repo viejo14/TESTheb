@@ -1,7 +1,10 @@
 import { v2 as cloudinary } from 'cloudinary'
 import dotenv from 'dotenv'
 
-dotenv.config()
+// Solo cargar .env en desarrollo local
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config()
+}
 
 // Configurar Cloudinary
 cloudinary.config({

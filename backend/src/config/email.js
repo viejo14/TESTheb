@@ -1,6 +1,9 @@
 import dotenv from 'dotenv'
 
-dotenv.config()
+// Solo cargar .env en desarrollo local
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config()
+}
 
 /**
  * Configuración del servicio de email (Nodemailer)

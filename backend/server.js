@@ -18,7 +18,10 @@ import statsRoutes from './src/routes/statsRoutes.js'
 import newsletterRoutes from './src/routes/newsletterRoutes.js'
 import orderRoutes from './src/routes/orderRoutes.js'
 
-dotenv.config()
+// Solo cargar .env en desarrollo local (no en Railway/producción)
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config()
+}
 
 const app = express()
 const PORT = process.env.PORT || 3000

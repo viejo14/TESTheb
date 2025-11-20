@@ -1,7 +1,10 @@
 import pg from 'pg'
 import dotenv from 'dotenv'
 
-dotenv.config()
+// Solo cargar .env en desarrollo local
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config()
+}
 
 const { Pool } = pg
 
