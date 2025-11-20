@@ -22,6 +22,16 @@ npm start                      # Production mode
 npm test                       # Run Jest tests
 npm run test:watch            # Watch mode for tests
 npm run test:coverage         # Generate coverage report
+
+# Run a single test file
+node --experimental-vm-modules node_modules/jest/bin/jest.js src/__tests__/auth.test.js
+
+# Load testing with Artillery
+npm run load:test             # Basic load test
+npm run load:auth             # Auth endpoint load test
+npm run load:webpay           # WebPay flow load test
+npm run load:stress           # Stress test with report
+npm run load:homepage         # Homepage performance test
 ```
 
 ### Frontend (React + Vite)
@@ -88,8 +98,10 @@ UPDATE products SET stock = GREATEST(stock - $1, 0), updated_at = NOW() WHERE id
 ### Frontend State Management
 - **AuthContext** (`frontend/src/context/AuthContext.jsx`): user, login, logout, token refresh
 - **CartContext** (`frontend/src/context/CartContext.jsx`): cart items, add/remove, totals
-- React Router v7 for routing
+- React Router v7.9 for routing
 - Framer Motion for page transitions
+- react-hook-form for form handling
+- jsPDF for PDF generation (receipts/quotes)
 
 ### Backend Structure
 - **Controllers** (`backend/src/controllers/`): Business logic (auth, products, categories, webpay, etc.)
@@ -134,6 +146,10 @@ UPDATE products SET stock = GREATEST(stock - $1, 0), updated_at = NOW() WHERE id
 - HTTP request logging (morgan) is currently DISABLED
 - Query logging enabled for debugging
 
+### Email (Nodemailer)
+- Nodemailer configured for transactional emails
+- Used for order confirmations, password resets, etc.
+
 ### Environment Variables
 Backend requires (see `backend/.env.example`):
 ```
@@ -150,6 +166,7 @@ BACKEND_URL, FRONTEND_URL
 - Test command uses `--experimental-vm-modules`
 - Existing tests: auth, categories, products, validators
 - Tests located in `backend/src/__tests__/`
+- Load tests located in `backend/load-tests/` (Artillery)
 
 ## Common Development Scenarios
 
