@@ -17,57 +17,58 @@ import {
   deleteProductImage,
   reorderProductImages
 } from '../controllers/productController.js'
+import { authenticateToken, requireRole } from '../middleware/auth.js'
 
 const router = Router()
 
-// GET /api/products - Obtener todos los productos
+// GET /api/products - Listar todos los productos
 router.get('/', getAllProducts)
 
 // GET /api/products/search - Buscar productos
 router.get('/search', searchProducts)
 
-// GET /api/products/category/:categoryId - Obtener productos por categoría
+// GET /api/products/category/:categoryId - Productos por categoria
 router.get('/category/:categoryId', getProductsByCategory)
+
+// GET /api/products/sizes - Todas las tallas
+router.get('/sizes/all', getAllSizes)
+
+// POST /api/products - Crear nuevo producto
+router.post('/', authenticateToken, requireRole('admin', 'employee'), createProduct)
+
+// PUT /api/products/:id - Actualizar producto
+router.put('/:id', authenticateToken, requireRole('admin', 'employee'), updateProduct)
+
+// DELETE /api/products/:id - Eliminar producto
+router.delete('/:id', authenticateToken, requireRole('admin', 'employee'), deleteProduct)
+
+// PUT /api/products/:productId/sizes/:sizeId/stock - Actualizar stock de talla
+router.put('/:productId/sizes/:sizeId/stock', authenticateToken, requireRole('admin', 'employee'), updateProductSizeStock)
 
 // GET /api/products/:id - Obtener producto por ID
 router.get('/:id', getProductById)
 
-// POST /api/products - Crear nuevo producto
-router.post('/', createProduct)
+// ============ RUTAS DE IMAGENES ============
 
-// PUT /api/products/:id - Actualizar producto
-router.put('/:id', updateProduct)
-
-// DELETE /api/products/:id - Eliminar producto
-router.delete('/:id', deleteProduct)
-
-// GET /api/products/sizes - Obtener todas las tallas disponibles
-router.get('/sizes/all', getAllSizes)
-
-// PUT /api/products/:productId/sizes/:sizeId/stock - Actualizar stock de talla específica
-router.put('/:productId/sizes/:sizeId/stock', updateProductSizeStock)
-
-// ============ RUTAS DE IMÁGENES ============
-
-// GET /api/products/:productId/images - Obtener todas las imágenes de un producto
+// GET /api/products/:productId/images - Obtener imagenes de un producto
 router.get('/:productId/images', getProductImages)
 
-// POST /api/products/:productId/images - Agregar una imagen a un producto
-router.post('/:productId/images', addProductImage)
+// POST /api/products/:productId/images - Agregar una imagen
+router.post('/:productId/images', authenticateToken, requireRole('admin', 'employee'), addProductImage)
 
-// POST /api/products/:productId/images/bulk - Agregar múltiples imágenes
-router.post('/:productId/images/bulk', addProductImages)
+// POST /api/products/:productId/images/bulk - Agregar multiples imagenes
+router.post('/:productId/images/bulk', authenticateToken, requireRole('admin', 'employee'), addProductImages)
 
 // PUT /api/products/images/:imageId - Actualizar una imagen
-router.put('/images/:imageId', updateProductImage)
+router.put('/images/:imageId', authenticateToken, requireRole('admin', 'employee'), updateProductImage)
 
 // PUT /api/products/images/:imageId/primary - Marcar imagen como principal
-router.put('/images/:imageId/primary', setProductImagePrimary)
+router.put('/images/:imageId/primary', authenticateToken, requireRole('admin', 'employee'), setProductImagePrimary)
 
 // DELETE /api/products/images/:imageId - Eliminar una imagen
-router.delete('/images/:imageId', deleteProductImage)
+router.delete('/images/:imageId', authenticateToken, requireRole('admin', 'employee'), deleteProductImage)
 
-// PUT /api/products/:productId/images/reorder - Reordenar imágenes
-router.put('/:productId/images/reorder', reorderProductImages)
+// PUT /api/products/:productId/images/reorder - Reordenar imagenes
+router.put('/:productId/images/reorder', authenticateToken, requireRole('admin', 'employee'), reorderProductImages)
 
 export default router
