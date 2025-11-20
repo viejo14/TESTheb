@@ -1,7 +1,0 @@
-{
-    "files.exclude": {
-        "Fase 1": true,
-        "Fase 2": true
-    },
-    "deepscan.enable": true
-}
