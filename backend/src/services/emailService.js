@@ -7,14 +7,14 @@ const createTransporter = () => {
   try {
     const transporter = nodemailer.createTransport(emailConfig)
 
-    // Verificar configuración
-    transporter.verify((error, success) => {
-      if (error) {
-        logger.error('Error en configuración de email:', error)
-      } else {
-        logger.info('✓ Servidor de email configurado correctamente')
-      }
-    })
+    // Verificar configuración (comentado para no bloquear el inicio del servidor)
+    // transporter.verify((error, success) => {
+    //   if (error) {
+    //     logger.error('Error en configuración de email:', error)
+    //   } else {
+    //     logger.info('✓ Servidor de email configurado correctamente')
+    //   }
+    // })
 
     return transporter
   } catch (error) {
