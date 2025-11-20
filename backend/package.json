@@ -1,0 +1,53 @@
+{
+  "name": "testheb-backend",
+  "version": "1.0.0",
+  "description": "Backend API TESTheb E-commerce",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "npx nodemon server.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "load:test": "artillery run load-tests/basic-load-test.yml",
+    "load:auth": "artillery run load-tests/auth-load-test.yml",
+    "load:webpay": "artillery run load-tests/webpay-load-test.yml",
+    "load:report": "artillery run load-tests/basic-load-test.yml --output load-tests/report.json && artillery report load-tests/report.json",
+    "load:stress": "artillery run load-tests/stress-test.yml --output load-tests/stress-report.json && artillery report load-tests/stress-report.json",
+    "load:homepage": "artillery run load-tests/homepage-performance.yml --output load-tests/homepage-report.json && artillery report load-tests/homepage-report.json"
+  },
+  "keywords": [
+    "ecommerce",
+    "bordados",
+    "nodejs",
+    "express"
+  ],
+  "author": "Francisco Campos, Sebastian Mella",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cloudinary": "^2.7.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "form-data": "^4.0.4",
+    "joi": "^18.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2",
+    "node-fetch": "^3.3.2",
+    "nodemailer": "^7.0.7",
+    "pg": "^8.16.3",
+    "transbank-sdk": "^6.1.0",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.28.3",
+    "artillery": "^2.0.23",
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.4"
+  }
+}
