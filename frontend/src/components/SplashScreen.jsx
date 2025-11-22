@@ -1,45 +1,42 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 const SplashScreen = ({ onFinish }) => {
   const [fadeOut, setFadeOut] = useState(false)
-  const videoRef = useRef(null)
+  const [imageLoaded, setImageLoaded] = useState(false)
 
-  // Al terminar el video, iniciar fade out
-  const handleVideoEnd = () => {
+  // Iniciar fade out
+  const handleFinish = () => {
     setFadeOut(true)
     setTimeout(() => {
       if (onFinish) onFinish()
-    }, 500) // 0.5s para el fade
+    }, 800)
   }
 
-  // Fade-in al montar
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.style.opacity = 0
-      videoRef.current.style.animation = 'fadeinSplash 1.2s forwards'
-    }
+    // Cerrar automáticamente después de 4 segundos (duración estimada del GIF)
+    const autoCloseTimer = setTimeout(() => {
+      handleFinish()
+    }, 2000)
+
+    return () => clearTimeout(autoCloseTimer)
   }, [])
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-black transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}
+      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-black transition-opacity duration-800 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}
     >
-      <video
-        ref={videoRef}
-        src="/video3.mp4"
-        autoPlay
-        muted
-        playsInline
-        className={`max-w-[80vw] max-h-[80vh] object-contain transition-opacity duration-200 filter-none ${fadeOut ? 'opacity-0' : 'opacity-100'}`}
-        style={{ filter: 'none', animation: !fadeOut ? 'fadeinSplash 0.2s forwards' : undefined }}
-        onEnded={handleVideoEnd}
+      <img
+        src="/giftestheb2.gif"
+        alt="TESTheb Loading"
+        className={`max-w-[85vw] max-h-[85vh] object-contain transition-all duration-800 ${
+          imageLoaded && !fadeOut ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+        }`}
+        onLoad={() => setImageLoaded(true)}
+        onError={() => {
+          console.warn('Error cargando GIF splash, cerrando...')
+          handleFinish()
+        }}
       />
-      <style>{`
-        @keyframes fadeinSplash {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-      `}</style>
     </div>
   )
 }
