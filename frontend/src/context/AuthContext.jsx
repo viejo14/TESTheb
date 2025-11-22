@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect } from 'react'
 import { jwtDecode } from 'jwt-decode'
+import { API_BASE_URL } from '../config/api.js'
 
 const AuthContext = createContext()
 
@@ -58,7 +59,7 @@ export const AuthProvider = ({ children }) => {
 
           // Verificar validez del token con el backend
           try {
-            const response = await fetch('/api/auth/profile', {
+            const response = await fetch(`${API_BASE_URL}/auth/profile`, {
               headers: {
                 'Authorization': `Bearer ${token}`
               }
@@ -109,7 +110,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(true)
 
       // Make actual API call
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -151,7 +152,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(true)
 
       // Make actual API call
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
