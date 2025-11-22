@@ -5,8 +5,18 @@ import react from '@vitejs/plugin-react'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
+  // RAILWAY FIX: Forzar VITE_API_URL en producción si no está definido
+  // Railway tiene problemas con .env.production, así que lo inyectamos aquí
+  if (mode === 'production' && !env.VITE_API_URL) {
+    env.VITE_API_URL = 'https://backend-production-fc49.up.railway.app/api'
+  }
+
   return {
     plugins: [react()],
+    define: {
+      // Inyectar variables de entorno manualmente en el build
+      'import.meta.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL || '/api'),
+    },
     server: {
       host: '0.0.0.0', // Permite acceso desde la red local
       port: 5173,
