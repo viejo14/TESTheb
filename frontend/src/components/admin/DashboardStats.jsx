@@ -76,8 +76,8 @@ const DonutChart = ({ data }) => {
   return (
     <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-8">
       {/* Donut Chart SVG */}
-      <div className="relative w-full max-w-[280px] md:max-w-[320px] lg:max-w-[360px] aspect-square">
-        <svg viewBox="0 0 100 100" className="w-full h-full">
+      <div className="relative w-full max-w-[280px] md:max-w-[320px] lg:max-w-[360px] aspect-square p-4">
+        <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
           {segments.map((segment, index) => (
             <motion.path
               key={segment.categoria}
@@ -109,15 +109,15 @@ const DonutChart = ({ data }) => {
       </div>
 
       {/* Leyenda */}
-      <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 md:gap-3 max-h-[400px] overflow-y-auto">
+      <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 md:gap-3 max-h-[400px] overflow-y-auto overflow-x-hidden">
         {segments.map((segment, index) => (
           <motion.div
             key={segment.categoria}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3, delay: index * 0.05 }}
-            className={`relative flex items-center gap-3 p-2 md:p-3 rounded-lg transition-all duration-300 cursor-pointer overflow-hidden ${
-              hoveredIndex === index ? 'bg-gray-700/70 scale-[1.02] shadow-lg' : 'bg-gray-800/30'
+            className={`relative flex items-center gap-3 p-2 md:p-3 rounded-lg transition-all duration-300 cursor-pointer ${
+              hoveredIndex === index ? 'bg-gray-700/70 shadow-lg' : 'bg-gray-800/30'
             }`}
             onMouseEnter={() => setHoveredIndex(index)}
             onMouseLeave={() => setHoveredIndex(null)}
@@ -385,7 +385,7 @@ const DashboardStats = () => {
 
       {/* Ventas por Categoría - Gráfico Donut Moderno */}
       <motion.div
-        className="bg-primary/80 border-2 border-gray-500/30 rounded-xl p-4 md:p-6 backdrop-blur-sm"
+        className="bg-primary/80 border-2 border-gray-500/30 rounded-xl p-4 md:p-6 backdrop-blur-sm overflow-hidden"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.6 }}
