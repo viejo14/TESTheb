@@ -1,7 +1,8 @@
 # Force rebuild - Railway debe inyectar VITE_API_URL durante build
+# Build timestamp: 2025-11-22 17:05 - FORCE NO CACHE
 [build]
 builder = "NIXPACKS"
-buildCommand = "echo 'VITE_API_URL check:' && cat .env.production && rm -rf node_modules/.vite dist && npm install && npm run build"
+buildCommand = "echo 'VITE_API_URL check:' && cat .env.production && echo 'File exists check' && ls -la .env.production && rm -rf node_modules/.vite dist && npm install && npm run build"
 nixpacksConfigPath = "nixpacks.toml"
 
 [env]
