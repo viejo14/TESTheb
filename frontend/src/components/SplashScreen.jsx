@@ -9,7 +9,7 @@ const SplashScreen = ({ onFinish }) => {
     setFadeOut(true)
     setTimeout(() => {
       if (onFinish) onFinish()
-    }, 800)
+    }, 300)
   }
 
   useEffect(() => {
@@ -23,14 +23,21 @@ const SplashScreen = ({ onFinish }) => {
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-black transition-opacity duration-800 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}
+      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-black transition-opacity duration-300 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}
     >
       <img
         src="/giftestheb2.gif"
         alt="TESTheb Loading"
-        className={`max-w-[85vw] max-h-[85vh] object-contain transition-all duration-800 ${
-          imageLoaded && !fadeOut ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-        }`}
+        className="max-w-[90vw] max-h-[90vh] object-contain"
+        style={{
+          opacity: imageLoaded && !fadeOut ? 1 : 0,
+          transform: imageLoaded && !fadeOut ? 'scale(1)' : 'scale(0.98)',
+          transition: 'opacity 0.3s ease-out, transform 0.3s ease-out',
+          imageRendering: '-webkit-optimize-contrast', // Mejora la nitidez en Chrome/Safari
+          WebkitFontSmoothing: 'antialiased',
+          backfaceVisibility: 'hidden',
+          willChange: 'opacity, transform'
+        }}
         onLoad={() => setImageLoaded(true)}
         onError={() => {
           console.warn('Error cargando GIF splash, cerrando...')

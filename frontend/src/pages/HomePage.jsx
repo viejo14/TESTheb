@@ -158,17 +158,17 @@ const HomePage = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40"></div>
         </div>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-5 w-full">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-24 sm:pt-28 md:pt-32 lg:pt-20">
           <motion.img
             src="/testheb-logo.png"
             alt="TESTheb Logo"
-            className="h-45 w-45 mb-8 object-cover rounded-full border-2 border-white shadow-2xl mx-auto transition-all duration-200 ease-out hover:scale-105 hover:shadow-[0_0_40px_rgba(251,191,36,0.8),0_0_80px_rgba(251,191,36,0.6),0_12px_35px_rgba(0,0,0,0.4)]"
+            className="h-24 w-24 sm:h-28 sm:w-28 md:h-32 md:w-32 lg:h-40 lg:w-40 mb-4 sm:mb-6 object-cover rounded-full border-2 border-white shadow-2xl mx-auto transition-all duration-200 ease-out hover:scale-105 hover:shadow-[0_0_40px_rgba(251,191,36,0.8),0_0_80px_rgba(251,191,36,0.6),0_12px_35px_rgba(0,0,0,0.4)]"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           />
           <motion.h1
-            className="text-4xl md:text-6xl font-bold mb-6 leading-tight"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight px-2"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -176,7 +176,7 @@ const HomePage = () => {
             Bordados de Calidad para Cada Ocasión
           </motion.h1>
           <motion.p
-            className="text-lg md:text-xl mb-10 opacity-90 max-w-2xl mx-auto"
+            className="text-base sm:text-lg md:text-xl mb-8 sm:mb-10 opacity-90 max-w-2xl mx-auto px-2"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
@@ -190,7 +190,7 @@ const HomePage = () => {
           >
             <Link
               to="/catalog"
-              className="inline-block px-8 py-4 bg-bg-accent/80 text-text-primary no-underline rounded-full border-2 border-gray-500/30 font-medium text-lg transition-all duration-300 backdrop-blur-sm hover:border-yellow-400 hover:bg-bg-accent/90 hover:-translate-y-1 hover:shadow-[0_6px_20px_rgba(251,191,36,0.2)]"
+              className="inline-block px-6 py-3 sm:px-8 sm:py-4 bg-bg-accent/80 text-text-primary no-underline rounded-full border-2 border-gray-500/30 font-medium text-base sm:text-lg transition-all duration-300 backdrop-blur-sm hover:border-yellow-400 hover:bg-bg-accent/90 hover:-translate-y-1 hover:shadow-[0_6px_20px_rgba(251,191,36,0.2)]"
             >
               Ver Catálogo
             </Link>
