@@ -1,7 +1,8 @@
 # Force rebuild - Railway debe inyectar VITE_API_URL durante build
 [build]
 builder = "NIXPACKS"
-buildCommand = "rm -rf node_modules/.vite dist && npm install && npm run build"
+buildCommand = "echo 'VITE_API_URL check:' && cat .env.production && rm -rf node_modules/.vite dist && npm install && npm run build"
+nixpacksConfigPath = "nixpacks.toml"
 
 [env]
 VITE_API_URL = "https://backend-production-fc49.up.railway.app/api"
