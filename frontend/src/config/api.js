@@ -5,7 +5,14 @@
  * En producción: usa la URL completa del backend
  */
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+// RAILWAY FIX: Hardcodear URL en producción
+// Railway tiene problemas con variables de entorno en build
+const PRODUCTION_API_URL = 'https://backend-production-fc49.up.railway.app/api'
+const isDevelopment = import.meta.env.DEV
+
+export const API_BASE_URL = isDevelopment
+  ? (import.meta.env.VITE_API_URL || '/api')
+  : PRODUCTION_API_URL
 
 /**
  * Helper para construir URLs de la API
