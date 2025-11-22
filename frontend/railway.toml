@@ -1,3 +1,4 @@
+# Force rebuild - Railway debe inyectar VITE_API_URL durante build
 [build]
 builder = "NIXPACKS"
 buildCommand = "npm install && VITE_API_URL=$VITE_API_URL npm run build"
