@@ -27,13 +27,21 @@ import AccountSettingsPage from './pages/AccountSettingsPage'
 import PageTransition from './components/PageTransition'
 import ScrollToTop from './components/ScrollToTop'
 
+import React, { useState } from 'react'
+import SplashScreen from './components/SplashScreen'
+
 function App() {
+  const [showSplash, setShowSplash] = useState(true)
+
   return (
     <AuthProvider>
       <CartProvider>
         <Router>
         <ScrollToTop />
-        <div className="min-h-screen flex flex-col bg-gradient-to-br from-bg-primary to-bg-secondary">
+        {showSplash && (
+          <SplashScreen onFinish={() => setShowSplash(false)} />
+        )}
+        <div className="min-h-screen flex flex-col bg-gradient-to-br from-bg-primary to-bg-secondary" style={{filter: showSplash ? 'blur(2px)' : 'none'}}>
           <Header />
           <main className="flex-1">
             <AnimatedRoutes />

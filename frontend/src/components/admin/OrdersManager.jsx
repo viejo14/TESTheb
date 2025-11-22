@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Pagination from '../Pagination'
 import { motion, AnimatePresence } from 'framer-motion'
 import OrderDetailModal from './OrderDetailModal'
 import axios from 'axios'
@@ -7,6 +8,11 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 
 const OrdersManager = () => {
   const [orders, setOrders] = useState([])
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    limit: 10
+  })
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
@@ -18,12 +24,25 @@ const OrdersManager = () => {
     try {
       setLoading(true)
       const token = localStorage.getItem('token')
+      const params = {
+        page: pagination.currentPage,
+        limit: pagination.limit,
+        search: searchTerm || undefined,
+        status: filterStatus || undefined
+      }
       const response = await axios.get(`${API_URL}/orders`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        params
       })
 
+      console.log('Respuesta /orders:', response.data)
+
       if (response.data.success) {
-        setOrders(response.data.data)
+        setOrders(response.data.data || [])
+        setPagination(prev => ({
+          ...prev,
+          totalPages: response.data.pagination?.totalPages || 1
+        }))
       }
     } catch (error) {
       console.error('Error fetching orders:', error)
@@ -35,19 +54,10 @@ const OrdersManager = () => {
 
   useEffect(() => {
     fetchOrders()
-  }, [])
+    // eslint-disable-next-line
+  }, [pagination.currentPage, searchTerm, filterStatus])
 
-  // Filtrar órdenes
-  const filteredOrders = orders.filter(order => {
-    const matchesSearch =
-      order.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.buy_order?.toLowerCase().includes(searchTerm.toLowerCase())
-
-    const matchesStatus = !filterStatus || order.status === filterStatus
-
-    return matchesSearch && matchesStatus
-  })
+  // Las órdenes ya vienen filtradas y paginadas del backend
 
   // Ver detalle de orden
   const handleViewOrder = (order) => {
@@ -123,7 +133,7 @@ const OrdersManager = () => {
     <div className="space-y-6">
       {/* Header and Controls */}
       <motion.div
-        className="bg-yellow-400/90 border-2 border-gray-500/30 rounded-xl p-6 backdrop-blur-sm"
+        className="bg-primary/80 border-2 border-gray-500/30 rounded-xl p-6 backdrop-blur-sm"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -132,12 +142,12 @@ const OrdersManager = () => {
           <div>
             <h2 className="text-2xl font-bold text-white">Gestión de Órdenes</h2>
             <p className="text-gray-400 mt-1">
-              Total: {filteredOrders.length} {filteredOrders.length === 1 ? 'orden' : 'órdenes'}
+              Página {pagination.currentPage} de {pagination.totalPages}
             </p>
           </div>
           <button
             onClick={fetchOrders}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all duration-200 hover:scale-105 active:scale-95"
+            className="px-6 py-3 bg-yellow-400 hover:bg-yellow-800 text-black rounded-lg font-medium transition-all duration-200 hover:scale-105 active:scale-95"
           >
             🔄 Actualizar
           </button>
@@ -188,7 +198,7 @@ const OrdersManager = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.1 }}
       >
-        {filteredOrders.length === 0 ? (
+        {orders.length === 0 ? (
           <div className="p-12 text-center">
             <p className="text-gray-400 text-lg">
               {searchTerm || filterStatus ? 'No se encontraron órdenes con los filtros aplicados' : 'No hay órdenes registradas'}
@@ -224,7 +234,7 @@ const OrdersManager = () => {
               </thead>
               <tbody className="divide-y divide-gray-700">
                 <AnimatePresence>
-                  {filteredOrders.map((order, index) => (
+                  {orders.map((order, index) => (
                     <motion.tr
                       key={order.id}
                       className="hover:bg-gray-800/30 transition-colors"
@@ -290,6 +300,13 @@ const OrdersManager = () => {
           </div>
         )}
       </motion.div>
+
+      {/* Pagination */}
+      <Pagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={page => setPagination(prev => ({ ...prev, currentPage: page }))}
+      />
 
       {/* Order Detail Modal */}
       <AnimatePresence>

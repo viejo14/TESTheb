@@ -7,6 +7,7 @@ import {
   getCotizacionStats,
   updateBulkStatus
 } from '../../services/cotizacionService'
+import Pagination from '../Pagination'
 
 const CotizacionesManager = () => {
   const [cotizaciones, setCotizaciones] = useState([])
@@ -142,12 +143,12 @@ const CotizacionesManager = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-yellow-400 p-6 rounded-lg shadow-md"
+            className="bg-primary p-6 rounded-lg shadow-md border border-gray-400/30"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-900 text-sm">Total Cotizaciones</p>
-                <p className="text-3xl font-bold text-gray-800">{stats.totalCotizaciones}</p>
+                <p className="text-gray-100 text-sm">Total Cotizaciones</p>
+                <p className="text-3xl font-bold text-gray-300">{stats.totalCotizaciones}</p>
               </div>
               <div className="text-4xl">📝</div>
             </div>
@@ -157,12 +158,12 @@ const CotizacionesManager = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-yellow-400 p-6 rounded-lg shadow-md"
+            className="bg-primary p-6 rounded-lg shadow-md border border-gray-400/30"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-900 text-sm">Últimos 30 días</p>
-                <p className="text-3xl font-bold text-gray-800">{stats.recentCotizaciones}</p>
+                <p className="text-gray-100 text-sm">Últimos 30 días</p>
+                <p className="text-3xl font-bold text-gray-300">{stats.recentCotizaciones}</p>
               </div>
               <div className="text-4xl">📅</div>
             </div>
@@ -172,13 +173,13 @@ const CotizacionesManager = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-yellow-400 p-6 rounded-lg shadow-md"
+            className="bg-primary p-6 rounded-lg shadow-md border border-gray-400/30"
           >
             <div>
-              <p className="text-gray-900 text-sm mb-2">Por Estado</p>
+              <p className="text-gray-100 text-sm mb-2">Por Estado</p>
               <div className="space-y-1">
                 {stats.cotizacionesByStatus.map(item => (
-                  <div key={item.status} className="flex justify-between text-sm text-black">
+                  <div key={item.status} className="flex justify-between text-sm text-gray-300">
                     <span className="capitalize">{getStatusLabel(item.status)}:</span>
                     <span className="font-semibold">{item.count}</span>
                   </div>
@@ -190,7 +191,7 @@ const CotizacionesManager = () => {
       )}
 
       {/* Filters and Bulk Actions */}
-      <div className="bg-yellow-400 p-4 rounded-lg shadow-md">
+      <div className="bg-primary p-4 rounded-lg shadow-md border border-gray-400/30">
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
           <div className="flex flex-col md:flex-row gap-3 flex-1">
             <select
@@ -237,7 +238,7 @@ const CotizacionesManager = () => {
       <div className="bg-zinc-800 rounded-lg shadow-md overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-900">
-            <thead className="bg-yellow-400">
+            <thead className="bg-gray-400/10">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <input
@@ -252,30 +253,30 @@ const CotizacionesManager = () => {
                     checked={selectedCotizaciones.length === cotizaciones.length && cotizaciones.length > 0}
                   />
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Cliente
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Contacto
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Mensaje
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Imagen
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Estado
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Fecha
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-zinc-900 divide-y divide-gray-600">
+            <tbody className="bg-zinc-800 divide-y divide-gray-600">
               <AnimatePresence>
                 {cotizaciones.map((cotizacion) => (
                   <motion.tr
@@ -369,50 +370,11 @@ const CotizacionesManager = () => {
 
         {/* Pagination */}
         {pagination.totalPages > 1 && (
-          <div className="bg-yellow-400 px-4 py-3 flex items-center justify-between border-t border-gray-900">
-            <div className="flex-1 flex justify-between sm:hidden">
-              <button
-                onClick={() => setPagination(prev => ({ ...prev, currentPage: prev.currentPage - 1 }))}
-                disabled={pagination.currentPage === 1}
-                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-              >
-                Anterior
-              </button>
-              <button
-                onClick={() => setPagination(prev => ({ ...prev, currentPage: prev.currentPage + 1 }))}
-                disabled={pagination.currentPage === pagination.totalPages}
-                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-              >
-                Siguiente
-              </button>
-            </div>
-            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm text-gray-700">
-                  Página <span className="font-medium">{pagination.currentPage}</span> de{' '}
-                  <span className="font-medium">{pagination.totalPages}</span>
-                </p>
-              </div>
-              <div>
-                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                  <button
-                    onClick={() => setPagination(prev => ({ ...prev, currentPage: prev.currentPage - 1 }))}
-                    disabled={pagination.currentPage === 1}
-                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                  >
-                    ←
-                  </button>
-                  <button
-                    onClick={() => setPagination(prev => ({ ...prev, currentPage: prev.currentPage + 1 }))}
-                    disabled={pagination.currentPage === pagination.totalPages}
-                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                  >
-                    →
-                  </button>
-                </nav>
-              </div>
-            </div>
-          </div>
+          <Pagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            onPageChange={(page) => setPagination(prev => ({ ...prev, currentPage: page }))}
+          />
         )}
       </div>
 
