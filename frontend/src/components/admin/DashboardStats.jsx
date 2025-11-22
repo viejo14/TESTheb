@@ -315,7 +315,7 @@ const DashboardStats = () => {
         transition={{ duration: 0.6, delay: 0.4 }}
       >
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 md:mb-6">
-          <h3 className="text-lg md:text-xl font-bold text-white">🏆 Top 10 Productos Más Vendidos</h3>
+          <h3 className="text-lg md:text-xl font-bold text-white">🏆 Top 3 Productos Más Vendidos</h3>
           <button
             onClick={fetchStats}
             className="px-3 py-1.5 text-xs md:text-sm bg-yellow-400 text-gray-900 rounded-lg hover:bg-yellow-500 transition-colors self-start sm:self-auto"
@@ -326,7 +326,7 @@ const DashboardStats = () => {
 
         <div className="space-y-2 md:space-y-3">
           {stats.topProducts && stats.topProducts.length > 0 ? (
-            stats.topProducts.map((product, index) => (
+            stats.topProducts.slice(0, 3).map((product, index) => (
               <motion.div
                 key={product.id}
                 className="flex items-center gap-2 md:gap-4 p-3 md:p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-all duration-150 ease-out"
