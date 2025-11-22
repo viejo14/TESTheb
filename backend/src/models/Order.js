@@ -322,6 +322,47 @@ export const Order = {
       ...monthResult.rows[0],
       ...todayResult.rows[0]
     }
+  },
+
+  /**
+   * Cuenta el total de órdenes según filtros (sin paginación)
+   * @param {Object} filters - Filtros para la búsqueda
+   * @returns {Promise<{total: number}>} Total de órdenes
+   */
+  async countAll(filters = {}) {
+    const { status, startDate, endDate, search } = filters
+
+    let queryText = `SELECT COUNT(*) as total FROM orders o WHERE 1=1`
+    const params = []
+    let paramIndex = 1
+
+    if (status) {
+      queryText += ` AND o.status = $${paramIndex}`
+      params.push(status)
+      paramIndex++
+    }
+    if (startDate) {
+      queryText += ` AND o.created_at >= $${paramIndex}`
+      params.push(startDate)
+      paramIndex++
+    }
+    if (endDate) {
+      queryText += ` AND o.created_at <= $${paramIndex}`
+      params.push(endDate)
+      paramIndex++
+    }
+    if (search) {
+      queryText += ` AND (
+        o.customer_name ILIKE $${paramIndex} OR
+        o.customer_email ILIKE $${paramIndex} OR
+        o.buy_order ILIKE $${paramIndex}
+      )`
+      params.push(`%${search}%`)
+      paramIndex++
+    }
+
+    const result = await query(queryText, params)
+    return { total: parseInt(result.rows[0]?.total || 0, 10) }
   }
 }
 

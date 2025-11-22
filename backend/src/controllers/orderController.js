@@ -17,6 +17,7 @@ export const getAllOrders = async (req, res) => {
       search
     } = req.query
 
+    // Obtener todas las órdenes paginadas
     const orders = await Order.findAll({
       status,
       startDate,
@@ -26,15 +27,25 @@ export const getAllOrders = async (req, res) => {
       search
     })
 
+    // Obtener el total de órdenes (sin paginación)
+    const totalResult = await Order.countAll({ status, startDate, endDate, search })
+    const total = totalResult.total
+    const totalPages = Math.ceil(total / parseInt(limit))
+
     logger.info(`📦 Se obtuvieron ${orders.length} órdenes`)
 
     res.json({
       success: true,
       message: 'Órdenes obtenidas exitosamente',
       data: orders,
-      total: orders.length,
+      total,
       page: parseInt(page),
-      limit: parseInt(limit)
+      limit: parseInt(limit),
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages,
+        limit: parseInt(limit)
+      }
     })
   } catch (error) {
     logger.error('❌ Error obteniendo órdenes:', error)
