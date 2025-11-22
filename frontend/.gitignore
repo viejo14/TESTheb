@@ -27,7 +27,10 @@ dist-ssr
 .env
 .env.local
 .env.*.local
-.env.production
+
+# Permitir .env.production para Railway (no contiene secrets sensibles)
+# NOTA: .env.production solo tiene URLs públicas, es seguro commitear
+!.env.production
 
 # Permitir SOLO archivos .example
 !.env.example
