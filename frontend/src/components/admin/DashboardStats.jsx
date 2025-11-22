@@ -31,7 +31,8 @@ const DonutChart = ({ data }) => {
 
   let currentAngle = -90 // Empezar desde arriba
   const segments = filteredData.map((category, index) => {
-    const percentage = (parseFloat(category.ingresos) / totalIngresos) * 100
+    // Calcular porcentaje basado en CANTIDAD vendida, no en dinero
+    const percentage = (parseInt(category.productos_vendidos) / totalProductos) * 100
     const angle = (percentage / 100) * 360
     const startAngle = currentAngle
     const endAngle = currentAngle + angle

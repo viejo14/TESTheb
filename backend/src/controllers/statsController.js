@@ -73,7 +73,7 @@ export const getDashboardStats = catchAsync(async (req, res) => {
     WHERE o.status IN ('authorized', 'completed', 'confirmed')
   `)
 
-  // 3. Ventas por categoría
+  // 3. Ventas por categoría (ordenado por cantidad vendida)
   const salesByCategory = await query(`
     SELECT
       c.name as categoria,
@@ -85,7 +85,7 @@ export const getDashboardStats = catchAsync(async (req, res) => {
     LEFT JOIN orders o ON oi.order_id = o.id
     WHERE o.status IN ('authorized', 'completed', 'confirmed') OR o.id IS NULL
     GROUP BY c.id, c.name
-    ORDER BY ingresos DESC
+    ORDER BY productos_vendidos DESC
   `)
 
   // 4. Cotizaciones recientes
