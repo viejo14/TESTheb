@@ -110,6 +110,16 @@ export const getDashboardStats = catchAsync(async (req, res) => {
     ORDER BY fecha DESC
   `)
 
+  // 6. Estadísticas de inventario
+  const inventoryStats = await query(`
+    SELECT
+      COUNT(*) as total_productos,
+      COALESCE(SUM(stock), 0) as total_stock,
+      COUNT(CASE WHEN stock = 0 THEN 1 END) as productos_sin_stock,
+      COUNT(CASE WHEN stock > 0 AND stock <= 5 THEN 1 END) as productos_stock_bajo
+    FROM products
+  `)
+
   res.json({
     success: true,
     data: {
@@ -117,7 +127,8 @@ export const getDashboardStats = catchAsync(async (req, res) => {
       salesStats: salesStats.rows[0],
       salesByCategory: salesByCategory.rows,
       recentQuotes: recentQuotes.rows[0],
-      recentOrders: recentOrders.rows
+      recentOrders: recentOrders.rows,
+      inventoryStats: inventoryStats.rows[0]
     }
   })
 })

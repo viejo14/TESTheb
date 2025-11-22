@@ -266,6 +266,13 @@ const DashboardStats = () => {
       subtitle: stats.ordersStats?.revenue_today ? `$${parseFloat(stats.ordersStats.revenue_today).toLocaleString()}` : null,
       icon: '📊',
       color: 'bg-orange-500/20 border-orange-400'
+    },
+    {
+      title: 'Productos en Stock',
+      value: stats.inventoryStats?.total_stock || 0,
+      subtitle: stats.inventoryStats?.productos_sin_stock ? `${stats.inventoryStats.productos_sin_stock} sin stock` : null,
+      icon: '🏪',
+      color: 'bg-cyan-500/20 border-cyan-400'
     }
   ]
 
@@ -273,7 +280,7 @@ const DashboardStats = () => {
     <div className="space-y-6 md:space-y-8">
       {/* Stats Cards */}
       <motion.div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
